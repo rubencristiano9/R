@@ -1,0 +1,6 @@
+package,version
+data.table,1.17.8
+lubridate,1.9.4
+TTR,0.24.4
+ranger,0.18.0
+xgboost,3.2.1.1

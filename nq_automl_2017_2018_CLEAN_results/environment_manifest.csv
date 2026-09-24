@@ -1,0 +1,8 @@
+item,version
+R,R version 4.5.1 (2025-06-13 ucrt)
+Java,"java version ""17.0.12"" 2024-07-16 LTS"
+data.table,1.17.8
+lubridate,1.9.4
+ggplot2,4.0.2
+scales,1.4.0
+h2o,3.44.0.3
