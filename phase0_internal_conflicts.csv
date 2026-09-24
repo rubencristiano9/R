@@ -1,0 +1,759 @@
+date,event,sourceA,timeA,sourceB,timeB,diff_min
+2018-02-15,Initial Jobless Claims,InvestingA(2011-18),2018-02-15 09:30:00-05:00,InvestingB(scraper),2018-02-15 08:30:00-05:00,60.0
+2018-02-15,NY Empire State Manufacturing Index,InvestingA(2011-18),2018-02-15 09:30:00-05:00,InvestingB(scraper),2018-02-15 08:30:00-05:00,60.0
+2018-02-15,Philadelphia Fed Manufacturing Index,InvestingA(2011-18),2018-02-15 09:30:00-05:00,InvestingB(scraper),2018-02-15 08:30:00-05:00,60.0
+2018-02-16,Housing Starts,InvestingA(2011-18),2018-02-16 09:30:00-05:00,InvestingB(scraper),2018-02-16 08:30:00-05:00,60.0
+2018-02-16,Michigan 5-Year Inflation Expectations,InvestingA(2011-18),2018-02-16 11:00:00-05:00,InvestingB(scraper),2018-02-16 10:00:00-05:00,60.0
+2018-02-16,Michigan Consumer Sentiment,InvestingA(2011-18),2018-02-16 11:00:00-05:00,InvestingB(scraper),2018-02-16 10:00:00-05:00,60.0
+2018-02-21,FOMC Meeting Minutes,InvestingA(2011-18),2018-02-21 15:00:00-05:00,InvestingB(scraper),2018-02-21 14:00:00-05:00,60.0
+2018-02-22,Initial Jobless Claims,InvestingA(2011-18),2018-02-22 09:30:00-05:00,InvestingB(scraper),2018-02-22 08:30:00-05:00,60.0
+2018-02-23,FOMC Member Williams Speaks,InvestingA(2011-18),2018-02-23 16:40:00-05:00,InvestingB(scraper),2018-02-23 15:40:00-05:00,60.0
+2018-02-26,FOMC Member Bullard Speaks,InvestingA(2011-18),2018-02-26 09:00:00-05:00,InvestingB(scraper),2018-02-26 08:00:00-05:00,60.0
+2018-02-26,New Home Sales,InvestingA(2011-18),2018-02-26 11:00:00-05:00,InvestingB(scraper),2018-02-26 10:00:00-05:00,60.0
+2018-02-27,Fed Chair Powell Testifies,InvestingA(2011-18),2018-02-27 09:30:00-05:00,InvestingB(scraper),2018-02-27 08:30:00-05:00,60.0
+2018-02-27,CB Consumer Confidence,InvestingA(2011-18),2018-02-27 11:00:00-05:00,InvestingB(scraper),2018-02-27 10:00:00-05:00,60.0
+2018-03-01,Initial Jobless Claims,InvestingA(2011-18),2018-03-01 09:30:00-05:00,InvestingB(scraper),2018-03-01 08:30:00-05:00,60.0
+2018-03-01,Fed Chair Powell Testifies,InvestingA(2011-18),2018-03-01 11:00:00-05:00,InvestingB(scraper),2018-03-01 10:00:00-05:00,60.0
+2018-03-01,ISM Manufacturing PMI,InvestingA(2011-18),2018-03-01 11:00:00-05:00,InvestingB(scraper),2018-03-01 10:00:00-05:00,60.0
+2018-03-02,Michigan 5-Year Inflation Expectations,InvestingA(2011-18),2018-03-02 11:00:00-05:00,InvestingB(scraper),2018-03-02 10:00:00-05:00,60.0
+2018-03-02,Michigan Consumer Sentiment,InvestingA(2011-18),2018-03-02 11:00:00-05:00,InvestingB(scraper),2018-03-02 10:00:00-05:00,60.0
+2018-03-05,ISM Non-Manufacturing PMI,InvestingA(2011-18),2018-03-05 11:00:00-05:00,InvestingB(scraper),2018-03-05 10:00:00-05:00,60.0
+2018-03-07,ADP Nonfarm Employment Change,InvestingA(2011-18),2018-03-07 09:15:00-05:00,InvestingB(scraper),2018-03-07 08:15:00-05:00,60.0
+2018-03-08,Initial Jobless Claims,InvestingA(2011-18),2018-03-08 09:30:00-05:00,InvestingB(scraper),2018-03-08 08:30:00-05:00,60.0
+2018-03-09,Nonfarm Payrolls,InvestingA(2011-18),2018-03-09 09:30:00-05:00,InvestingB(scraper),2018-03-09 08:30:00-05:00,60.0
+2018-03-09,Unemployment Rate,InvestingA(2011-18),2018-03-09 09:30:00-05:00,InvestingB(scraper),2018-03-09 08:30:00-05:00,60.0
+2018-03-12,10-Year Note Auction,InvestingA(2011-18),2018-03-12 14:00:00-04:00,InvestingB(scraper),2018-03-12 13:00:00-04:00,60.0
+2018-03-13,30-Year Bond Auction,InvestingA(2011-18),2018-03-13 14:00:00-04:00,InvestingB(scraper),2018-03-13 13:00:00-04:00,60.0
+2018-03-15,Initial Jobless Claims,InvestingA(2011-18),2018-03-15 09:30:00-04:00,InvestingB(scraper),2018-03-15 08:30:00-04:00,60.0
+2018-03-15,NY Empire State Manufacturing Index,InvestingA(2011-18),2018-03-15 09:30:00-04:00,InvestingB(scraper),2018-03-15 08:30:00-04:00,60.0
+2018-03-15,Philadelphia Fed Manufacturing Index,InvestingA(2011-18),2018-03-15 09:30:00-04:00,InvestingB(scraper),2018-03-15 08:30:00-04:00,60.0
+2018-03-16,Housing Starts,InvestingA(2011-18),2018-03-16 09:30:00-04:00,InvestingB(scraper),2018-03-16 08:30:00-04:00,60.0
+2018-03-16,Michigan 5-Year Inflation Expectations,InvestingA(2011-18),2018-03-16 11:00:00-04:00,InvestingB(scraper),2018-03-16 10:00:00-04:00,60.0
+2018-03-16,Michigan Consumer Sentiment,InvestingA(2011-18),2018-03-16 11:00:00-04:00,InvestingB(scraper),2018-03-16 10:00:00-04:00,60.0
+2018-03-21,FOMC Economic Projections,InvestingA(2011-18),2018-03-21 15:00:00-04:00,InvestingB(scraper),2018-03-21 14:00:00-04:00,60.0
+2018-03-21,FOMC Statement,InvestingA(2011-18),2018-03-21 15:00:00-04:00,InvestingB(scraper),2018-03-21 14:00:00-04:00,60.0
+2018-03-21,Fed Interest Rate Decision,InvestingA(2011-18),2018-03-21 15:00:00-04:00,InvestingB(scraper),2018-03-21 14:00:00-04:00,60.0
+2018-03-21,FOMC Press Conference,InvestingA(2011-18),2018-03-21 15:30:00-04:00,InvestingB(scraper),2018-03-21 14:30:00-04:00,60.0
+2018-03-22,Initial Jobless Claims,InvestingA(2011-18),2018-03-22 09:30:00-04:00,InvestingB(scraper),2018-03-22 08:30:00-04:00,60.0
+2018-03-23,New Home Sales,InvestingA(2011-18),2018-03-23 11:00:00-04:00,InvestingB(scraper),2018-03-23 10:00:00-04:00,60.0
+2018-03-27,CB Consumer Confidence,InvestingA(2011-18),2018-03-27 11:00:00-04:00,InvestingB(scraper),2018-03-27 10:00:00-04:00,60.0
+2018-03-29,Initial Jobless Claims,InvestingA(2011-18),2018-03-29 09:30:00-04:00,InvestingB(scraper),2018-03-29 08:30:00-04:00,60.0
+2018-03-29,Michigan 5-Year Inflation Expectations,InvestingA(2011-18),2018-03-29 11:00:00-04:00,InvestingB(scraper),2018-03-29 10:00:00-04:00,60.0
+2018-03-29,Michigan Consumer Sentiment,InvestingA(2011-18),2018-03-29 11:00:00-04:00,InvestingB(scraper),2018-03-29 10:00:00-04:00,60.0
+2018-04-02,ISM Manufacturing PMI,InvestingA(2011-18),2018-04-02 11:00:00-04:00,InvestingB(scraper),2018-04-02 10:00:00-04:00,60.0
+2018-04-04,ADP Nonfarm Employment Change,InvestingA(2011-18),2018-04-04 09:15:00-04:00,InvestingB(scraper),2018-04-04 08:15:00-04:00,60.0
+2018-04-04,FOMC Member Bullard Speaks,InvestingA(2011-18),2018-04-04 10:45:00-04:00,InvestingB(scraper),2018-04-04 09:45:00-04:00,60.0
+2018-04-04,ISM Non-Manufacturing PMI,InvestingA(2011-18),2018-04-04 11:00:00-04:00,InvestingB(scraper),2018-04-04 10:00:00-04:00,60.0
+2018-04-05,Initial Jobless Claims,InvestingA(2011-18),2018-04-05 09:30:00-04:00,InvestingB(scraper),2018-04-05 08:30:00-04:00,60.0
+2018-04-06,Nonfarm Payrolls,InvestingA(2011-18),2018-04-06 09:30:00-04:00,InvestingB(scraper),2018-04-06 08:30:00-04:00,60.0
+2018-04-06,Unemployment Rate,InvestingA(2011-18),2018-04-06 09:30:00-04:00,InvestingB(scraper),2018-04-06 08:30:00-04:00,60.0
+2018-04-06,Fed Chair Powell Speaks,InvestingA(2011-18),2018-04-06 14:30:00-04:00,InvestingB(scraper),2018-04-06 13:30:00-04:00,60.0
+2018-04-11,10-Year Note Auction,InvestingA(2011-18),2018-04-11 14:00:00-04:00,InvestingB(scraper),2018-04-11 13:00:00-04:00,60.0
+2018-04-11,FOMC Meeting Minutes,InvestingA(2011-18),2018-04-11 15:00:00-04:00,InvestingB(scraper),2018-04-11 14:00:00-04:00,60.0
+2018-04-12,Initial Jobless Claims,InvestingA(2011-18),2018-04-12 09:30:00-04:00,InvestingB(scraper),2018-04-12 08:30:00-04:00,60.0
+2018-04-12,30-Year Bond Auction,InvestingA(2011-18),2018-04-12 14:00:00-04:00,InvestingB(scraper),2018-04-12 13:00:00-04:00,60.0
+2018-04-13,FOMC Member Bullard Speaks,InvestingA(2011-18),2018-04-13 10:00:00-04:00,InvestingB(scraper),2018-04-13 09:00:00-04:00,60.0
+2018-04-13,Michigan 5-Year Inflation Expectations,InvestingA(2011-18),2018-04-13 11:00:00-04:00,InvestingB(scraper),2018-04-13 10:00:00-04:00,60.0
+2018-04-13,Michigan Consumer Sentiment,InvestingA(2011-18),2018-04-13 11:00:00-04:00,InvestingB(scraper),2018-04-13 10:00:00-04:00,60.0
+2018-04-16,NY Empire State Manufacturing Index,InvestingA(2011-18),2018-04-16 09:30:00-04:00,InvestingB(scraper),2018-04-16 08:30:00-04:00,60.0
+2018-04-17,Housing Starts,InvestingA(2011-18),2018-04-17 09:30:00-04:00,InvestingB(scraper),2018-04-17 08:30:00-04:00,60.0
+2018-04-17,FOMC Member Williams Speaks,InvestingA(2011-18),2018-04-17 10:15:00-04:00,InvestingB(scraper),2018-04-17 09:15:00-04:00,60.0
+2018-04-19,Initial Jobless Claims,InvestingA(2011-18),2018-04-19 09:30:00-04:00,InvestingB(scraper),2018-04-19 08:30:00-04:00,60.0
+2018-04-19,Philadelphia Fed Manufacturing Index,InvestingA(2011-18),2018-04-19 09:30:00-04:00,InvestingB(scraper),2018-04-19 08:30:00-04:00,60.0
+2018-04-20,FOMC Member Williams Speaks,InvestingA(2011-18),2018-04-20 12:15:00-04:00,InvestingB(scraper),2018-04-20 11:15:00-04:00,60.0
+2018-04-24,CB Consumer Confidence,InvestingA(2011-18),2018-04-24 11:00:00-04:00,InvestingB(scraper),2018-04-24 10:00:00-04:00,60.0
+2018-04-24,New Home Sales,InvestingA(2011-18),2018-04-24 11:00:00-04:00,InvestingB(scraper),2018-04-24 10:00:00-04:00,60.0
+2018-04-26,Initial Jobless Claims,InvestingA(2011-18),2018-04-26 09:30:00-04:00,InvestingB(scraper),2018-04-26 08:30:00-04:00,60.0
+2018-04-27,Michigan 5-Year Inflation Expectations,InvestingA(2011-18),2018-04-27 11:00:00-04:00,InvestingB(scraper),2018-04-27 10:00:00-04:00,60.0
+2018-04-27,Michigan Consumer Sentiment,InvestingA(2011-18),2018-04-27 11:00:00-04:00,InvestingB(scraper),2018-04-27 10:00:00-04:00,60.0
+2018-05-01,ISM Manufacturing PMI,InvestingA(2011-18),2018-05-01 11:00:00-04:00,InvestingB(scraper),2018-05-01 10:00:00-04:00,60.0
+2018-05-02,ADP Nonfarm Employment Change,InvestingA(2011-18),2018-05-02 09:15:00-04:00,InvestingB(scraper),2018-05-02 08:15:00-04:00,60.0
+2018-05-02,FOMC Statement,InvestingA(2011-18),2018-05-02 15:00:00-04:00,InvestingB(scraper),2018-05-02 14:00:00-04:00,60.0
+2018-05-02,Fed Interest Rate Decision,InvestingA(2011-18),2018-05-02 15:00:00-04:00,InvestingB(scraper),2018-05-02 14:00:00-04:00,60.0
+2018-05-03,Initial Jobless Claims,InvestingA(2011-18),2018-05-03 09:30:00-04:00,InvestingB(scraper),2018-05-03 08:30:00-04:00,60.0
+2018-05-03,ISM Non-Manufacturing PMI,InvestingA(2011-18),2018-05-03 11:00:00-04:00,InvestingB(scraper),2018-05-03 10:00:00-04:00,60.0
+2018-05-04,Nonfarm Payrolls,InvestingA(2011-18),2018-05-04 09:30:00-04:00,InvestingB(scraper),2018-05-04 08:30:00-04:00,60.0
+2018-05-04,Unemployment Rate,InvestingA(2011-18),2018-05-04 09:30:00-04:00,InvestingB(scraper),2018-05-04 08:30:00-04:00,60.0
+2018-05-04,FOMC Member Williams Speaks,InvestingA(2011-18),2018-05-04 16:00:00-04:00,InvestingB(scraper),2018-05-04 15:00:00-04:00,60.0
+2018-05-08,Fed Chair Powell Speaks,InvestingA(2011-18),2018-05-08 04:15:00-04:00,InvestingB(scraper),2018-05-08 03:15:00-04:00,60.0
+2018-05-08,U.S. President Trump Speaks,InvestingA(2011-18),2018-05-08 15:00:00-04:00,InvestingB(scraper),2018-05-08 14:00:00-04:00,60.0
+2018-05-09,10-Year Note Auction,InvestingA(2011-18),2018-05-09 14:00:00-04:00,InvestingB(scraper),2018-05-09 13:00:00-04:00,60.0
+2018-05-10,Initial Jobless Claims,InvestingA(2011-18),2018-05-10 09:30:00-04:00,InvestingB(scraper),2018-05-10 08:30:00-04:00,60.0
+2018-05-10,30-Year Bond Auction,InvestingA(2011-18),2018-05-10 14:00:00-04:00,InvestingB(scraper),2018-05-10 13:00:00-04:00,60.0
+2018-05-11,FOMC Member Bullard Speaks,InvestingA(2011-18),2018-05-11 09:30:00-04:00,InvestingB(scraper),2018-05-11 08:30:00-04:00,60.0
+2018-05-11,Michigan 5-Year Inflation Expectations,InvestingA(2011-18),2018-05-11 11:00:00-04:00,InvestingB(scraper),2018-05-11 10:00:00-04:00,60.0
+2018-05-11,Michigan Consumer Sentiment,InvestingA(2011-18),2018-05-11 11:00:00-04:00,InvestingB(scraper),2018-05-11 10:00:00-04:00,60.0
+2018-05-14,FOMC Member Bullard Speaks,InvestingA(2011-18),2018-05-14 10:40:00-04:00,InvestingB(scraper),2018-05-14 09:40:00-04:00,60.0
+2018-05-15,NY Empire State Manufacturing Index,InvestingA(2011-18),2018-05-15 09:30:00-04:00,InvestingB(scraper),2018-05-15 08:30:00-04:00,60.0
+2018-05-15,FOMC Member Williams Speaks,InvestingA(2011-18),2018-05-15 14:00:00-04:00,InvestingB(scraper),2018-05-15 13:00:00-04:00,60.0
+2018-05-16,Housing Starts,InvestingA(2011-18),2018-05-16 09:30:00-04:00,InvestingB(scraper),2018-05-16 08:30:00-04:00,60.0
+2018-05-16,FOMC Member Bullard Speaks,InvestingA(2011-18),2018-05-16 19:30:00-04:00,InvestingB(scraper),2018-05-16 18:30:00-04:00,60.0
+2018-05-17,Initial Jobless Claims,InvestingA(2011-18),2018-05-17 09:30:00-04:00,InvestingB(scraper),2018-05-17 08:30:00-04:00,60.0
+2018-05-17,Philadelphia Fed Manufacturing Index,InvestingA(2011-18),2018-05-17 09:30:00-04:00,InvestingB(scraper),2018-05-17 08:30:00-04:00,60.0
+2018-05-23,New Home Sales,InvestingA(2011-18),2018-05-23 11:00:00-04:00,InvestingB(scraper),2018-05-23 10:00:00-04:00,60.0
+2018-05-23,FOMC Meeting Minutes,InvestingA(2011-18),2018-05-23 15:00:00-04:00,InvestingB(scraper),2018-05-23 14:00:00-04:00,60.0
+2018-05-24,Initial Jobless Claims,InvestingA(2011-18),2018-05-24 09:30:00-04:00,InvestingB(scraper),2018-05-24 08:30:00-04:00,60.0
+2018-05-25,Fed Chair Powell Speaks,InvestingA(2011-18),2018-05-25 10:20:00-04:00,InvestingB(scraper),2018-05-25 09:20:00-04:00,60.0
+2018-05-25,Michigan 5-Year Inflation Expectations,InvestingA(2011-18),2018-05-25 11:00:00-04:00,InvestingB(scraper),2018-05-25 10:00:00-04:00,60.0
+2018-05-25,Michigan Consumer Sentiment,InvestingA(2011-18),2018-05-25 11:00:00-04:00,InvestingB(scraper),2018-05-25 10:00:00-04:00,60.0
+2018-05-29,FOMC Member Bullard Speaks,InvestingA(2011-18),2018-05-29 01:40:00-04:00,InvestingB(scraper),2018-05-29 00:40:00-04:00,60.0
+2018-05-29,CB Consumer Confidence,InvestingA(2011-18),2018-05-29 11:00:00-04:00,InvestingB(scraper),2018-05-29 10:00:00-04:00,60.0
+2018-05-30,ADP Nonfarm Employment Change,InvestingA(2011-18),2018-05-30 09:15:00-04:00,InvestingB(scraper),2018-05-30 08:15:00-04:00,60.0
+2018-05-31,Initial Jobless Claims,InvestingA(2011-18),2018-05-31 09:30:00-04:00,InvestingB(scraper),2018-05-31 08:30:00-04:00,60.0
+2018-06-01,Nonfarm Payrolls,InvestingA(2011-18),2018-06-01 09:30:00-04:00,InvestingB(scraper),2018-06-01 08:30:00-04:00,60.0
+2018-06-01,Unemployment Rate,InvestingA(2011-18),2018-06-01 09:30:00-04:00,InvestingB(scraper),2018-06-01 08:30:00-04:00,60.0
+2018-06-01,ISM Manufacturing PMI,InvestingA(2011-18),2018-06-01 11:00:00-04:00,InvestingB(scraper),2018-06-01 10:00:00-04:00,60.0
+2018-06-05,ISM Non-Manufacturing PMI,InvestingA(2011-18),2018-06-05 11:00:00-04:00,InvestingB(scraper),2018-06-05 10:00:00-04:00,60.0
+2018-06-07,Initial Jobless Claims,InvestingA(2011-18),2018-06-07 09:30:00-04:00,InvestingB(scraper),2018-06-07 08:30:00-04:00,60.0
+2018-06-11,10-Year Note Auction,InvestingA(2011-18),2018-06-11 14:00:00-04:00,InvestingB(scraper),2018-06-11 13:00:00-04:00,60.0
+2018-06-12,30-Year Bond Auction,InvestingA(2011-18),2018-06-12 14:00:00-04:00,InvestingB(scraper),2018-06-12 13:00:00-04:00,60.0
+2018-06-13,FOMC Economic Projections,InvestingA(2011-18),2018-06-13 15:00:00-04:00,InvestingB(scraper),2018-06-13 14:00:00-04:00,60.0
+2018-06-13,FOMC Statement,InvestingA(2011-18),2018-06-13 15:00:00-04:00,InvestingB(scraper),2018-06-13 14:00:00-04:00,60.0
+2018-06-13,Fed Interest Rate Decision,InvestingA(2011-18),2018-06-13 15:00:00-04:00,InvestingB(scraper),2018-06-13 14:00:00-04:00,60.0
+2018-06-13,FOMC Press Conference,InvestingA(2011-18),2018-06-13 15:30:00-04:00,InvestingB(scraper),2018-06-13 14:30:00-04:00,60.0
+2018-06-14,Initial Jobless Claims,InvestingA(2011-18),2018-06-14 09:30:00-04:00,InvestingB(scraper),2018-06-14 08:30:00-04:00,60.0
+2018-06-15,NY Empire State Manufacturing Index,InvestingA(2011-18),2018-06-15 09:30:00-04:00,InvestingB(scraper),2018-06-15 08:30:00-04:00,60.0
+2018-06-15,Michigan 5-Year Inflation Expectations,InvestingA(2011-18),2018-06-15 11:00:00-04:00,InvestingB(scraper),2018-06-15 10:00:00-04:00,60.0
+2018-06-15,Michigan Consumer Sentiment,InvestingA(2011-18),2018-06-15 11:00:00-04:00,InvestingB(scraper),2018-06-15 10:00:00-04:00,60.0
+2018-06-18,FOMC Member Williams Speaks,InvestingA(2011-18),2018-06-18 16:45:00-04:00,InvestingB(scraper),2018-06-18 15:45:00-04:00,60.0
+2018-06-19,FOMC Member Bullard Speaks,InvestingA(2011-18),2018-06-19 08:00:00-04:00,InvestingB(scraper),2018-06-19 07:00:00-04:00,60.0
+2018-06-19,Housing Starts,InvestingA(2011-18),2018-06-19 09:30:00-04:00,InvestingB(scraper),2018-06-19 08:30:00-04:00,60.0
+2018-06-20,Fed Chair Powell Speaks,InvestingA(2011-18),2018-06-20 10:30:00-04:00,InvestingB(scraper),2018-06-20 09:30:00-04:00,60.0
+2018-06-21,Initial Jobless Claims,InvestingA(2011-18),2018-06-21 09:30:00-04:00,InvestingB(scraper),2018-06-21 08:30:00-04:00,60.0
+2018-06-21,Philadelphia Fed Manufacturing Index,InvestingA(2011-18),2018-06-21 09:30:00-04:00,InvestingB(scraper),2018-06-21 08:30:00-04:00,60.0
+2018-06-25,New Home Sales,InvestingA(2011-18),2018-06-25 11:00:00-04:00,InvestingB(scraper),2018-06-25 10:00:00-04:00,60.0
+2018-06-26,CB Consumer Confidence,InvestingA(2011-18),2018-06-26 11:00:00-04:00,InvestingB(scraper),2018-06-26 10:00:00-04:00,60.0
+2018-06-28,Initial Jobless Claims,InvestingA(2011-18),2018-06-28 09:30:00-04:00,InvestingB(scraper),2018-06-28 08:30:00-04:00,60.0
+2018-06-28,FOMC Member Bullard Speaks,InvestingA(2011-18),2018-06-28 11:45:00-04:00,InvestingB(scraper),2018-06-28 10:45:00-04:00,60.0
+2018-06-29,Michigan 5-Year Inflation Expectations,InvestingA(2011-18),2018-06-29 11:00:00-04:00,InvestingB(scraper),2018-06-29 10:00:00-04:00,60.0
+2018-06-29,Michigan Consumer Sentiment,InvestingA(2011-18),2018-06-29 11:00:00-04:00,InvestingB(scraper),2018-06-29 10:00:00-04:00,60.0
+2018-07-02,ISM Manufacturing PMI,InvestingA(2011-18),2018-07-02 11:00:00-04:00,InvestingB(scraper),2018-07-02 10:00:00-04:00,60.0
+2018-07-05,ADP Nonfarm Employment Change,InvestingA(2011-18),2018-07-05 09:15:00-04:00,InvestingB(scraper),2018-07-05 08:15:00-04:00,60.0
+2018-07-05,Initial Jobless Claims,InvestingA(2011-18),2018-07-05 09:30:00-04:00,InvestingB(scraper),2018-07-05 08:30:00-04:00,60.0
+2018-07-05,ISM Non-Manufacturing PMI,InvestingA(2011-18),2018-07-05 11:00:00-04:00,InvestingB(scraper),2018-07-05 10:00:00-04:00,60.0
+2018-07-05,FOMC Meeting Minutes,InvestingA(2011-18),2018-07-05 15:00:00-04:00,InvestingB(scraper),2018-07-05 14:00:00-04:00,60.0
+2018-07-06,Nonfarm Payrolls,InvestingA(2011-18),2018-07-06 09:30:00-04:00,InvestingB(scraper),2018-07-06 08:30:00-04:00,60.0
+2018-07-06,Unemployment Rate,InvestingA(2011-18),2018-07-06 09:30:00-04:00,InvestingB(scraper),2018-07-06 08:30:00-04:00,60.0
+2018-07-11,10-Year Note Auction,InvestingA(2011-18),2018-07-11 14:00:00-04:00,InvestingB(scraper),2018-07-11 13:00:00-04:00,60.0
+2018-07-11,FOMC Member Williams Speaks,InvestingA(2011-18),2018-07-11 17:30:00-04:00,InvestingB(scraper),2018-07-11 16:30:00-04:00,60.0
+2018-07-12,Initial Jobless Claims,InvestingA(2011-18),2018-07-12 09:30:00-04:00,InvestingB(scraper),2018-07-12 08:30:00-04:00,60.0
+2018-07-12,30-Year Bond Auction,InvestingA(2011-18),2018-07-12 14:00:00-04:00,InvestingB(scraper),2018-07-12 13:00:00-04:00,60.0
+2018-07-13,Michigan 5-Year Inflation Expectations,InvestingA(2011-18),2018-07-13 11:00:00-04:00,InvestingB(scraper),2018-07-13 10:00:00-04:00,60.0
+2018-07-13,Michigan Consumer Sentiment,InvestingA(2011-18),2018-07-13 11:00:00-04:00,InvestingB(scraper),2018-07-13 10:00:00-04:00,60.0
+2018-07-16,NY Empire State Manufacturing Index,InvestingA(2011-18),2018-07-16 09:30:00-04:00,InvestingB(scraper),2018-07-16 08:30:00-04:00,60.0
+2018-07-17,Fed Chair Powell Testifies,InvestingA(2011-18),2018-07-17 11:00:00-04:00,InvestingB(scraper),2018-07-17 10:00:00-04:00,60.0
+2018-07-18,Housing Starts,InvestingA(2011-18),2018-07-18 09:30:00-04:00,InvestingB(scraper),2018-07-18 08:30:00-04:00,60.0
+2018-07-18,Fed Chair Powell Testifies,InvestingA(2011-18),2018-07-18 11:00:00-04:00,InvestingB(scraper),2018-07-18 10:00:00-04:00,60.0
+2018-07-19,Initial Jobless Claims,InvestingA(2011-18),2018-07-19 09:30:00-04:00,InvestingB(scraper),2018-07-19 08:30:00-04:00,60.0
+2018-07-19,Philadelphia Fed Manufacturing Index,InvestingA(2011-18),2018-07-19 09:30:00-04:00,InvestingB(scraper),2018-07-19 08:30:00-04:00,60.0
+2018-07-25,New Home Sales,InvestingA(2011-18),2018-07-25 11:00:00-04:00,InvestingB(scraper),2018-07-25 10:00:00-04:00,60.0
+2018-07-26,Initial Jobless Claims,InvestingA(2011-18),2018-07-26 09:30:00-04:00,InvestingB(scraper),2018-07-26 08:30:00-04:00,60.0
+2018-07-27,FOMC Member Bullard Speaks,InvestingA(2011-18),2018-07-27 09:20:00-04:00,InvestingB(scraper),2018-07-27 08:20:00-04:00,60.0
+2018-07-27,Michigan 5-Year Inflation Expectations,InvestingA(2011-18),2018-07-27 11:00:00-04:00,InvestingB(scraper),2018-07-27 10:00:00-04:00,60.0
+2018-07-27,Michigan Consumer Sentiment,InvestingA(2011-18),2018-07-27 11:00:00-04:00,InvestingB(scraper),2018-07-27 10:00:00-04:00,60.0
+2018-07-31,CB Consumer Confidence,InvestingA(2011-18),2018-07-31 11:00:00-04:00,InvestingB(scraper),2018-07-31 10:00:00-04:00,60.0
+2018-08-01,ADP Nonfarm Employment Change,InvestingA(2011-18),2018-08-01 09:15:00-04:00,InvestingB(scraper),2018-08-01 08:15:00-04:00,60.0
+2018-08-01,ISM Manufacturing PMI,InvestingA(2011-18),2018-08-01 11:00:00-04:00,InvestingB(scraper),2018-08-01 10:00:00-04:00,60.0
+2018-08-01,FOMC Statement,InvestingA(2011-18),2018-08-01 15:00:00-04:00,InvestingB(scraper),2018-08-01 14:00:00-04:00,60.0
+2018-08-01,Fed Interest Rate Decision,InvestingA(2011-18),2018-08-01 15:00:00-04:00,InvestingB(scraper),2018-08-01 14:00:00-04:00,60.0
+2018-08-02,Initial Jobless Claims,InvestingA(2011-18),2018-08-02 09:30:00-04:00,InvestingB(scraper),2018-08-02 08:30:00-04:00,60.0
+2018-08-03,Nonfarm Payrolls,InvestingA(2011-18),2018-08-03 09:30:00-04:00,InvestingB(scraper),2018-08-03 08:30:00-04:00,60.0
+2018-08-03,Unemployment Rate,InvestingA(2011-18),2018-08-03 09:30:00-04:00,InvestingB(scraper),2018-08-03 08:30:00-04:00,60.0
+2018-08-03,ISM Non-Manufacturing PMI,InvestingA(2011-18),2018-08-03 11:00:00-04:00,InvestingB(scraper),2018-08-03 10:00:00-04:00,60.0
+2018-08-08,10-Year Note Auction,InvestingA(2011-18),2018-08-08 14:00:00-04:00,InvestingB(scraper),2018-08-08 13:00:00-04:00,60.0
+2018-08-09,Initial Jobless Claims,InvestingA(2011-18),2018-08-09 09:30:00-04:00,InvestingB(scraper),2018-08-09 08:30:00-04:00,60.0
+2018-08-09,30-Year Bond Auction,InvestingA(2011-18),2018-08-09 14:00:00-04:00,InvestingB(scraper),2018-08-09 13:00:00-04:00,60.0
+2018-08-15,NY Empire State Manufacturing Index,InvestingA(2011-18),2018-08-15 09:30:00-04:00,InvestingB(scraper),2018-08-15 08:30:00-04:00,60.0
+2018-08-16,Housing Starts,InvestingA(2011-18),2018-08-16 09:30:00-04:00,InvestingB(scraper),2018-08-16 08:30:00-04:00,60.0
+2018-08-16,Initial Jobless Claims,InvestingA(2011-18),2018-08-16 09:30:00-04:00,InvestingB(scraper),2018-08-16 08:30:00-04:00,60.0
+2018-08-16,Philadelphia Fed Manufacturing Index,InvestingA(2011-18),2018-08-16 09:30:00-04:00,InvestingB(scraper),2018-08-16 08:30:00-04:00,60.0
+2018-08-17,Michigan 5-Year Inflation Expectations,InvestingA(2011-18),2018-08-17 11:00:00-04:00,InvestingB(scraper),2018-08-17 10:00:00-04:00,60.0
+2018-08-17,Michigan Consumer Sentiment,InvestingA(2011-18),2018-08-17 11:00:00-04:00,InvestingB(scraper),2018-08-17 10:00:00-04:00,60.0
+2018-08-22,FOMC Meeting Minutes,InvestingA(2011-18),2018-08-22 15:00:00-04:00,InvestingB(scraper),2018-08-22 14:00:00-04:00,60.0
+2018-08-23,Initial Jobless Claims,InvestingA(2011-18),2018-08-23 09:30:00-04:00,InvestingB(scraper),2018-08-23 08:30:00-04:00,60.0
+2018-08-23,New Home Sales,InvestingA(2011-18),2018-08-23 11:00:00-04:00,InvestingB(scraper),2018-08-23 10:00:00-04:00,60.0
+2018-08-24,Fed Chair Powell Speaks,InvestingA(2011-18),2018-08-24 11:00:00-04:00,InvestingB(scraper),2018-08-24 10:00:00-04:00,60.0
+2018-08-28,CB Consumer Confidence,InvestingA(2011-18),2018-08-28 11:00:00-04:00,InvestingB(scraper),2018-08-28 10:00:00-04:00,60.0
+2018-08-30,Initial Jobless Claims,InvestingA(2011-18),2018-08-30 09:30:00-04:00,InvestingB(scraper),2018-08-30 08:30:00-04:00,60.0
+2018-08-31,Michigan 5-Year Inflation Expectations,InvestingA(2011-18),2018-08-31 11:00:00-04:00,InvestingB(scraper),2018-08-31 10:00:00-04:00,60.0
+2018-08-31,Michigan Consumer Sentiment,InvestingA(2011-18),2018-08-31 11:00:00-04:00,InvestingB(scraper),2018-08-31 10:00:00-04:00,60.0
+2018-09-04,ISM Manufacturing PMI,InvestingA(2011-18),2018-09-04 11:00:00-04:00,InvestingB(scraper),2018-09-04 10:00:00-04:00,60.0
+2018-09-05,FOMC Member Bullard Speaks,InvestingA(2011-18),2018-09-05 10:20:00-04:00,InvestingB(scraper),2018-09-05 09:20:00-04:00,60.0
+2018-09-05,FOMC Member Williams Speaks,InvestingA(2011-18),2018-09-05 16:00:00-04:00,InvestingB(scraper),2018-09-05 15:00:00-04:00,60.0
+2018-09-06,ADP Nonfarm Employment Change,InvestingA(2011-18),2018-09-06 09:15:00-04:00,InvestingB(scraper),2018-09-06 08:15:00-04:00,60.0
+2018-09-06,Initial Jobless Claims,InvestingA(2011-18),2018-09-06 09:30:00-04:00,InvestingB(scraper),2018-09-06 08:30:00-04:00,60.0
+2018-09-06,FOMC Member Williams Speaks,InvestingA(2011-18),2018-09-06 11:00:00-04:00,InvestingB(scraper),2018-09-06 10:00:00-04:00,60.0
+2018-09-06,ISM Non-Manufacturing PMI,InvestingA(2011-18),2018-09-06 11:00:00-04:00,InvestingB(scraper),2018-09-06 10:00:00-04:00,60.0
+2018-09-07,Nonfarm Payrolls,InvestingA(2011-18),2018-09-07 09:30:00-04:00,InvestingB(scraper),2018-09-07 08:30:00-04:00,60.0
+2018-09-07,Unemployment Rate,InvestingA(2011-18),2018-09-07 09:30:00-04:00,InvestingB(scraper),2018-09-07 08:30:00-04:00,60.0
+2019-02-01,Nonfarm Payrolls,InvestingC(2019-21),2019-02-01 09:30:00-05:00,InvestingB(scraper),2019-02-01 08:30:00-05:00,60.0
+2019-02-01,Unemployment Rate,InvestingC(2019-21),2019-02-01 09:30:00-05:00,InvestingB(scraper),2019-02-01 08:30:00-05:00,60.0
+2019-02-01,ISM Manufacturing PMI,InvestingC(2019-21),2019-02-01 11:00:00-05:00,InvestingB(scraper),2019-02-01 10:00:00-05:00,60.0
+2019-02-01,Michigan 5-Year Inflation Expectations,InvestingC(2019-21),2019-02-01 11:00:00-05:00,InvestingB(scraper),2019-02-01 10:00:00-05:00,60.0
+2019-02-01,Michigan Consumer Sentiment,InvestingC(2019-21),2019-02-01 11:00:00-05:00,InvestingB(scraper),2019-02-01 10:00:00-05:00,60.0
+2019-02-05,ISM Non-Manufacturing PMI,InvestingC(2019-21),2019-02-05 11:00:00-05:00,InvestingB(scraper),2019-02-05 10:00:00-05:00,60.0
+2019-02-05,U.S. President Trump Speaks,InvestingC(2019-21),2019-02-05 22:00:00-05:00,InvestingB(scraper),2019-02-05 21:00:00-05:00,60.0
+2019-02-06,10-Year Note Auction,InvestingC(2019-21),2019-02-06 14:00:00-05:00,InvestingB(scraper),2019-02-06 13:00:00-05:00,60.0
+2019-02-06,Fed Chair Powell Speaks,InvestingC(2019-21),2019-02-06 20:00:00-05:00,InvestingB(scraper),2019-02-06 19:00:00-05:00,60.0
+2019-02-07,Initial Jobless Claims,InvestingC(2019-21),2019-02-07 09:30:00-05:00,InvestingB(scraper),2019-02-07 08:30:00-05:00,60.0
+2019-02-07,30-Year Bond Auction,InvestingC(2019-21),2019-02-07 14:00:00-05:00,InvestingB(scraper),2019-02-07 13:00:00-05:00,60.0
+2019-02-07,FOMC Member Bullard Speaks,InvestingC(2019-21),2019-02-07 20:30:00-05:00,InvestingB(scraper),2019-02-07 19:30:00-05:00,60.0
+2019-02-12,Fed Chair Powell Speaks,InvestingC(2019-21),2019-02-12 13:45:00-05:00,InvestingB(scraper),2019-02-12 12:45:00-05:00,60.0
+2019-02-14,Initial Jobless Claims,InvestingC(2019-21),2019-02-14 09:30:00-05:00,InvestingB(scraper),2019-02-14 08:30:00-05:00,60.0
+2019-02-15,NY Empire State Manufacturing Index,InvestingC(2019-21),2019-02-15 09:30:00-05:00,InvestingB(scraper),2019-02-15 08:30:00-05:00,60.0
+2019-02-15,Michigan 5-Year Inflation Expectations,InvestingC(2019-21),2019-02-15 11:00:00-05:00,InvestingB(scraper),2019-02-15 10:00:00-05:00,60.0
+2019-02-15,Michigan Consumer Sentiment,InvestingC(2019-21),2019-02-15 11:00:00-05:00,InvestingB(scraper),2019-02-15 10:00:00-05:00,60.0
+2019-02-20,FOMC Meeting Minutes,InvestingC(2019-21),2019-02-20 15:00:00-05:00,InvestingB(scraper),2019-02-20 14:00:00-05:00,60.0
+2019-02-21,Initial Jobless Claims,InvestingC(2019-21),2019-02-21 09:30:00-05:00,InvestingB(scraper),2019-02-21 08:30:00-05:00,60.0
+2019-02-21,Philadelphia Fed Manufacturing Index,InvestingC(2019-21),2019-02-21 09:30:00-05:00,InvestingB(scraper),2019-02-21 08:30:00-05:00,60.0
+2019-02-22,FOMC Member Williams Speaks,InvestingC(2019-21),2019-02-22 11:15:00-05:00,InvestingB(scraper),2019-02-22 10:15:00-05:00,60.0
+2019-02-22,FOMC Member Bullard Speaks,InvestingC(2019-21),2019-02-22 14:30:00-05:00,InvestingB(scraper),2019-02-22 13:30:00-05:00,60.0
+2019-02-26,Housing Starts,InvestingC(2019-21),2019-02-26 09:30:00-05:00,InvestingB(scraper),2019-02-26 08:30:00-05:00,60.0
+2019-02-26,CB Consumer Confidence,InvestingC(2019-21),2019-02-26 11:00:00-05:00,InvestingB(scraper),2019-02-26 10:00:00-05:00,60.0
+2019-02-26,Fed Chair Powell Testifies,InvestingC(2019-21),2019-02-26 11:00:00-05:00,InvestingB(scraper),2019-02-26 10:00:00-05:00,60.0
+2019-02-27,Fed Chair Powell Testifies,InvestingC(2019-21),2019-02-27 11:00:00-05:00,InvestingB(scraper),2019-02-27 10:00:00-05:00,60.0
+2019-02-28,Initial Jobless Claims,InvestingC(2019-21),2019-02-28 09:30:00-05:00,InvestingB(scraper),2019-02-28 08:30:00-05:00,60.0
+2019-02-28,Fed Chair Powell Speaks,InvestingC(2019-21),2019-02-28 21:15:00-05:00,InvestingB(scraper),2019-02-28 20:15:00-05:00,60.0
+2019-03-01,ISM Manufacturing PMI,InvestingC(2019-21),2019-03-01 11:00:00-05:00,InvestingB(scraper),2019-03-01 10:00:00-05:00,60.0
+2019-03-01,Michigan 5-Year Inflation Expectations,InvestingC(2019-21),2019-03-01 11:00:00-05:00,InvestingB(scraper),2019-03-01 10:00:00-05:00,60.0
+2019-03-01,Michigan Consumer Sentiment,InvestingC(2019-21),2019-03-01 11:00:00-05:00,InvestingB(scraper),2019-03-01 10:00:00-05:00,60.0
+2019-03-05,ISM Non-Manufacturing PMI,InvestingC(2019-21),2019-03-05 11:00:00-05:00,InvestingB(scraper),2019-03-05 10:00:00-05:00,60.0
+2019-03-05,New Home Sales,InvestingC(2019-21),2019-03-05 11:00:00-05:00,InvestingB(scraper),2019-03-05 10:00:00-05:00,60.0
+2019-03-06,ADP Nonfarm Employment Change,InvestingC(2019-21),2019-03-06 09:15:00-05:00,InvestingB(scraper),2019-03-06 08:15:00-05:00,60.0
+2019-03-06,FOMC Member Williams Speaks,InvestingC(2019-21),2019-03-06 13:00:00-05:00,InvestingB(scraper),2019-03-06 12:00:00-05:00,60.0
+2019-03-07,Initial Jobless Claims,InvestingC(2019-21),2019-03-07 09:30:00-05:00,InvestingB(scraper),2019-03-07 08:30:00-05:00,60.0
+2019-03-08,Housing Starts,InvestingC(2019-21),2019-03-08 09:30:00-05:00,InvestingB(scraper),2019-03-08 08:30:00-05:00,60.0
+2019-03-08,Nonfarm Payrolls,InvestingC(2019-21),2019-03-08 09:30:00-05:00,InvestingB(scraper),2019-03-08 08:30:00-05:00,60.0
+2019-03-08,Unemployment Rate,InvestingC(2019-21),2019-03-08 09:30:00-05:00,InvestingB(scraper),2019-03-08 08:30:00-05:00,60.0
+2019-03-08,Fed Chair Powell Speaks,InvestingC(2019-21),2019-03-08 23:00:00-05:00,InvestingB(scraper),2019-03-08 22:00:00-05:00,60.0
+2019-03-10,Fed Chair Powell Speaks,InvestingC(2019-21),2019-03-10 20:00:00-04:00,InvestingB(scraper),2019-03-10 19:00:00-04:00,60.0
+2019-03-11,Fed Chair Powell Speaks,InvestingC(2019-21),2019-03-11 20:00:00-04:00,InvestingB(scraper),2019-03-11 19:00:00-04:00,60.0
+2019-03-12,10-Year Note Auction,InvestingC(2019-21),2019-03-12 14:00:00-04:00,InvestingB(scraper),2019-03-12 13:00:00-04:00,60.0
+2019-03-13,30-Year Bond Auction,InvestingC(2019-21),2019-03-13 14:00:00-04:00,InvestingB(scraper),2019-03-13 13:00:00-04:00,60.0
+2019-03-14,Initial Jobless Claims,InvestingC(2019-21),2019-03-14 09:30:00-04:00,InvestingB(scraper),2019-03-14 08:30:00-04:00,60.0
+2019-03-14,New Home Sales,InvestingC(2019-21),2019-03-14 11:00:00-04:00,InvestingB(scraper),2019-03-14 10:00:00-04:00,60.0
+2019-03-15,NY Empire State Manufacturing Index,InvestingC(2019-21),2019-03-15 09:30:00-04:00,InvestingB(scraper),2019-03-15 08:30:00-04:00,60.0
+2019-03-15,Michigan 5-Year Inflation Expectations,InvestingC(2019-21),2019-03-15 11:00:00-04:00,InvestingB(scraper),2019-03-15 10:00:00-04:00,60.0
+2019-03-15,Michigan Consumer Sentiment,InvestingC(2019-21),2019-03-15 11:00:00-04:00,InvestingB(scraper),2019-03-15 10:00:00-04:00,60.0
+2019-03-20,FOMC Economic Projections,InvestingC(2019-21),2019-03-20 15:00:00-04:00,InvestingB(scraper),2019-03-20 14:00:00-04:00,60.0
+2019-03-20,FOMC Statement,InvestingC(2019-21),2019-03-20 15:00:00-04:00,InvestingB(scraper),2019-03-20 14:00:00-04:00,60.0
+2019-03-20,Fed Interest Rate Decision,InvestingC(2019-21),2019-03-20 15:00:00-04:00,InvestingB(scraper),2019-03-20 14:00:00-04:00,60.0
+2019-03-20,FOMC Press Conference,InvestingC(2019-21),2019-03-20 15:30:00-04:00,InvestingB(scraper),2019-03-20 14:30:00-04:00,60.0
+2019-03-21,Initial Jobless Claims,InvestingC(2019-21),2019-03-21 09:30:00-04:00,InvestingB(scraper),2019-03-21 08:30:00-04:00,60.0
+2019-03-21,Philadelphia Fed Manufacturing Index,InvestingC(2019-21),2019-03-21 09:30:00-04:00,InvestingB(scraper),2019-03-21 08:30:00-04:00,60.0
+2019-03-26,Housing Starts,InvestingC(2019-21),2019-03-26 09:30:00-04:00,InvestingB(scraper),2019-03-26 08:30:00-04:00,60.0
+2019-03-26,CB Consumer Confidence,InvestingC(2019-21),2019-03-26 11:00:00-04:00,InvestingB(scraper),2019-03-26 10:00:00-04:00,60.0
+2019-03-28,Initial Jobless Claims,InvestingC(2019-21),2019-03-28 09:30:00-04:00,InvestingB(scraper),2019-03-28 08:30:00-04:00,60.0
+2019-03-28,FOMC Member Williams Speaks,InvestingC(2019-21),2019-03-28 14:15:00-04:00,InvestingB(scraper),2019-03-28 13:15:00-04:00,60.0
+2019-03-28,FOMC Member Bullard Speaks,InvestingC(2019-21),2019-03-28 18:20:00-04:00,InvestingB(scraper),2019-03-28 17:20:00-04:00,60.0
+2019-03-29,FOMC Member Williams Speaks,InvestingC(2019-21),2019-03-29 10:25:00-04:00,InvestingB(scraper),2019-03-29 09:25:00-04:00,60.0
+2019-03-29,Michigan 5-Year Inflation Expectations,InvestingC(2019-21),2019-03-29 11:00:00-04:00,InvestingB(scraper),2019-03-29 10:00:00-04:00,60.0
+2019-03-29,Michigan Consumer Sentiment,InvestingC(2019-21),2019-03-29 11:00:00-04:00,InvestingB(scraper),2019-03-29 10:00:00-04:00,60.0
+2019-03-29,New Home Sales,InvestingC(2019-21),2019-03-29 11:00:00-04:00,InvestingB(scraper),2019-03-29 10:00:00-04:00,60.0
+2019-04-01,ISM Manufacturing PMI,InvestingC(2019-21),2019-04-01 11:00:00-04:00,InvestingB(scraper),2019-04-01 10:00:00-04:00,60.0
+2019-04-03,ADP Nonfarm Employment Change,InvestingC(2019-21),2019-04-03 09:15:00-04:00,InvestingB(scraper),2019-04-03 08:15:00-04:00,60.0
+2019-04-03,ISM Non-Manufacturing PMI,InvestingC(2019-21),2019-04-03 11:00:00-04:00,InvestingB(scraper),2019-04-03 10:00:00-04:00,60.0
+2019-04-04,Initial Jobless Claims,InvestingC(2019-21),2019-04-04 09:30:00-04:00,InvestingB(scraper),2019-04-04 08:30:00-04:00,60.0
+2019-04-04,FOMC Member Williams Speaks,InvestingC(2019-21),2019-04-04 17:00:00-04:00,InvestingB(scraper),2019-04-04 16:00:00-04:00,60.0
+2019-04-05,Nonfarm Payrolls,InvestingC(2019-21),2019-04-05 09:30:00-04:00,InvestingB(scraper),2019-04-05 08:30:00-04:00,60.0
+2019-04-05,Unemployment Rate,InvestingC(2019-21),2019-04-05 09:30:00-04:00,InvestingB(scraper),2019-04-05 08:30:00-04:00,60.0
+2019-04-10,10-Year Note Auction,InvestingC(2019-21),2019-04-10 14:00:00-04:00,InvestingB(scraper),2019-04-10 13:00:00-04:00,60.0
+2019-04-10,FOMC Meeting Minutes,InvestingC(2019-21),2019-04-10 15:00:00-04:00,InvestingB(scraper),2019-04-10 14:00:00-04:00,60.0
+2019-04-11,Initial Jobless Claims,InvestingC(2019-21),2019-04-11 09:30:00-04:00,InvestingB(scraper),2019-04-11 08:30:00-04:00,60.0
+2019-04-11,FOMC Member Williams Speaks,InvestingC(2019-21),2019-04-11 10:35:00-04:00,InvestingB(scraper),2019-04-11 09:35:00-04:00,60.0
+2019-04-11,FOMC Member Bullard Speaks,InvestingC(2019-21),2019-04-11 10:40:00-04:00,InvestingB(scraper),2019-04-11 09:40:00-04:00,60.0
+2019-04-11,30-Year Bond Auction,InvestingC(2019-21),2019-04-11 14:00:00-04:00,InvestingB(scraper),2019-04-11 13:00:00-04:00,60.0
+2019-04-12,Michigan 5-Year Inflation Expectations,InvestingC(2019-21),2019-04-12 11:00:00-04:00,InvestingB(scraper),2019-04-12 10:00:00-04:00,60.0
+2019-04-12,Michigan Consumer Sentiment,InvestingC(2019-21),2019-04-12 11:00:00-04:00,InvestingB(scraper),2019-04-12 10:00:00-04:00,60.0
+2019-04-15,NY Empire State Manufacturing Index,InvestingC(2019-21),2019-04-15 09:30:00-04:00,InvestingB(scraper),2019-04-15 08:30:00-04:00,60.0
+2019-04-17,FOMC Member Bullard Speaks,InvestingC(2019-21),2019-04-17 13:45:00-04:00,InvestingB(scraper),2019-04-17 12:45:00-04:00,60.0
+2019-04-18,Initial Jobless Claims,InvestingC(2019-21),2019-04-18 09:30:00-04:00,InvestingB(scraper),2019-04-18 08:30:00-04:00,60.0
+2019-04-18,Philadelphia Fed Manufacturing Index,InvestingC(2019-21),2019-04-18 09:30:00-04:00,InvestingB(scraper),2019-04-18 08:30:00-04:00,60.0
+2019-04-19,Housing Starts,InvestingC(2019-21),2019-04-19 09:30:00-04:00,InvestingB(scraper),2019-04-19 08:30:00-04:00,60.0
+2019-04-23,New Home Sales,InvestingC(2019-21),2019-04-23 11:00:00-04:00,InvestingB(scraper),2019-04-23 10:00:00-04:00,60.0
+2019-04-25,Initial Jobless Claims,InvestingC(2019-21),2019-04-25 09:30:00-04:00,InvestingB(scraper),2019-04-25 08:30:00-04:00,60.0
+2019-04-26,Michigan 5-Year Inflation Expectations,InvestingC(2019-21),2019-04-26 11:00:00-04:00,InvestingB(scraper),2019-04-26 10:00:00-04:00,60.0
+2019-04-26,Michigan Consumer Sentiment,InvestingC(2019-21),2019-04-26 11:00:00-04:00,InvestingB(scraper),2019-04-26 10:00:00-04:00,60.0
+2019-04-30,CB Consumer Confidence,InvestingC(2019-21),2019-04-30 11:00:00-04:00,InvestingB(scraper),2019-04-30 10:00:00-04:00,60.0
+2019-05-01,ADP Nonfarm Employment Change,InvestingC(2019-21),2019-05-01 09:15:00-04:00,InvestingB(scraper),2019-05-01 08:15:00-04:00,60.0
+2019-05-01,ISM Manufacturing PMI,InvestingC(2019-21),2019-05-01 11:00:00-04:00,InvestingB(scraper),2019-05-01 10:00:00-04:00,60.0
+2019-05-01,FOMC Statement,InvestingC(2019-21),2019-05-01 15:00:00-04:00,InvestingB(scraper),2019-05-01 14:00:00-04:00,60.0
+2019-05-01,Fed Interest Rate Decision,InvestingC(2019-21),2019-05-01 15:00:00-04:00,InvestingB(scraper),2019-05-01 14:00:00-04:00,60.0
+2019-05-01,FOMC Press Conference,InvestingC(2019-21),2019-05-01 15:30:00-04:00,InvestingB(scraper),2019-05-01 14:30:00-04:00,60.0
+2019-05-02,Initial Jobless Claims,InvestingC(2019-21),2019-05-02 09:30:00-04:00,InvestingB(scraper),2019-05-02 08:30:00-04:00,60.0
+2019-05-03,Nonfarm Payrolls,InvestingC(2019-21),2019-05-03 09:30:00-04:00,InvestingB(scraper),2019-05-03 08:30:00-04:00,60.0
+2019-05-03,Unemployment Rate,InvestingC(2019-21),2019-05-03 09:30:00-04:00,InvestingB(scraper),2019-05-03 08:30:00-04:00,60.0
+2019-05-03,ISM Non-Manufacturing PMI,InvestingC(2019-21),2019-05-03 11:00:00-04:00,InvestingB(scraper),2019-05-03 10:00:00-04:00,60.0
+2019-05-03,FOMC Member Williams Speaks,InvestingC(2019-21),2019-05-03 14:45:00-04:00,InvestingB(scraper),2019-05-03 13:45:00-04:00,60.0
+2019-05-03,FOMC Member Bullard Speaks,InvestingC(2019-21),2019-05-03 20:45:00-04:00,InvestingB(scraper),2019-05-03 19:45:00-04:00,60.0
+2019-05-06,FOMC Member Williams Speaks,InvestingC(2019-21),2019-05-06 11:00:00-04:00,InvestingB(scraper),2019-05-06 10:00:00-04:00,60.0
+2019-05-08,10-Year Note Auction,InvestingC(2019-21),2019-05-08 14:00:00-04:00,InvestingB(scraper),2019-05-08 13:00:00-04:00,60.0
+2019-05-09,Fed Chair Powell Speaks,InvestingC(2019-21),2019-05-09 09:30:00-04:00,InvestingB(scraper),2019-05-09 08:30:00-04:00,60.0
+2019-05-09,Initial Jobless Claims,InvestingC(2019-21),2019-05-09 09:30:00-04:00,InvestingB(scraper),2019-05-09 08:30:00-04:00,60.0
+2019-05-09,30-Year Bond Auction,InvestingC(2019-21),2019-05-09 14:00:00-04:00,InvestingB(scraper),2019-05-09 13:00:00-04:00,60.0
+2019-05-10,FOMC Member Williams Speaks,InvestingC(2019-21),2019-05-10 11:00:00-04:00,InvestingB(scraper),2019-05-10 10:00:00-04:00,60.0
+2019-05-14,FOMC Member Williams Speaks,InvestingC(2019-21),2019-05-14 04:15:00-04:00,InvestingB(scraper),2019-05-14 03:15:00-04:00,60.0
+2019-05-15,NY Empire State Manufacturing Index,InvestingC(2019-21),2019-05-15 09:30:00-04:00,InvestingB(scraper),2019-05-15 08:30:00-04:00,60.0
+2019-05-16,Housing Starts,InvestingC(2019-21),2019-05-16 09:30:00-04:00,InvestingB(scraper),2019-05-16 08:30:00-04:00,60.0
+2019-05-16,Initial Jobless Claims,InvestingC(2019-21),2019-05-16 09:30:00-04:00,InvestingB(scraper),2019-05-16 08:30:00-04:00,60.0
+2019-05-16,Philadelphia Fed Manufacturing Index,InvestingC(2019-21),2019-05-16 09:30:00-04:00,InvestingB(scraper),2019-05-16 08:30:00-04:00,60.0
+2019-05-17,Michigan 5-Year Inflation Expectations,InvestingC(2019-21),2019-05-17 11:00:00-04:00,InvestingB(scraper),2019-05-17 10:00:00-04:00,60.0
+2019-05-17,Michigan Consumer Sentiment,InvestingC(2019-21),2019-05-17 11:00:00-04:00,InvestingB(scraper),2019-05-17 10:00:00-04:00,60.0
+2019-05-17,FOMC Member Williams Speaks,InvestingC(2019-21),2019-05-17 12:15:00-04:00,InvestingB(scraper),2019-05-17 11:15:00-04:00,60.0
+2019-05-20,FOMC Member Williams Speaks,InvestingC(2019-21),2019-05-20 14:05:00-04:00,InvestingB(scraper),2019-05-20 13:05:00-04:00,60.0
+2019-05-20,Fed Chair Powell Speaks,InvestingC(2019-21),2019-05-20 20:00:00-04:00,InvestingB(scraper),2019-05-20 19:00:00-04:00,60.0
+2019-05-22,FOMC Member Bullard Speaks,InvestingC(2019-21),2019-05-22 02:00:00-04:00,InvestingB(scraper),2019-05-22 01:00:00-04:00,60.0
+2019-05-22,FOMC Member Williams Speaks,InvestingC(2019-21),2019-05-22 11:00:00-04:00,InvestingB(scraper),2019-05-22 10:00:00-04:00,60.0
+2019-05-22,FOMC Meeting Minutes,InvestingC(2019-21),2019-05-22 15:00:00-04:00,InvestingB(scraper),2019-05-22 14:00:00-04:00,60.0
+2019-05-23,Initial Jobless Claims,InvestingC(2019-21),2019-05-23 09:30:00-04:00,InvestingB(scraper),2019-05-23 08:30:00-04:00,60.0
+2019-05-23,New Home Sales,InvestingC(2019-21),2019-05-23 11:00:00-04:00,InvestingB(scraper),2019-05-23 10:00:00-04:00,60.0
+2019-05-28,CB Consumer Confidence,InvestingC(2019-21),2019-05-28 11:00:00-04:00,InvestingB(scraper),2019-05-28 10:00:00-04:00,60.0
+2019-05-30,Initial Jobless Claims,InvestingC(2019-21),2019-05-30 09:30:00-04:00,InvestingB(scraper),2019-05-30 08:30:00-04:00,60.0
+2019-05-31,Michigan 5-Year Inflation Expectations,InvestingC(2019-21),2019-05-31 11:00:00-04:00,InvestingB(scraper),2019-05-31 10:00:00-04:00,60.0
+2019-05-31,Michigan Consumer Sentiment,InvestingC(2019-21),2019-05-31 11:00:00-04:00,InvestingB(scraper),2019-05-31 10:00:00-04:00,60.0
+2019-05-31,FOMC Member Williams Speaks,InvestingC(2019-21),2019-05-31 13:00:00-04:00,InvestingB(scraper),2019-05-31 12:00:00-04:00,60.0
+2019-06-03,ISM Manufacturing PMI,InvestingC(2019-21),2019-06-03 11:00:00-04:00,InvestingB(scraper),2019-06-03 10:00:00-04:00,60.0
+2019-06-03,FOMC Member Bullard Speaks,InvestingC(2019-21),2019-06-03 14:25:00-04:00,InvestingB(scraper),2019-06-03 13:25:00-04:00,60.0
+2019-06-04,FOMC Member Williams Speaks,InvestingC(2019-21),2019-06-04 09:30:00-04:00,InvestingB(scraper),2019-06-04 08:30:00-04:00,60.0
+2019-06-04,Fed Chair Powell Speaks,InvestingC(2019-21),2019-06-04 10:45:00-04:00,InvestingB(scraper),2019-06-04 09:45:00-04:00,60.0
+2019-06-05,ADP Nonfarm Employment Change,InvestingC(2019-21),2019-06-05 09:15:00-04:00,InvestingB(scraper),2019-06-05 08:15:00-04:00,60.0
+2019-06-05,ISM Non-Manufacturing PMI,InvestingC(2019-21),2019-06-05 11:00:00-04:00,InvestingB(scraper),2019-06-05 10:00:00-04:00,60.0
+2019-06-06,Initial Jobless Claims,InvestingC(2019-21),2019-06-06 09:30:00-04:00,InvestingB(scraper),2019-06-06 08:30:00-04:00,60.0
+2019-06-06,FOMC Member Williams Speaks,InvestingC(2019-21),2019-06-06 14:00:00-04:00,InvestingB(scraper),2019-06-06 13:00:00-04:00,60.0
+2019-06-07,Nonfarm Payrolls,InvestingC(2019-21),2019-06-07 09:30:00-04:00,InvestingB(scraper),2019-06-07 08:30:00-04:00,60.0
+2019-06-07,Unemployment Rate,InvestingC(2019-21),2019-06-07 09:30:00-04:00,InvestingB(scraper),2019-06-07 08:30:00-04:00,60.0
+2019-06-12,10-Year Note Auction,InvestingC(2019-21),2019-06-12 14:00:00-04:00,InvestingB(scraper),2019-06-12 13:00:00-04:00,60.0
+2019-06-13,Initial Jobless Claims,InvestingC(2019-21),2019-06-13 09:30:00-04:00,InvestingB(scraper),2019-06-13 08:30:00-04:00,60.0
+2019-06-13,30-Year Bond Auction,InvestingC(2019-21),2019-06-13 14:00:00-04:00,InvestingB(scraper),2019-06-13 13:00:00-04:00,60.0
+2019-06-14,Michigan 5-Year Inflation Expectations,InvestingC(2019-21),2019-06-14 11:00:00-04:00,InvestingB(scraper),2019-06-14 10:00:00-04:00,60.0
+2019-06-14,Michigan Consumer Sentiment,InvestingC(2019-21),2019-06-14 11:00:00-04:00,InvestingB(scraper),2019-06-14 10:00:00-04:00,60.0
+2019-06-17,NY Empire State Manufacturing Index,InvestingC(2019-21),2019-06-17 09:30:00-04:00,InvestingB(scraper),2019-06-17 08:30:00-04:00,60.0
+2019-06-18,Housing Starts,InvestingC(2019-21),2019-06-18 09:30:00-04:00,InvestingB(scraper),2019-06-18 08:30:00-04:00,60.0
+2019-06-19,FOMC Economic Projections,InvestingC(2019-21),2019-06-19 15:00:00-04:00,InvestingB(scraper),2019-06-19 14:00:00-04:00,60.0
+2019-06-19,FOMC Statement,InvestingC(2019-21),2019-06-19 15:00:00-04:00,InvestingB(scraper),2019-06-19 14:00:00-04:00,60.0
+2019-06-19,Fed Interest Rate Decision,InvestingC(2019-21),2019-06-19 15:00:00-04:00,InvestingB(scraper),2019-06-19 14:00:00-04:00,60.0
+2019-06-19,FOMC Press Conference,InvestingC(2019-21),2019-06-19 15:30:00-04:00,InvestingB(scraper),2019-06-19 14:30:00-04:00,60.0
+2019-06-20,Initial Jobless Claims,InvestingC(2019-21),2019-06-20 09:30:00-04:00,InvestingB(scraper),2019-06-20 08:30:00-04:00,60.0
+2019-06-20,Philadelphia Fed Manufacturing Index,InvestingC(2019-21),2019-06-20 09:30:00-04:00,InvestingB(scraper),2019-06-20 08:30:00-04:00,60.0
+2019-06-25,FOMC Member Williams Speaks,InvestingC(2019-21),2019-06-25 09:45:00-04:00,InvestingB(scraper),2019-06-25 08:45:00-04:00,60.0
+2019-06-25,CB Consumer Confidence,InvestingC(2019-21),2019-06-25 11:00:00-04:00,InvestingB(scraper),2019-06-25 10:00:00-04:00,60.0
+2019-06-25,New Home Sales,InvestingC(2019-21),2019-06-25 11:00:00-04:00,InvestingB(scraper),2019-06-25 10:00:00-04:00,60.0
+2019-06-25,Fed Chair Powell Speaks,InvestingC(2019-21),2019-06-25 14:00:00-04:00,InvestingB(scraper),2019-06-25 13:00:00-04:00,60.0
+2019-06-25,FOMC Member Bullard Speaks,InvestingC(2019-21),2019-06-25 19:30:00-04:00,InvestingB(scraper),2019-06-25 18:30:00-04:00,60.0
+2019-06-27,Initial Jobless Claims,InvestingC(2019-21),2019-06-27 09:30:00-04:00,InvestingB(scraper),2019-06-27 08:30:00-04:00,60.0
+2019-06-28,Michigan 5-Year Inflation Expectations,InvestingC(2019-21),2019-06-28 11:00:00-04:00,InvestingB(scraper),2019-06-28 10:00:00-04:00,60.0
+2019-06-28,Michigan Consumer Sentiment,InvestingC(2019-21),2019-06-28 11:00:00-04:00,InvestingB(scraper),2019-06-28 10:00:00-04:00,60.0
+2019-07-01,ISM Manufacturing PMI,InvestingC(2019-21),2019-07-01 11:00:00-04:00,InvestingB(scraper),2019-07-01 10:00:00-04:00,60.0
+2019-07-02,FOMC Member Williams Speaks,InvestingC(2019-21),2019-07-02 07:35:00-04:00,InvestingB(scraper),2019-07-02 06:35:00-04:00,60.0
+2019-07-03,ADP Nonfarm Employment Change,InvestingC(2019-21),2019-07-03 09:15:00-04:00,InvestingB(scraper),2019-07-03 08:15:00-04:00,60.0
+2019-07-03,Initial Jobless Claims,InvestingC(2019-21),2019-07-03 09:30:00-04:00,InvestingB(scraper),2019-07-03 08:30:00-04:00,60.0
+2019-07-03,ISM Non-Manufacturing PMI,InvestingC(2019-21),2019-07-03 11:00:00-04:00,InvestingB(scraper),2019-07-03 10:00:00-04:00,60.0
+2019-07-05,Nonfarm Payrolls,InvestingC(2019-21),2019-07-05 09:30:00-04:00,InvestingB(scraper),2019-07-05 08:30:00-04:00,60.0
+2019-07-05,Unemployment Rate,InvestingC(2019-21),2019-07-05 09:30:00-04:00,InvestingB(scraper),2019-07-05 08:30:00-04:00,60.0
+2019-07-09,Fed Chair Powell Speaks,InvestingC(2019-21),2019-07-09 09:45:00-04:00,InvestingB(scraper),2019-07-09 08:45:00-04:00,60.0
+2019-07-09,FOMC Member Bullard Speaks,InvestingC(2019-21),2019-07-09 11:10:00-04:00,InvestingB(scraper),2019-07-09 10:10:00-04:00,60.0
+2019-07-10,Fed Chair Powell Testifies,InvestingC(2019-21),2019-07-10 11:00:00-04:00,InvestingB(scraper),2019-07-10 10:00:00-04:00,60.0
+2019-07-10,10-Year Note Auction,InvestingC(2019-21),2019-07-10 14:00:00-04:00,InvestingB(scraper),2019-07-10 13:00:00-04:00,60.0
+2019-07-10,FOMC Member Bullard Speaks,InvestingC(2019-21),2019-07-10 14:30:00-04:00,InvestingB(scraper),2019-07-10 13:30:00-04:00,60.0
+2019-07-10,FOMC Meeting Minutes,InvestingC(2019-21),2019-07-10 15:00:00-04:00,InvestingB(scraper),2019-07-10 14:00:00-04:00,60.0
+2019-07-11,Initial Jobless Claims,InvestingC(2019-21),2019-07-11 09:30:00-04:00,InvestingB(scraper),2019-07-11 08:30:00-04:00,60.0
+2019-07-11,Fed Chair Powell Testifies,InvestingC(2019-21),2019-07-11 11:00:00-04:00,InvestingB(scraper),2019-07-11 10:00:00-04:00,60.0
+2019-07-11,FOMC Member Williams Speaks,InvestingC(2019-21),2019-07-11 12:10:00-04:00,InvestingB(scraper),2019-07-11 11:10:00-04:00,60.0
+2019-07-11,30-Year Bond Auction,InvestingC(2019-21),2019-07-11 14:00:00-04:00,InvestingB(scraper),2019-07-11 13:00:00-04:00,60.0
+2019-07-15,NY Empire State Manufacturing Index,InvestingC(2019-21),2019-07-15 09:30:00-04:00,InvestingB(scraper),2019-07-15 08:30:00-04:00,60.0
+2019-07-15,FOMC Member Williams Speaks,InvestingC(2019-21),2019-07-15 09:50:00-04:00,InvestingB(scraper),2019-07-15 08:50:00-04:00,60.0
+2019-07-16,Fed Chair Powell Speaks,InvestingC(2019-21),2019-07-16 14:00:00-04:00,InvestingB(scraper),2019-07-16 13:00:00-04:00,60.0
+2019-07-17,Housing Starts,InvestingC(2019-21),2019-07-17 09:30:00-04:00,InvestingB(scraper),2019-07-17 08:30:00-04:00,60.0
+2019-07-18,Initial Jobless Claims,InvestingC(2019-21),2019-07-18 09:30:00-04:00,InvestingB(scraper),2019-07-18 08:30:00-04:00,60.0
+2019-07-18,Philadelphia Fed Manufacturing Index,InvestingC(2019-21),2019-07-18 09:30:00-04:00,InvestingB(scraper),2019-07-18 08:30:00-04:00,60.0
+2019-07-18,FOMC Member Williams Speaks,InvestingC(2019-21),2019-07-18 15:15:00-04:00,InvestingB(scraper),2019-07-18 14:15:00-04:00,60.0
+2019-07-19,Michigan 5-Year Inflation Expectations,InvestingC(2019-21),2019-07-19 11:00:00-04:00,InvestingB(scraper),2019-07-19 10:00:00-04:00,60.0
+2019-07-19,Michigan Consumer Sentiment,InvestingC(2019-21),2019-07-19 11:00:00-04:00,InvestingB(scraper),2019-07-19 10:00:00-04:00,60.0
+2019-07-19,FOMC Member Bullard Speaks,InvestingC(2019-21),2019-07-19 12:05:00-04:00,InvestingB(scraper),2019-07-19 11:05:00-04:00,60.0
+2019-07-24,New Home Sales,InvestingC(2019-21),2019-07-24 11:00:00-04:00,InvestingB(scraper),2019-07-24 10:00:00-04:00,60.0
+2019-07-25,Initial Jobless Claims,InvestingC(2019-21),2019-07-25 09:30:00-04:00,InvestingB(scraper),2019-07-25 08:30:00-04:00,60.0
+2019-07-30,CB Consumer Confidence,InvestingC(2019-21),2019-07-30 11:00:00-04:00,InvestingB(scraper),2019-07-30 10:00:00-04:00,60.0
+2019-07-31,ADP Nonfarm Employment Change,InvestingC(2019-21),2019-07-31 09:15:00-04:00,InvestingB(scraper),2019-07-31 08:15:00-04:00,60.0
+2019-07-31,FOMC Statement,InvestingC(2019-21),2019-07-31 15:00:00-04:00,InvestingB(scraper),2019-07-31 14:00:00-04:00,60.0
+2019-07-31,Fed Interest Rate Decision,InvestingC(2019-21),2019-07-31 15:00:00-04:00,InvestingB(scraper),2019-07-31 14:00:00-04:00,60.0
+2019-07-31,FOMC Press Conference,InvestingC(2019-21),2019-07-31 15:30:00-04:00,InvestingB(scraper),2019-07-31 14:30:00-04:00,60.0
+2019-08-01,Initial Jobless Claims,InvestingC(2019-21),2019-08-01 09:30:00-04:00,InvestingB(scraper),2019-08-01 08:30:00-04:00,60.0
+2019-08-01,ISM Manufacturing PMI,InvestingC(2019-21),2019-08-01 11:00:00-04:00,InvestingB(scraper),2019-08-01 10:00:00-04:00,60.0
+2019-08-02,Nonfarm Payrolls,InvestingC(2019-21),2019-08-02 09:30:00-04:00,InvestingB(scraper),2019-08-02 08:30:00-04:00,60.0
+2019-08-02,Unemployment Rate,InvestingC(2019-21),2019-08-02 09:30:00-04:00,InvestingB(scraper),2019-08-02 08:30:00-04:00,60.0
+2019-08-02,Michigan 5-Year Inflation Expectations,InvestingC(2019-21),2019-08-02 11:00:00-04:00,InvestingB(scraper),2019-08-02 10:00:00-04:00,60.0
+2019-08-02,Michigan Consumer Sentiment,InvestingC(2019-21),2019-08-02 11:00:00-04:00,InvestingB(scraper),2019-08-02 10:00:00-04:00,60.0
+2019-08-05,ISM Non-Manufacturing PMI,InvestingC(2019-21),2019-08-05 11:00:00-04:00,InvestingB(scraper),2019-08-05 10:00:00-04:00,60.0
+2019-08-06,FOMC Member Bullard Speaks,InvestingC(2019-21),2019-08-06 13:00:00-04:00,InvestingB(scraper),2019-08-06 12:00:00-04:00,60.0
+2019-08-07,10-Year Note Auction,InvestingC(2019-21),2019-08-07 14:00:00-04:00,InvestingB(scraper),2019-08-07 13:00:00-04:00,60.0
+2019-08-08,Initial Jobless Claims,InvestingC(2019-21),2019-08-08 09:30:00-04:00,InvestingB(scraper),2019-08-08 08:30:00-04:00,60.0
+2019-08-08,30-Year Bond Auction,InvestingC(2019-21),2019-08-08 14:00:00-04:00,InvestingB(scraper),2019-08-08 13:00:00-04:00,60.0
+2019-08-15,Initial Jobless Claims,InvestingC(2019-21),2019-08-15 09:30:00-04:00,InvestingB(scraper),2019-08-15 08:30:00-04:00,60.0
+2019-08-15,NY Empire State Manufacturing Index,InvestingC(2019-21),2019-08-15 09:30:00-04:00,InvestingB(scraper),2019-08-15 08:30:00-04:00,60.0
+2019-08-15,Philadelphia Fed Manufacturing Index,InvestingC(2019-21),2019-08-15 09:30:00-04:00,InvestingB(scraper),2019-08-15 08:30:00-04:00,60.0
+2019-08-16,Housing Starts,InvestingC(2019-21),2019-08-16 09:30:00-04:00,InvestingB(scraper),2019-08-16 08:30:00-04:00,60.0
+2019-08-16,Michigan 5-Year Inflation Expectations,InvestingC(2019-21),2019-08-16 11:00:00-04:00,InvestingB(scraper),2019-08-16 10:00:00-04:00,60.0
+2019-08-16,Michigan Consumer Sentiment,InvestingC(2019-21),2019-08-16 11:00:00-04:00,InvestingB(scraper),2019-08-16 10:00:00-04:00,60.0
+2019-08-21,FOMC Meeting Minutes,InvestingC(2019-21),2019-08-21 15:00:00-04:00,InvestingB(scraper),2019-08-21 14:00:00-04:00,60.0
+2019-08-22,Initial Jobless Claims,InvestingC(2019-21),2019-08-22 09:30:00-04:00,InvestingB(scraper),2019-08-22 08:30:00-04:00,60.0
+2019-08-23,Fed Chair Powell Speaks,InvestingC(2019-21),2019-08-23 11:00:00-04:00,InvestingB(scraper),2019-08-23 10:00:00-04:00,60.0
+2019-08-23,New Home Sales,InvestingC(2019-21),2019-08-23 11:00:00-04:00,InvestingB(scraper),2019-08-23 10:00:00-04:00,60.0
+2019-08-27,CB Consumer Confidence,InvestingC(2019-21),2019-08-27 11:00:00-04:00,InvestingB(scraper),2019-08-27 10:00:00-04:00,60.0
+2019-08-29,Initial Jobless Claims,InvestingC(2019-21),2019-08-29 09:30:00-04:00,InvestingB(scraper),2019-08-29 08:30:00-04:00,60.0
+2019-08-30,Michigan 5-Year Inflation Expectations,InvestingC(2019-21),2019-08-30 11:00:00-04:00,InvestingB(scraper),2019-08-30 10:00:00-04:00,60.0
+2019-08-30,Michigan Consumer Sentiment,InvestingC(2019-21),2019-08-30 11:00:00-04:00,InvestingB(scraper),2019-08-30 10:00:00-04:00,60.0
+2019-09-03,ISM Manufacturing PMI,InvestingC(2019-21),2019-09-03 11:00:00-04:00,InvestingB(scraper),2019-09-03 10:00:00-04:00,60.0
+2019-09-04,FOMC Member Williams Speaks,InvestingC(2019-21),2019-09-04 10:25:00-04:00,InvestingB(scraper),2019-09-04 09:25:00-04:00,60.0
+2019-09-04,FOMC Member Bullard Speaks,InvestingC(2019-21),2019-09-04 13:30:00-04:00,InvestingB(scraper),2019-09-04 12:30:00-04:00,60.0
+2019-09-05,ADP Nonfarm Employment Change,InvestingC(2019-21),2019-09-05 09:15:00-04:00,InvestingB(scraper),2019-09-05 08:15:00-04:00,60.0
+2019-09-05,Initial Jobless Claims,InvestingC(2019-21),2019-09-05 09:30:00-04:00,InvestingB(scraper),2019-09-05 08:30:00-04:00,60.0
+2019-09-05,ISM Non-Manufacturing PMI,InvestingC(2019-21),2019-09-05 11:00:00-04:00,InvestingB(scraper),2019-09-05 10:00:00-04:00,60.0
+2019-09-06,Nonfarm Payrolls,InvestingC(2019-21),2019-09-06 09:30:00-04:00,InvestingB(scraper),2019-09-06 08:30:00-04:00,60.0
+2019-09-06,Unemployment Rate,InvestingC(2019-21),2019-09-06 09:30:00-04:00,InvestingB(scraper),2019-09-06 08:30:00-04:00,60.0
+2019-09-06,Fed Chair Powell Speaks,InvestingC(2019-21),2019-09-06 13:30:00-04:00,InvestingB(scraper),2019-09-06 12:30:00-04:00,60.0
+2019-09-11,10-Year Note Auction,InvestingC(2019-21),2019-09-11 14:00:00-04:00,InvestingB(scraper),2019-09-11 13:00:00-04:00,60.0
+2019-09-12,Initial Jobless Claims,InvestingC(2019-21),2019-09-12 09:30:00-04:00,InvestingB(scraper),2019-09-12 08:30:00-04:00,60.0
+2019-09-12,30-Year Bond Auction,InvestingC(2019-21),2019-09-12 14:00:00-04:00,InvestingB(scraper),2019-09-12 13:00:00-04:00,60.0
+2019-09-13,Michigan 5-Year Inflation Expectations,InvestingC(2019-21),2019-09-13 11:00:00-04:00,InvestingB(scraper),2019-09-13 10:00:00-04:00,60.0
+2019-09-13,Michigan Consumer Sentiment,InvestingC(2019-21),2019-09-13 11:00:00-04:00,InvestingB(scraper),2019-09-13 10:00:00-04:00,60.0
+2019-09-16,NY Empire State Manufacturing Index,InvestingC(2019-21),2019-09-16 09:30:00-04:00,InvestingB(scraper),2019-09-16 08:30:00-04:00,60.0
+2019-09-18,Housing Starts,InvestingC(2019-21),2019-09-18 09:30:00-04:00,InvestingB(scraper),2019-09-18 08:30:00-04:00,60.0
+2019-09-18,FOMC Economic Projections,InvestingC(2019-21),2019-09-18 15:00:00-04:00,InvestingB(scraper),2019-09-18 14:00:00-04:00,60.0
+2019-09-18,FOMC Statement,InvestingC(2019-21),2019-09-18 15:00:00-04:00,InvestingB(scraper),2019-09-18 14:00:00-04:00,60.0
+2019-09-18,Fed Interest Rate Decision,InvestingC(2019-21),2019-09-18 15:00:00-04:00,InvestingB(scraper),2019-09-18 14:00:00-04:00,60.0
+2019-09-18,FOMC Press Conference,InvestingC(2019-21),2019-09-18 15:30:00-04:00,InvestingB(scraper),2019-09-18 14:30:00-04:00,60.0
+2019-09-19,Initial Jobless Claims,InvestingC(2019-21),2019-09-19 09:30:00-04:00,InvestingB(scraper),2019-09-19 08:30:00-04:00,60.0
+2019-09-19,Philadelphia Fed Manufacturing Index,InvestingC(2019-21),2019-09-19 09:30:00-04:00,InvestingB(scraper),2019-09-19 08:30:00-04:00,60.0
+2019-09-20,FOMC Member Williams Speaks,InvestingC(2019-21),2019-09-20 09:15:00-04:00,InvestingB(scraper),2019-09-20 08:15:00-04:00,60.0
+2019-09-23,FOMC Member Williams Speaks,InvestingC(2019-21),2019-09-23 10:50:00-04:00,InvestingB(scraper),2019-09-23 09:50:00-04:00,60.0
+2019-09-23,FOMC Member Bullard Speaks,InvestingC(2019-21),2019-09-23 14:00:00-04:00,InvestingB(scraper),2019-09-23 13:00:00-04:00,60.0
+2019-09-24,CB Consumer Confidence,InvestingC(2019-21),2019-09-24 11:00:00-04:00,InvestingB(scraper),2019-09-24 10:00:00-04:00,60.0
+2019-09-25,New Home Sales,InvestingC(2019-21),2019-09-25 11:00:00-04:00,InvestingB(scraper),2019-09-25 10:00:00-04:00,60.0
+2019-09-26,Initial Jobless Claims,InvestingC(2019-21),2019-09-26 09:30:00-04:00,InvestingB(scraper),2019-09-26 08:30:00-04:00,60.0
+2019-09-26,FOMC Member Bullard Speaks,InvestingC(2019-21),2019-09-26 11:00:00-04:00,InvestingB(scraper),2019-09-26 10:00:00-04:00,60.0
+2019-09-27,Michigan 5-Year Inflation Expectations,InvestingC(2019-21),2019-09-27 11:00:00-04:00,InvestingB(scraper),2019-09-27 10:00:00-04:00,60.0
+2019-09-27,Michigan Consumer Sentiment,InvestingC(2019-21),2019-09-27 11:00:00-04:00,InvestingB(scraper),2019-09-27 10:00:00-04:00,60.0
+2019-10-01,FOMC Member Bullard Speaks,InvestingC(2019-21),2019-10-01 10:15:00-04:00,InvestingB(scraper),2019-10-01 09:15:00-04:00,60.0
+2019-10-01,ISM Manufacturing PMI,InvestingC(2019-21),2019-10-01 11:00:00-04:00,InvestingB(scraper),2019-10-01 10:00:00-04:00,60.0
+2019-10-02,ADP Nonfarm Employment Change,InvestingC(2019-21),2019-10-02 09:15:00-04:00,InvestingB(scraper),2019-10-02 08:15:00-04:00,60.0
+2019-10-02,FOMC Member Williams Speaks,InvestingC(2019-21),2019-10-02 11:50:00-04:00,InvestingB(scraper),2019-10-02 10:50:00-04:00,60.0
+2019-10-03,Initial Jobless Claims,InvestingC(2019-21),2019-10-03 09:30:00-04:00,InvestingB(scraper),2019-10-03 08:30:00-04:00,60.0
+2019-10-03,ISM Non-Manufacturing PMI,InvestingC(2019-21),2019-10-03 11:00:00-04:00,InvestingB(scraper),2019-10-03 10:00:00-04:00,60.0
+2019-10-04,Nonfarm Payrolls,InvestingC(2019-21),2019-10-04 09:30:00-04:00,InvestingB(scraper),2019-10-04 08:30:00-04:00,60.0
+2019-10-04,Unemployment Rate,InvestingC(2019-21),2019-10-04 09:30:00-04:00,InvestingB(scraper),2019-10-04 08:30:00-04:00,60.0
+2019-10-04,Fed Chair Powell Speaks,InvestingC(2019-21),2019-10-04 14:00:00-04:00,InvestingB(scraper),2019-10-04 13:00:00-04:00,60.0
+2019-10-07,Fed Chair Powell Speaks,InvestingC(2019-21),2019-10-07 14:00:00-04:00,InvestingB(scraper),2019-10-07 13:00:00-04:00,60.0
+2019-10-08,Fed Chair Powell Speaks,InvestingC(2019-21),2019-10-08 14:50:00-04:00,InvestingB(scraper),2019-10-08 13:50:00-04:00,60.0
+2019-10-09,Fed Chair Powell Speaks,InvestingC(2019-21),2019-10-09 12:00:00-04:00,InvestingB(scraper),2019-10-09 11:00:00-04:00,60.0
+2019-10-09,10-Year Note Auction,InvestingC(2019-21),2019-10-09 14:00:00-04:00,InvestingB(scraper),2019-10-09 13:00:00-04:00,60.0
+2019-10-09,FOMC Meeting Minutes,InvestingC(2019-21),2019-10-09 15:00:00-04:00,InvestingB(scraper),2019-10-09 14:00:00-04:00,60.0
+2019-10-10,Initial Jobless Claims,InvestingC(2019-21),2019-10-10 09:30:00-04:00,InvestingB(scraper),2019-10-10 08:30:00-04:00,60.0
+2019-10-10,30-Year Bond Auction,InvestingC(2019-21),2019-10-10 14:00:00-04:00,InvestingB(scraper),2019-10-10 13:00:00-04:00,60.0
+2019-10-11,Michigan 5-Year Inflation Expectations,InvestingC(2019-21),2019-10-11 11:00:00-04:00,InvestingB(scraper),2019-10-11 10:00:00-04:00,60.0
+2019-10-11,Michigan Consumer Sentiment,InvestingC(2019-21),2019-10-11 11:00:00-04:00,InvestingB(scraper),2019-10-11 10:00:00-04:00,60.0
+2019-10-15,FOMC Member Bullard Speaks,InvestingC(2019-21),2019-10-15 05:25:00-04:00,InvestingB(scraper),2019-10-15 04:25:00-04:00,60.0
+2019-10-15,NY Empire State Manufacturing Index,InvestingC(2019-21),2019-10-15 09:30:00-04:00,InvestingB(scraper),2019-10-15 08:30:00-04:00,60.0
+2019-10-17,Housing Starts,InvestingC(2019-21),2019-10-17 09:30:00-04:00,InvestingB(scraper),2019-10-17 08:30:00-04:00,60.0
+2019-10-17,Initial Jobless Claims,InvestingC(2019-21),2019-10-17 09:30:00-04:00,InvestingB(scraper),2019-10-17 08:30:00-04:00,60.0
+2019-10-17,Philadelphia Fed Manufacturing Index,InvestingC(2019-21),2019-10-17 09:30:00-04:00,InvestingB(scraper),2019-10-17 08:30:00-04:00,60.0
+2019-10-17,FOMC Member Williams Speaks,InvestingC(2019-21),2019-10-17 17:20:00-04:00,InvestingB(scraper),2019-10-17 16:20:00-04:00,60.0
+2019-10-24,Initial Jobless Claims,InvestingC(2019-21),2019-10-24 09:30:00-04:00,InvestingB(scraper),2019-10-24 08:30:00-04:00,60.0
+2019-10-24,New Home Sales,InvestingC(2019-21),2019-10-24 11:00:00-04:00,InvestingB(scraper),2019-10-24 10:00:00-04:00,60.0
+2019-10-24,FOMC Member Williams Speaks,InvestingC(2019-21),2019-10-24 20:00:00-04:00,InvestingB(scraper),2019-10-24 19:00:00-04:00,60.0
+2019-10-25,Michigan 5-Year Inflation Expectations,InvestingC(2019-21),2019-10-25 11:00:00-04:00,InvestingB(scraper),2019-10-25 10:00:00-04:00,60.0
+2019-10-25,Michigan Consumer Sentiment,InvestingC(2019-21),2019-10-25 11:00:00-04:00,InvestingB(scraper),2019-10-25 10:00:00-04:00,60.0
+2019-10-29,CB Consumer Confidence,InvestingC(2019-21),2019-10-29 11:00:00-04:00,InvestingB(scraper),2019-10-29 10:00:00-04:00,60.0
+2019-10-30,ADP Nonfarm Employment Change,InvestingC(2019-21),2019-10-30 09:15:00-04:00,InvestingB(scraper),2019-10-30 08:15:00-04:00,60.0
+2019-10-30,FOMC Statement,InvestingC(2019-21),2019-10-30 15:00:00-04:00,InvestingB(scraper),2019-10-30 14:00:00-04:00,60.0
+2019-10-30,Fed Interest Rate Decision,InvestingC(2019-21),2019-10-30 15:00:00-04:00,InvestingB(scraper),2019-10-30 14:00:00-04:00,60.0
+2019-10-30,FOMC Press Conference,InvestingC(2019-21),2019-10-30 15:30:00-04:00,InvestingB(scraper),2019-10-30 14:30:00-04:00,60.0
+2019-10-31,Initial Jobless Claims,InvestingC(2019-21),2019-10-31 09:30:00-04:00,InvestingB(scraper),2019-10-31 08:30:00-04:00,60.0
+2020-02-03,ISM Manufacturing PMI,InvestingC(2019-21),2020-02-03 11:00:00-05:00,InvestingB(scraper),2020-02-03 10:00:00-05:00,60.0
+2020-02-05,ADP Nonfarm Employment Change,InvestingC(2019-21),2020-02-05 09:15:00-05:00,InvestingB(scraper),2020-02-05 08:15:00-05:00,60.0
+2020-02-05,ISM Non-Manufacturing PMI,InvestingC(2019-21),2020-02-05 11:00:00-05:00,InvestingB(scraper),2020-02-05 10:00:00-05:00,60.0
+2020-02-06,Initial Jobless Claims,InvestingC(2019-21),2020-02-06 09:30:00-05:00,InvestingB(scraper),2020-02-06 08:30:00-05:00,60.0
+2020-02-07,Nonfarm Payrolls,InvestingC(2019-21),2020-02-07 09:30:00-05:00,InvestingB(scraper),2020-02-07 08:30:00-05:00,60.0
+2020-02-07,Unemployment Rate,InvestingC(2019-21),2020-02-07 09:30:00-05:00,InvestingB(scraper),2020-02-07 08:30:00-05:00,60.0
+2020-02-11,Fed Chair Powell Testifies,InvestingC(2019-21),2020-02-11 11:00:00-05:00,InvestingB(scraper),2020-02-11 10:00:00-05:00,60.0
+2020-02-11,FOMC Member Bullard Speaks,InvestingC(2019-21),2020-02-11 14:30:00-05:00,InvestingB(scraper),2020-02-11 13:30:00-05:00,60.0
+2020-02-12,Fed Chair Powell Testifies,InvestingC(2019-21),2020-02-12 11:00:00-05:00,InvestingB(scraper),2020-02-12 10:00:00-05:00,60.0
+2020-02-12,10-Year Note Auction,InvestingC(2019-21),2020-02-12 14:01:00-05:00,InvestingB(scraper),2020-02-12 13:01:00-05:00,60.0
+2020-02-13,Initial Jobless Claims,InvestingC(2019-21),2020-02-13 09:30:00-05:00,InvestingB(scraper),2020-02-13 08:30:00-05:00,60.0
+2020-02-13,30-Year Bond Auction,InvestingC(2019-21),2020-02-13 14:01:00-05:00,InvestingB(scraper),2020-02-13 13:01:00-05:00,60.0
+2020-02-13,FOMC Member Williams Speaks,InvestingC(2019-21),2020-02-13 18:30:00-05:00,InvestingB(scraper),2020-02-13 17:30:00-05:00,60.0
+2020-02-14,Michigan 5-Year Inflation Expectations,InvestingC(2019-21),2020-02-14 11:00:00-05:00,InvestingB(scraper),2020-02-14 10:00:00-05:00,60.0
+2020-02-14,Michigan Consumer Sentiment,InvestingC(2019-21),2020-02-14 11:00:00-05:00,InvestingB(scraper),2020-02-14 10:00:00-05:00,60.0
+2020-02-18,NY Empire State Manufacturing Index,InvestingC(2019-21),2020-02-18 09:30:00-05:00,InvestingB(scraper),2020-02-18 08:30:00-05:00,60.0
+2020-02-19,Housing Starts,InvestingC(2019-21),2020-02-19 09:30:00-05:00,InvestingB(scraper),2020-02-19 08:30:00-05:00,60.0
+2020-02-19,FOMC Meeting Minutes,InvestingC(2019-21),2020-02-19 15:00:00-05:00,InvestingB(scraper),2020-02-19 14:00:00-05:00,60.0
+2020-02-20,Initial Jobless Claims,InvestingC(2019-21),2020-02-20 09:30:00-05:00,InvestingB(scraper),2020-02-20 08:30:00-05:00,60.0
+2020-02-20,Philadelphia Fed Manufacturing Index,InvestingC(2019-21),2020-02-20 09:30:00-05:00,InvestingB(scraper),2020-02-20 08:30:00-05:00,60.0
+2020-02-25,CB Consumer Confidence,InvestingC(2019-21),2020-02-25 11:00:00-05:00,InvestingB(scraper),2020-02-25 10:00:00-05:00,60.0
+2020-02-26,New Home Sales,InvestingC(2019-21),2020-02-26 11:00:00-05:00,InvestingB(scraper),2020-02-26 10:00:00-05:00,60.0
+2020-02-26,U.S. President Trump Speaks,InvestingC(2019-21),2020-02-26 19:00:00-05:00,InvestingB(scraper),2020-02-26 18:00:00-05:00,60.0
+2020-02-27,Initial Jobless Claims,InvestingC(2019-21),2020-02-27 09:30:00-05:00,InvestingB(scraper),2020-02-27 08:30:00-05:00,60.0
+2020-02-28,FOMC Member Bullard Speaks,InvestingC(2019-21),2020-02-28 10:15:00-05:00,InvestingB(scraper),2020-02-28 09:15:00-05:00,60.0
+2020-02-28,Michigan 5-Year Inflation Expectations,InvestingC(2019-21),2020-02-28 11:00:00-05:00,InvestingB(scraper),2020-02-28 10:00:00-05:00,60.0
+2020-02-28,Michigan Consumer Sentiment,InvestingC(2019-21),2020-02-28 11:00:00-05:00,InvestingB(scraper),2020-02-28 10:00:00-05:00,60.0
+2020-03-02,ISM Manufacturing PMI,InvestingC(2019-21),2020-03-02 11:00:00-05:00,InvestingB(scraper),2020-03-02 10:00:00-05:00,60.0
+2020-03-03,Fed Interest Rate Decision,InvestingC(2019-21),2020-03-03 11:00:00-05:00,InvestingB(scraper),2020-03-03 10:00:00-05:00,60.0
+2020-03-04,ADP Nonfarm Employment Change,InvestingC(2019-21),2020-03-04 09:15:00-05:00,InvestingB(scraper),2020-03-04 08:15:00-05:00,60.0
+2020-03-04,ISM Non-Manufacturing PMI,InvestingC(2019-21),2020-03-04 11:00:00-05:00,InvestingB(scraper),2020-03-04 10:00:00-05:00,60.0
+2020-03-04,FOMC Member Bullard Speaks,InvestingC(2019-21),2020-03-04 18:00:00-05:00,InvestingB(scraper),2020-03-04 17:00:00-05:00,60.0
+2020-03-05,Initial Jobless Claims,InvestingC(2019-21),2020-03-05 09:30:00-05:00,InvestingB(scraper),2020-03-05 08:30:00-05:00,60.0
+2020-03-05,FOMC Member Williams Speaks,InvestingC(2019-21),2020-03-05 21:45:00-05:00,InvestingB(scraper),2020-03-05 20:45:00-05:00,60.0
+2020-03-06,Nonfarm Payrolls,InvestingC(2019-21),2020-03-06 09:30:00-05:00,InvestingB(scraper),2020-03-06 07:30:00-05:00,120.0
+2020-03-06,Unemployment Rate,InvestingC(2019-21),2020-03-06 09:30:00-05:00,InvestingB(scraper),2020-03-06 08:30:00-05:00,60.0
+2020-03-06,FOMC Member Bullard Speaks,InvestingC(2019-21),2020-03-06 12:20:00-05:00,InvestingB(scraper),2020-03-06 11:20:00-05:00,60.0
+2020-03-06,FOMC Member Williams Speaks,InvestingC(2019-21),2020-03-06 15:00:00-05:00,InvestingB(scraper),2020-03-06 14:00:00-05:00,60.0
+2020-03-10,U.S. President Trump Speaks,InvestingC(2019-21),2020-03-10 18:30:00-04:00,InvestingB(scraper),2020-03-10 17:30:00-04:00,60.0
+2020-03-11,10-Year Note Auction,InvestingC(2019-21),2020-03-11 14:01:00-04:00,InvestingB(scraper),2020-03-11 13:01:00-04:00,60.0
+2020-03-12,Initial Jobless Claims,InvestingC(2019-21),2020-03-12 09:30:00-04:00,InvestingB(scraper),2020-03-12 08:30:00-04:00,60.0
+2020-03-12,30-Year Bond Auction,InvestingC(2019-21),2020-03-12 14:01:00-04:00,InvestingB(scraper),2020-03-12 13:01:00-04:00,60.0
+2020-03-13,Michigan 5-Year Inflation Expectations,InvestingC(2019-21),2020-03-13 11:00:00-04:00,InvestingB(scraper),2020-03-13 10:00:00-04:00,60.0
+2020-03-13,Michigan Consumer Sentiment,InvestingC(2019-21),2020-03-13 11:00:00-04:00,InvestingB(scraper),2020-03-13 10:00:00-04:00,60.0
+2020-03-13,U.S. President Trump Speaks,InvestingC(2019-21),2020-03-13 16:00:00-04:00,InvestingB(scraper),2020-03-13 15:00:00-04:00,60.0
+2020-03-15,FOMC Statement,InvestingC(2019-21),2020-03-15 18:00:00-04:00,InvestingB(scraper),2020-03-15 17:00:00-04:00,60.0
+2020-03-15,Fed Interest Rate Decision,InvestingC(2019-21),2020-03-15 18:00:00-04:00,InvestingB(scraper),2020-03-15 17:00:00-04:00,60.0
+2020-03-15,U.S. President Trump Speaks,InvestingC(2019-21),2020-03-15 18:20:00-04:00,InvestingB(scraper),2020-03-15 17:20:00-04:00,60.0
+2020-03-15,FOMC Press Conference,InvestingC(2019-21),2020-03-15 19:30:00-04:00,InvestingB(scraper),2020-03-15 18:30:00-04:00,60.0
+2020-03-16,NY Empire State Manufacturing Index,InvestingC(2019-21),2020-03-16 09:30:00-04:00,InvestingB(scraper),2020-03-16 08:30:00-04:00,60.0
+2020-03-18,Housing Starts,InvestingC(2019-21),2020-03-18 09:30:00-04:00,InvestingB(scraper),2020-03-18 08:30:00-04:00,60.0
+2020-03-19,Initial Jobless Claims,InvestingC(2019-21),2020-03-19 09:30:00-04:00,InvestingB(scraper),2020-03-19 08:30:00-04:00,60.0
+2020-03-19,Philadelphia Fed Manufacturing Index,InvestingC(2019-21),2020-03-19 09:30:00-04:00,InvestingB(scraper),2020-03-19 08:30:00-04:00,60.0
+2020-03-24,FOMC Member Bullard Speaks,InvestingC(2019-21),2020-03-24 10:45:00-04:00,InvestingB(scraper),2020-03-24 09:45:00-04:00,60.0
+2020-03-24,New Home Sales,InvestingC(2019-21),2020-03-24 11:00:00-04:00,InvestingB(scraper),2020-03-24 10:00:00-04:00,60.0
+2020-03-24,U.S. President Trump Speaks,InvestingC(2019-21),2020-03-24 13:05:00-04:00,InvestingB(scraper),2020-03-24 12:05:00-04:00,60.0
+2020-03-26,Fed Chair Powell Speaks,InvestingC(2019-21),2020-03-26 08:00:00-04:00,InvestingB(scraper),2020-03-26 07:00:00-04:00,60.0
+2020-03-26,Initial Jobless Claims,InvestingC(2019-21),2020-03-26 09:30:00-04:00,InvestingB(scraper),2020-03-26 08:30:00-04:00,60.0
+2020-03-27,Michigan 5-Year Inflation Expectations,InvestingC(2019-21),2020-03-27 11:00:00-04:00,InvestingB(scraper),2020-03-27 10:00:00-04:00,60.0
+2020-03-27,Michigan Consumer Sentiment,InvestingC(2019-21),2020-03-27 11:00:00-04:00,InvestingB(scraper),2020-03-27 10:00:00-04:00,60.0
+2020-03-31,CB Consumer Confidence,InvestingC(2019-21),2020-03-31 11:00:00-04:00,InvestingB(scraper),2020-03-31 10:00:00-04:00,60.0
+2020-04-01,ADP Nonfarm Employment Change,InvestingC(2019-21),2020-04-01 09:15:00-04:00,InvestingB(scraper),2020-04-01 08:15:00-04:00,60.0
+2020-04-01,ISM Manufacturing PMI,InvestingC(2019-21),2020-04-01 11:00:00-04:00,InvestingB(scraper),2020-04-01 10:00:00-04:00,60.0
+2020-04-02,Initial Jobless Claims,InvestingC(2019-21),2020-04-02 09:30:00-04:00,InvestingB(scraper),2020-04-02 08:30:00-04:00,60.0
+2020-04-03,Nonfarm Payrolls,InvestingC(2019-21),2020-04-03 09:30:00-04:00,InvestingB(scraper),2020-04-03 08:30:00-04:00,60.0
+2020-04-03,Unemployment Rate,InvestingC(2019-21),2020-04-03 09:30:00-04:00,InvestingB(scraper),2020-04-03 08:30:00-04:00,60.0
+2020-04-03,ISM Non-Manufacturing PMI,InvestingC(2019-21),2020-04-03 11:00:00-04:00,InvestingB(scraper),2020-04-03 10:00:00-04:00,60.0
+2020-04-07,10-Year Note Auction,InvestingC(2019-21),2020-04-07 14:01:00-04:00,InvestingB(scraper),2020-04-07 13:01:00-04:00,60.0
+2020-04-08,30-Year Bond Auction,InvestingC(2019-21),2020-04-08 14:01:00-04:00,InvestingB(scraper),2020-04-08 13:01:00-04:00,60.0
+2020-04-08,FOMC Meeting Minutes,InvestingC(2019-21),2020-04-08 15:00:00-04:00,InvestingB(scraper),2020-04-08 14:00:00-04:00,60.0
+2020-04-09,Initial Jobless Claims,InvestingC(2019-21),2020-04-09 09:30:00-04:00,InvestingB(scraper),2020-04-09 08:30:00-04:00,60.0
+2020-04-09,Fed Chair Powell Speaks,InvestingC(2019-21),2020-04-09 11:00:00-04:00,InvestingB(scraper),2020-04-09 10:00:00-04:00,60.0
+2020-04-09,Michigan 5-Year Inflation Expectations,InvestingC(2019-21),2020-04-09 11:00:00-04:00,InvestingB(scraper),2020-04-09 10:00:00-04:00,60.0
+2020-04-09,Michigan Consumer Sentiment,InvestingC(2019-21),2020-04-09 11:00:00-04:00,InvestingB(scraper),2020-04-09 10:00:00-04:00,60.0
+2020-04-14,FOMC Member Bullard Speaks,InvestingC(2019-21),2020-04-14 12:05:00-04:00,InvestingB(scraper),2020-04-14 11:05:00-04:00,60.0
+2020-04-15,NY Empire State Manufacturing Index,InvestingC(2019-21),2020-04-15 09:30:00-04:00,InvestingB(scraper),2020-04-15 08:30:00-04:00,60.0
+2020-04-16,Housing Starts,InvestingC(2019-21),2020-04-16 09:30:00-04:00,InvestingB(scraper),2020-04-16 08:30:00-04:00,60.0
+2020-04-16,Initial Jobless Claims,InvestingC(2019-21),2020-04-16 09:30:00-04:00,InvestingB(scraper),2020-04-16 08:30:00-04:00,60.0
+2020-04-16,Philadelphia Fed Manufacturing Index,InvestingC(2019-21),2020-04-16 09:30:00-04:00,InvestingB(scraper),2020-04-16 08:30:00-04:00,60.0
+2020-04-16,FOMC Member Williams Speaks,InvestingC(2019-21),2020-04-16 15:00:00-04:00,InvestingB(scraper),2020-04-16 14:00:00-04:00,60.0
+2020-04-23,Initial Jobless Claims,InvestingC(2019-21),2020-04-23 09:30:00-04:00,InvestingB(scraper),2020-04-23 08:30:00-04:00,60.0
+2020-04-23,New Home Sales,InvestingC(2019-21),2020-04-23 11:00:00-04:00,InvestingB(scraper),2020-04-23 10:00:00-04:00,60.0
+2020-04-23,FOMC Member Williams Speaks,InvestingC(2019-21),2020-04-23 15:00:00-04:00,InvestingB(scraper),2020-04-23 14:00:00-04:00,60.0
+2020-04-24,Michigan 5-Year Inflation Expectations,InvestingC(2019-21),2020-04-24 11:00:00-04:00,InvestingB(scraper),2020-04-24 10:00:00-04:00,60.0
+2020-04-24,Michigan Consumer Sentiment,InvestingC(2019-21),2020-04-24 11:00:00-04:00,InvestingB(scraper),2020-04-24 10:00:00-04:00,60.0
+2020-04-28,CB Consumer Confidence,InvestingC(2019-21),2020-04-28 11:00:00-04:00,InvestingB(scraper),2020-04-28 10:00:00-04:00,60.0
+2020-04-29,FOMC Statement,InvestingC(2019-21),2020-04-29 15:00:00-04:00,InvestingB(scraper),2020-04-29 14:00:00-04:00,60.0
+2020-04-29,Fed Interest Rate Decision,InvestingC(2019-21),2020-04-29 15:00:00-04:00,InvestingB(scraper),2020-04-29 14:00:00-04:00,60.0
+2020-04-29,FOMC Press Conference,InvestingC(2019-21),2020-04-29 15:30:00-04:00,InvestingB(scraper),2020-04-29 14:30:00-04:00,60.0
+2020-04-30,Initial Jobless Claims,InvestingC(2019-21),2020-04-30 09:30:00-04:00,InvestingB(scraper),2020-04-30 08:30:00-04:00,60.0
+2020-05-01,ISM Manufacturing PMI,InvestingC(2019-21),2020-05-01 11:00:00-04:00,InvestingB(scraper),2020-05-01 10:00:00-04:00,60.0
+2020-05-05,ISM Non-Manufacturing PMI,InvestingC(2019-21),2020-05-05 11:00:00-04:00,InvestingB(scraper),2020-05-05 10:00:00-04:00,60.0
+2020-05-05,FOMC Member Bullard Speaks,InvestingC(2019-21),2020-05-05 15:00:00-04:00,InvestingB(scraper),2020-05-05 14:00:00-04:00,60.0
+2020-05-06,ADP Nonfarm Employment Change,InvestingC(2019-21),2020-05-06 09:15:00-04:00,InvestingB(scraper),2020-05-06 08:15:00-04:00,60.0
+2020-05-07,Initial Jobless Claims,InvestingC(2019-21),2020-05-07 09:30:00-04:00,InvestingB(scraper),2020-05-07 08:30:00-04:00,60.0
+2020-05-08,Nonfarm Payrolls,InvestingC(2019-21),2020-05-08 09:30:00-04:00,InvestingB(scraper),2020-05-08 08:30:00-04:00,60.0
+2020-05-08,Unemployment Rate,InvestingC(2019-21),2020-05-08 09:30:00-04:00,InvestingB(scraper),2020-05-08 08:30:00-04:00,60.0
+2020-05-12,FOMC Member Bullard Speaks,InvestingC(2019-21),2020-05-12 10:00:00-04:00,InvestingB(scraper),2020-05-12 09:00:00-04:00,60.0
+2020-05-12,10-Year Note Auction,InvestingC(2019-21),2020-05-12 14:01:00-04:00,InvestingB(scraper),2020-05-12 13:01:00-04:00,60.0
+2020-05-13,Fed Chair Powell Speaks,InvestingC(2019-21),2020-05-13 10:00:00-04:00,InvestingB(scraper),2020-05-13 09:00:00-04:00,60.0
+2020-05-13,30-Year Bond Auction,InvestingC(2019-21),2020-05-13 14:00:00-04:00,InvestingB(scraper),2020-05-13 13:00:00-04:00,60.0
+2020-05-14,Initial Jobless Claims,InvestingC(2019-21),2020-05-14 09:30:00-04:00,InvestingB(scraper),2020-05-14 08:30:00-04:00,60.0
+2020-05-15,NY Empire State Manufacturing Index,InvestingC(2019-21),2020-05-15 09:30:00-04:00,InvestingB(scraper),2020-05-15 08:30:00-04:00,60.0
+2020-05-15,Michigan 5-Year Inflation Expectations,InvestingC(2019-21),2020-05-15 11:00:00-04:00,InvestingB(scraper),2020-05-15 10:00:00-04:00,60.0
+2020-05-15,Michigan Consumer Sentiment,InvestingC(2019-21),2020-05-15 11:00:00-04:00,InvestingB(scraper),2020-05-15 10:00:00-04:00,60.0
+2020-05-17,Fed Chair Powell Speaks,InvestingC(2019-21),2020-05-17 20:00:00-04:00,InvestingB(scraper),2020-05-17 19:00:00-04:00,60.0
+2020-05-19,Housing Starts,InvestingC(2019-21),2020-05-19 09:30:00-04:00,InvestingB(scraper),2020-05-19 08:30:00-04:00,60.0
+2020-05-19,Fed Chair Powell Testifies,InvestingC(2019-21),2020-05-19 11:00:00-04:00,InvestingB(scraper),2020-05-19 10:00:00-04:00,60.0
+2020-05-20,FOMC Meeting Minutes,InvestingC(2019-21),2020-05-20 15:00:00-04:00,InvestingB(scraper),2020-05-20 14:00:00-04:00,60.0
+2020-05-21,Initial Jobless Claims,InvestingC(2019-21),2020-05-21 09:30:00-04:00,InvestingB(scraper),2020-05-21 08:30:00-04:00,60.0
+2020-05-21,Philadelphia Fed Manufacturing Index,InvestingC(2019-21),2020-05-21 09:30:00-04:00,InvestingB(scraper),2020-05-21 08:30:00-04:00,60.0
+2020-05-21,FOMC Member Williams Speaks,InvestingC(2019-21),2020-05-21 11:00:00-04:00,InvestingB(scraper),2020-05-21 10:00:00-04:00,60.0
+2020-05-21,Fed Chair Powell Speaks,InvestingC(2019-21),2020-05-21 15:30:00-04:00,InvestingB(scraper),2020-05-21 14:30:00-04:00,60.0
+2020-05-26,CB Consumer Confidence,InvestingC(2019-21),2020-05-26 11:00:00-04:00,InvestingB(scraper),2020-05-26 10:00:00-04:00,60.0
+2020-05-26,New Home Sales,InvestingC(2019-21),2020-05-26 11:00:00-04:00,InvestingB(scraper),2020-05-26 10:00:00-04:00,60.0
+2020-05-27,FOMC Member Bullard Speaks,InvestingC(2019-21),2020-05-27 13:30:00-04:00,InvestingB(scraper),2020-05-27 12:30:00-04:00,60.0
+2020-05-28,Initial Jobless Claims,InvestingC(2019-21),2020-05-28 09:30:00-04:00,InvestingB(scraper),2020-05-28 08:30:00-04:00,60.0
+2020-05-28,FOMC Member Williams Speaks,InvestingC(2019-21),2020-05-28 12:00:00-04:00,InvestingB(scraper),2020-05-28 11:00:00-04:00,60.0
+2020-05-29,Michigan 5-Year Inflation Expectations,InvestingC(2019-21),2020-05-29 11:00:00-04:00,InvestingB(scraper),2020-05-29 10:00:00-04:00,60.0
+2020-05-29,Michigan Consumer Sentiment,InvestingC(2019-21),2020-05-29 11:00:00-04:00,InvestingB(scraper),2020-05-29 10:00:00-04:00,60.0
+2020-05-29,Fed Chair Powell Speaks,InvestingC(2019-21),2020-05-29 12:00:00-04:00,InvestingB(scraper),2020-05-29 11:00:00-04:00,60.0
+2020-05-29,U.S. President Trump Speaks,InvestingC(2019-21),2020-05-29 17:00:00-04:00,InvestingB(scraper),2020-05-29 16:00:00-04:00,60.0
+2020-06-01,ISM Manufacturing PMI,InvestingC(2019-21),2020-06-01 11:00:00-04:00,InvestingB(scraper),2020-06-01 10:00:00-04:00,60.0
+2020-06-03,ADP Nonfarm Employment Change,InvestingC(2019-21),2020-06-03 09:15:00-04:00,InvestingB(scraper),2020-06-03 08:15:00-04:00,60.0
+2020-06-03,ISM Non-Manufacturing PMI,InvestingC(2019-21),2020-06-03 11:00:00-04:00,InvestingB(scraper),2020-06-03 10:00:00-04:00,60.0
+2020-06-04,Initial Jobless Claims,InvestingC(2019-21),2020-06-04 09:30:00-04:00,InvestingB(scraper),2020-06-04 08:30:00-04:00,60.0
+2020-06-05,Nonfarm Payrolls,InvestingC(2019-21),2020-06-05 09:30:00-04:00,InvestingB(scraper),2020-06-05 08:30:00-04:00,60.0
+2020-06-05,Unemployment Rate,InvestingC(2019-21),2020-06-05 09:30:00-04:00,InvestingB(scraper),2020-06-05 08:30:00-04:00,60.0
+2020-06-05,U.S. President Trump Speaks,InvestingC(2019-21),2020-06-05 11:00:00-04:00,InvestingB(scraper),2020-06-05 10:00:00-04:00,60.0
+2020-06-09,10-Year Note Auction,InvestingC(2019-21),2020-06-09 14:01:00-04:00,InvestingB(scraper),2020-06-09 13:01:00-04:00,60.0
+2020-06-10,FOMC Economic Projections,InvestingC(2019-21),2020-06-10 15:00:00-04:00,InvestingB(scraper),2020-06-10 14:00:00-04:00,60.0
+2020-06-10,FOMC Statement,InvestingC(2019-21),2020-06-10 15:00:00-04:00,InvestingB(scraper),2020-06-10 14:00:00-04:00,60.0
+2020-06-10,Fed Interest Rate Decision,InvestingC(2019-21),2020-06-10 15:00:00-04:00,InvestingB(scraper),2020-06-10 14:00:00-04:00,60.0
+2020-06-10,FOMC Press Conference,InvestingC(2019-21),2020-06-10 15:30:00-04:00,InvestingB(scraper),2020-06-10 14:30:00-04:00,60.0
+2020-06-11,Initial Jobless Claims,InvestingC(2019-21),2020-06-11 09:30:00-04:00,InvestingB(scraper),2020-06-11 08:30:00-04:00,60.0
+2020-06-11,30-Year Bond Auction,InvestingC(2019-21),2020-06-11 14:01:00-04:00,InvestingB(scraper),2020-06-11 13:01:00-04:00,60.0
+2020-06-12,Michigan 5-Year Inflation Expectations,InvestingC(2019-21),2020-06-12 11:00:00-04:00,InvestingB(scraper),2020-06-12 10:00:00-04:00,60.0
+2020-06-12,Michigan Consumer Sentiment,InvestingC(2019-21),2020-06-12 11:00:00-04:00,InvestingB(scraper),2020-06-12 10:00:00-04:00,60.0
+2020-06-15,NY Empire State Manufacturing Index,InvestingC(2019-21),2020-06-15 09:30:00-04:00,InvestingB(scraper),2020-06-15 08:30:00-04:00,60.0
+2020-06-16,Fed Chair Powell Testifies,InvestingC(2019-21),2020-06-16 11:00:00-04:00,InvestingB(scraper),2020-06-16 10:00:00-04:00,60.0
+2020-06-17,Housing Starts,InvestingC(2019-21),2020-06-17 09:30:00-04:00,InvestingB(scraper),2020-06-17 08:30:00-04:00,60.0
+2020-06-17,Fed Chair Powell Testifies,InvestingC(2019-21),2020-06-17 13:00:00-04:00,InvestingB(scraper),2020-06-17 12:00:00-04:00,60.0
+2020-06-18,Initial Jobless Claims,InvestingC(2019-21),2020-06-18 09:30:00-04:00,InvestingB(scraper),2020-06-18 08:30:00-04:00,60.0
+2020-06-18,Philadelphia Fed Manufacturing Index,InvestingC(2019-21),2020-06-18 09:30:00-04:00,InvestingB(scraper),2020-06-18 08:30:00-04:00,60.0
+2020-06-19,Fed Chair Powell Speaks,InvestingC(2019-21),2020-06-19 14:00:00-04:00,InvestingB(scraper),2020-06-19 13:00:00-04:00,60.0
+2020-06-23,New Home Sales,InvestingC(2019-21),2020-06-23 11:00:00-04:00,InvestingB(scraper),2020-06-23 10:00:00-04:00,60.0
+2020-06-24,FOMC Member Bullard Speaks,InvestingC(2019-21),2020-06-24 16:00:00-04:00,InvestingB(scraper),2020-06-24 15:00:00-04:00,60.0
+2020-06-25,Initial Jobless Claims,InvestingC(2019-21),2020-06-25 09:30:00-04:00,InvestingB(scraper),2020-06-25 08:30:00-04:00,60.0
+2020-06-26,Michigan 5-Year Inflation Expectations,InvestingC(2019-21),2020-06-26 11:00:00-04:00,InvestingB(scraper),2020-06-26 10:00:00-04:00,60.0
+2020-06-26,Michigan Consumer Sentiment,InvestingC(2019-21),2020-06-26 11:00:00-04:00,InvestingB(scraper),2020-06-26 10:00:00-04:00,60.0
+2020-06-29,FOMC Member Williams Speaks,InvestingC(2019-21),2020-06-29 16:00:00-04:00,InvestingB(scraper),2020-06-29 15:00:00-04:00,60.0
+2020-06-30,FOMC Member Williams Speaks,InvestingC(2019-21),2020-06-30 08:00:00-04:00,InvestingB(scraper),2020-06-30 07:00:00-04:00,60.0
+2020-06-30,CB Consumer Confidence,InvestingC(2019-21),2020-06-30 11:00:00-04:00,InvestingB(scraper),2020-06-30 10:00:00-04:00,60.0
+2020-06-30,Fed Chair Powell Testifies,InvestingC(2019-21),2020-06-30 13:30:00-04:00,InvestingB(scraper),2020-06-30 12:30:00-04:00,60.0
+2020-07-01,ADP Nonfarm Employment Change,InvestingC(2019-21),2020-07-01 09:15:00-04:00,InvestingB(scraper),2020-07-01 08:15:00-04:00,60.0
+2020-07-01,ISM Manufacturing PMI,InvestingC(2019-21),2020-07-01 11:00:00-04:00,InvestingB(scraper),2020-07-01 10:00:00-04:00,60.0
+2020-07-01,FOMC Meeting Minutes,InvestingC(2019-21),2020-07-01 15:00:00-04:00,InvestingB(scraper),2020-07-01 14:00:00-04:00,60.0
+2020-07-02,Initial Jobless Claims,InvestingC(2019-21),2020-07-02 09:30:00-04:00,InvestingB(scraper),2020-07-02 08:30:00-04:00,60.0
+2020-07-02,Nonfarm Payrolls,InvestingC(2019-21),2020-07-02 09:30:00-04:00,InvestingB(scraper),2020-07-02 08:30:00-04:00,60.0
+2020-07-02,Unemployment Rate,InvestingC(2019-21),2020-07-02 09:30:00-04:00,InvestingB(scraper),2020-07-02 08:30:00-04:00,60.0
+2020-07-02,U.S. President Trump Speaks,InvestingC(2019-21),2020-07-02 10:30:00-04:00,InvestingB(scraper),2020-07-02 09:30:00-04:00,60.0
+2020-07-06,ISM Non-Manufacturing PMI,InvestingC(2019-21),2020-07-06 11:00:00-04:00,InvestingB(scraper),2020-07-06 10:00:00-04:00,60.0
+2020-07-08,10-Year Note Auction,InvestingC(2019-21),2020-07-08 14:01:00-04:00,InvestingB(scraper),2020-07-08 13:01:00-04:00,60.0
+2020-07-09,Initial Jobless Claims,InvestingC(2019-21),2020-07-09 09:30:00-04:00,InvestingB(scraper),2020-07-09 08:30:00-04:00,60.0
+2020-07-09,30-Year Bond Auction,InvestingC(2019-21),2020-07-09 14:01:00-04:00,InvestingB(scraper),2020-07-09 13:01:00-04:00,60.0
+2020-07-13,FOMC Member Williams Speaks,InvestingC(2019-21),2020-07-13 12:30:00-04:00,InvestingB(scraper),2020-07-13 11:30:00-04:00,60.0
+2020-07-14,FOMC Member Bullard Speaks,InvestingC(2019-21),2020-07-14 15:30:00-04:00,InvestingB(scraper),2020-07-14 14:30:00-04:00,60.0
+2020-07-15,NY Empire State Manufacturing Index,InvestingC(2019-21),2020-07-15 09:30:00-04:00,InvestingB(scraper),2020-07-15 08:30:00-04:00,60.0
+2020-07-16,Initial Jobless Claims,InvestingC(2019-21),2020-07-16 09:30:00-04:00,InvestingB(scraper),2020-07-16 08:30:00-04:00,60.0
+2020-07-16,Philadelphia Fed Manufacturing Index,InvestingC(2019-21),2020-07-16 09:30:00-04:00,InvestingB(scraper),2020-07-16 08:30:00-04:00,60.0
+2020-07-16,FOMC Member Williams Speaks,InvestingC(2019-21),2020-07-16 12:10:00-04:00,InvestingB(scraper),2020-07-16 11:10:00-04:00,60.0
+2020-07-17,Housing Starts,InvestingC(2019-21),2020-07-17 09:30:00-04:00,InvestingB(scraper),2020-07-17 08:30:00-04:00,60.0
+2020-07-17,Michigan 5-Year Inflation Expectations,InvestingC(2019-21),2020-07-17 11:00:00-04:00,InvestingB(scraper),2020-07-17 10:00:00-04:00,60.0
+2020-07-17,Michigan Consumer Sentiment,InvestingC(2019-21),2020-07-17 11:00:00-04:00,InvestingB(scraper),2020-07-17 10:00:00-04:00,60.0
+2020-07-23,Initial Jobless Claims,InvestingC(2019-21),2020-07-23 09:30:00-04:00,InvestingB(scraper),2020-07-23 08:30:00-04:00,60.0
+2020-07-24,New Home Sales,InvestingC(2019-21),2020-07-24 11:00:00-04:00,InvestingB(scraper),2020-07-24 10:00:00-04:00,60.0
+2020-07-28,CB Consumer Confidence,InvestingC(2019-21),2020-07-28 11:00:00-04:00,InvestingB(scraper),2020-07-28 10:00:00-04:00,60.0
+2020-07-29,FOMC Statement,InvestingC(2019-21),2020-07-29 15:00:00-04:00,InvestingB(scraper),2020-07-29 14:00:00-04:00,60.0
+2020-07-29,Fed Interest Rate Decision,InvestingC(2019-21),2020-07-29 15:00:00-04:00,InvestingB(scraper),2020-07-29 14:00:00-04:00,60.0
+2020-07-29,FOMC Press Conference,InvestingC(2019-21),2020-07-29 15:30:00-04:00,InvestingB(scraper),2020-07-29 14:30:00-04:00,60.0
+2020-07-30,Initial Jobless Claims,InvestingC(2019-21),2020-07-30 09:30:00-04:00,InvestingB(scraper),2020-07-30 08:30:00-04:00,60.0
+2020-07-31,Michigan 5-Year Inflation Expectations,InvestingC(2019-21),2020-07-31 11:00:00-04:00,InvestingB(scraper),2020-07-31 10:00:00-04:00,60.0
+2020-07-31,Michigan Consumer Sentiment,InvestingC(2019-21),2020-07-31 11:00:00-04:00,InvestingB(scraper),2020-07-31 10:00:00-04:00,60.0
+2020-08-03,ISM Manufacturing PMI,InvestingC(2019-21),2020-08-03 11:00:00-04:00,InvestingB(scraper),2020-08-03 10:00:00-04:00,60.0
+2020-08-03,FOMC Member Bullard Speaks,InvestingC(2019-21),2020-08-03 13:30:00-04:00,InvestingB(scraper),2020-08-03 12:30:00-04:00,60.0
+2020-08-05,ADP Nonfarm Employment Change,InvestingC(2019-21),2020-08-05 09:15:00-04:00,InvestingB(scraper),2020-08-05 08:15:00-04:00,60.0
+2020-08-05,ISM Non-Manufacturing PMI,InvestingC(2019-21),2020-08-05 11:00:00-04:00,InvestingB(scraper),2020-08-05 10:00:00-04:00,60.0
+2020-08-06,Initial Jobless Claims,InvestingC(2019-21),2020-08-06 09:30:00-04:00,InvestingB(scraper),2020-08-06 08:30:00-04:00,60.0
+2020-08-07,Nonfarm Payrolls,InvestingC(2019-21),2020-08-07 09:30:00-04:00,InvestingB(scraper),2020-08-07 08:30:00-04:00,60.0
+2020-08-07,Unemployment Rate,InvestingC(2019-21),2020-08-07 09:30:00-04:00,InvestingB(scraper),2020-08-07 08:30:00-04:00,60.0
+2020-08-12,10-Year Note Auction,InvestingC(2019-21),2020-08-12 14:01:00-04:00,InvestingB(scraper),2020-08-12 13:01:00-04:00,60.0
+2020-08-13,Initial Jobless Claims,InvestingC(2019-21),2020-08-13 09:30:00-04:00,InvestingB(scraper),2020-08-13 08:30:00-04:00,60.0
+2020-08-13,30-Year Bond Auction,InvestingC(2019-21),2020-08-13 14:01:00-04:00,InvestingB(scraper),2020-08-13 13:01:00-04:00,60.0
+2020-08-14,Michigan 5-Year Inflation Expectations,InvestingC(2019-21),2020-08-14 11:00:00-04:00,InvestingB(scraper),2020-08-14 10:00:00-04:00,60.0
+2020-08-14,Michigan Consumer Sentiment,InvestingC(2019-21),2020-08-14 11:00:00-04:00,InvestingB(scraper),2020-08-14 10:00:00-04:00,60.0
+2020-08-17,NY Empire State Manufacturing Index,InvestingC(2019-21),2020-08-17 09:30:00-04:00,InvestingB(scraper),2020-08-17 08:30:00-04:00,60.0
+2020-08-18,Housing Starts,InvestingC(2019-21),2020-08-18 09:30:00-04:00,InvestingB(scraper),2020-08-18 08:30:00-04:00,60.0
+2020-08-19,FOMC Meeting Minutes,InvestingC(2019-21),2020-08-19 15:00:00-04:00,InvestingB(scraper),2020-08-19 14:00:00-04:00,60.0
+2020-08-20,Initial Jobless Claims,InvestingC(2019-21),2020-08-20 09:30:00-04:00,InvestingB(scraper),2020-08-20 08:30:00-04:00,60.0
+2020-08-20,Philadelphia Fed Manufacturing Index,InvestingC(2019-21),2020-08-20 09:30:00-04:00,InvestingB(scraper),2020-08-20 08:30:00-04:00,60.0
+2020-08-25,CB Consumer Confidence,InvestingC(2019-21),2020-08-25 11:00:00-04:00,InvestingB(scraper),2020-08-25 10:00:00-04:00,60.0
+2020-08-25,New Home Sales,InvestingC(2019-21),2020-08-25 11:00:00-04:00,InvestingB(scraper),2020-08-25 10:00:00-04:00,60.0
+2020-08-27,Initial Jobless Claims,InvestingC(2019-21),2020-08-27 09:30:00-04:00,InvestingB(scraper),2020-08-27 08:30:00-04:00,60.0
+2020-08-27,Fed Chair Powell Speaks,InvestingC(2019-21),2020-08-27 10:10:00-04:00,InvestingB(scraper),2020-08-27 09:10:00-04:00,60.0
+2020-08-28,Michigan 5-Year Inflation Expectations,InvestingC(2019-21),2020-08-28 11:00:00-04:00,InvestingB(scraper),2020-08-28 10:00:00-04:00,60.0
+2020-08-28,Michigan Consumer Sentiment,InvestingC(2019-21),2020-08-28 11:00:00-04:00,InvestingB(scraper),2020-08-28 10:00:00-04:00,60.0
+2021-02-02,FOMC Member Williams Speaks,InvestingC(2019-21),2021-02-02 15:00:00-05:00,InvestingB(scraper),2021-02-02 14:00:00-05:00,60.0
+2021-02-03,ADP Nonfarm Employment Change,InvestingC(2019-21),2021-02-03 09:15:00-05:00,InvestingB(scraper),2021-02-03 08:15:00-05:00,60.0
+2021-02-03,ISM Non-Manufacturing PMI,InvestingC(2019-21),2021-02-03 11:00:00-05:00,InvestingB(scraper),2021-02-03 10:00:00-05:00,60.0
+2021-02-03,FOMC Member Bullard Speaks,InvestingC(2019-21),2021-02-03 14:00:00-05:00,InvestingB(scraper),2021-02-03 13:00:00-05:00,60.0
+2021-02-04,Initial Jobless Claims,InvestingC(2019-21),2021-02-04 09:30:00-05:00,InvestingB(scraper),2021-02-04 08:30:00-05:00,60.0
+2021-02-05,Nonfarm Payrolls,InvestingC(2019-21),2021-02-05 09:30:00-05:00,InvestingB(scraper),2021-02-05 08:30:00-05:00,60.0
+2021-02-05,Unemployment Rate,InvestingC(2019-21),2021-02-05 09:30:00-05:00,InvestingB(scraper),2021-02-05 08:30:00-05:00,60.0
+2021-02-09,FOMC Member Bullard Speaks,InvestingC(2019-21),2021-02-09 13:00:00-05:00,InvestingB(scraper),2021-02-09 12:00:00-05:00,60.0
+2021-02-10,10-Year Note Auction,InvestingC(2019-21),2021-02-10 14:00:00-05:00,InvestingB(scraper),2021-02-10 13:00:00-05:00,60.0
+2021-02-10,Fed Chair Powell Speaks,InvestingC(2019-21),2021-02-10 15:00:00-05:00,InvestingB(scraper),2021-02-10 14:00:00-05:00,60.0
+2021-02-11,Initial Jobless Claims,InvestingC(2019-21),2021-02-11 09:30:00-05:00,InvestingB(scraper),2021-02-11 08:30:00-05:00,60.0
+2021-02-11,30-Year Bond Auction,InvestingC(2019-21),2021-02-11 14:00:00-05:00,InvestingB(scraper),2021-02-11 13:00:00-05:00,60.0
+2021-02-12,FOMC Member Williams Speaks,InvestingC(2019-21),2021-02-12 11:00:00-05:00,InvestingB(scraper),2021-02-12 10:00:00-05:00,60.0
+2021-02-12,Michigan 5-Year Inflation Expectations,InvestingC(2019-21),2021-02-12 11:00:00-05:00,InvestingB(scraper),2021-02-12 10:00:00-05:00,60.0
+2021-02-12,Michigan Consumer Sentiment,InvestingC(2019-21),2021-02-12 11:00:00-05:00,InvestingB(scraper),2021-02-12 10:00:00-05:00,60.0
+2021-02-16,NY Empire State Manufacturing Index,InvestingC(2019-21),2021-02-16 09:30:00-05:00,InvestingB(scraper),2021-02-16 08:30:00-05:00,60.0
+2021-02-17,FOMC Meeting Minutes,InvestingC(2019-21),2021-02-17 15:00:00-05:00,InvestingB(scraper),2021-02-17 14:00:00-05:00,60.0
+2021-02-18,Housing Starts,InvestingC(2019-21),2021-02-18 09:30:00-05:00,InvestingB(scraper),2021-02-18 08:30:00-05:00,60.0
+2021-02-18,Initial Jobless Claims,InvestingC(2019-21),2021-02-18 09:30:00-05:00,InvestingB(scraper),2021-02-18 08:30:00-05:00,60.0
+2021-02-18,Philadelphia Fed Manufacturing Index,InvestingC(2019-21),2021-02-18 09:30:00-05:00,InvestingB(scraper),2021-02-18 08:30:00-05:00,60.0
+2021-02-23,CB Consumer Confidence,InvestingC(2019-21),2021-02-23 11:00:00-05:00,InvestingB(scraper),2021-02-23 10:00:00-05:00,60.0
+2021-02-23,Fed Chair Powell Testifies,InvestingC(2019-21),2021-02-23 11:00:00-05:00,InvestingB(scraper),2021-02-23 10:00:00-05:00,60.0
+2021-02-24,Fed Chair Powell Testifies,InvestingC(2019-21),2021-02-24 11:00:00-05:00,InvestingB(scraper),2021-02-24 10:00:00-05:00,60.0
+2021-02-24,New Home Sales,InvestingC(2019-21),2021-02-24 11:00:00-05:00,InvestingB(scraper),2021-02-24 10:00:00-05:00,60.0
+2021-02-25,Initial Jobless Claims,InvestingC(2019-21),2021-02-25 09:30:00-05:00,InvestingB(scraper),2021-02-25 08:30:00-05:00,60.0
+2021-02-25,FOMC Member Williams Speaks,InvestingC(2019-21),2021-02-25 16:00:00-05:00,InvestingB(scraper),2021-02-25 15:00:00-05:00,60.0
+2021-02-26,Michigan 5-Year Inflation Expectations,InvestingC(2019-21),2021-02-26 11:00:00-05:00,InvestingB(scraper),2021-02-26 10:00:00-05:00,60.0
+2021-02-26,Michigan Consumer Sentiment,InvestingC(2019-21),2021-02-26 11:00:00-05:00,InvestingB(scraper),2021-02-26 10:00:00-05:00,60.0
+2021-03-01,FOMC Member Williams Speaks,InvestingC(2019-21),2021-03-01 10:00:00-05:00,InvestingB(scraper),2021-03-01 09:00:00-05:00,60.0
+2021-03-01,ISM Manufacturing PMI,InvestingC(2019-21),2021-03-01 11:00:00-05:00,InvestingB(scraper),2021-03-01 10:00:00-05:00,60.0
+2021-03-03,ADP Nonfarm Employment Change,InvestingC(2019-21),2021-03-03 09:15:00-05:00,InvestingB(scraper),2021-03-03 08:15:00-05:00,60.0
+2021-03-03,ISM Non-Manufacturing PMI,InvestingC(2019-21),2021-03-03 11:00:00-05:00,InvestingB(scraper),2021-03-03 10:00:00-05:00,60.0
+2021-03-04,Initial Jobless Claims,InvestingC(2019-21),2021-03-04 09:30:00-05:00,InvestingB(scraper),2021-03-04 08:30:00-05:00,60.0
+2021-03-04,Fed Chair Powell Speaks,InvestingC(2019-21),2021-03-04 13:05:00-05:00,InvestingB(scraper),2021-03-04 12:05:00-05:00,60.0
+2021-03-05,Nonfarm Payrolls,InvestingC(2019-21),2021-03-05 09:30:00-05:00,InvestingB(scraper),2021-03-05 08:30:00-05:00,60.0
+2021-03-05,Unemployment Rate,InvestingC(2019-21),2021-03-05 09:30:00-05:00,InvestingB(scraper),2021-03-05 08:30:00-05:00,60.0
+2021-03-10,10-Year Note Auction,InvestingC(2019-21),2021-03-10 14:00:00-05:00,InvestingB(scraper),2021-03-10 13:00:00-05:00,60.0
+2021-03-11,Initial Jobless Claims,InvestingC(2019-21),2021-03-11 09:30:00-05:00,InvestingB(scraper),2021-03-11 08:30:00-05:00,60.0
+2021-03-11,30-Year Bond Auction,InvestingC(2019-21),2021-03-11 14:00:00-05:00,InvestingB(scraper),2021-03-11 13:00:00-05:00,60.0
+2021-03-12,Michigan 5-Year Inflation Expectations,InvestingC(2019-21),2021-03-12 11:00:00-05:00,InvestingB(scraper),2021-03-12 10:00:00-05:00,60.0
+2021-03-12,Michigan Consumer Sentiment,InvestingC(2019-21),2021-03-12 11:00:00-05:00,InvestingB(scraper),2021-03-12 10:00:00-05:00,60.0
+2021-03-15,NY Empire State Manufacturing Index,InvestingC(2019-21),2021-03-15 09:30:00-04:00,InvestingB(scraper),2021-03-15 08:30:00-04:00,60.0
+2021-03-17,Housing Starts,InvestingC(2019-21),2021-03-17 09:30:00-04:00,InvestingB(scraper),2021-03-17 08:30:00-04:00,60.0
+2021-03-17,FOMC Economic Projections,InvestingC(2019-21),2021-03-17 15:00:00-04:00,InvestingB(scraper),2021-03-17 14:00:00-04:00,60.0
+2021-03-17,FOMC Statement,InvestingC(2019-21),2021-03-17 15:00:00-04:00,InvestingB(scraper),2021-03-17 14:00:00-04:00,60.0
+2021-03-17,Fed Interest Rate Decision,InvestingC(2019-21),2021-03-17 15:00:00-04:00,InvestingB(scraper),2021-03-17 14:00:00-04:00,60.0
+2021-03-17,FOMC Press Conference,InvestingC(2019-21),2021-03-17 15:30:00-04:00,InvestingB(scraper),2021-03-17 14:30:00-04:00,60.0
+2021-03-18,Initial Jobless Claims,InvestingC(2019-21),2021-03-18 09:30:00-04:00,InvestingB(scraper),2021-03-18 08:30:00-04:00,60.0
+2021-03-18,Philadelphia Fed Manufacturing Index,InvestingC(2019-21),2021-03-18 09:30:00-04:00,InvestingB(scraper),2021-03-18 08:30:00-04:00,60.0
+2021-03-22,Fed Chair Powell Speaks,InvestingC(2019-21),2021-03-22 10:00:00-04:00,InvestingB(scraper),2021-03-22 09:00:00-04:00,60.0
+2021-03-23,FOMC Member Bullard Speaks,InvestingC(2019-21),2021-03-23 10:00:00-04:00,InvestingB(scraper),2021-03-23 09:00:00-04:00,60.0
+2021-03-23,New Home Sales,InvestingC(2019-21),2021-03-23 11:00:00-04:00,InvestingB(scraper),2021-03-23 10:00:00-04:00,60.0
+2021-03-23,Fed Chair Powell Testifies,InvestingC(2019-21),2021-03-23 13:00:00-04:00,InvestingB(scraper),2021-03-23 12:00:00-04:00,60.0
+2021-03-23,FOMC Member Williams Speaks,InvestingC(2019-21),2021-03-23 15:45:00-04:00,InvestingB(scraper),2021-03-23 14:45:00-04:00,60.0
+2021-03-24,Fed Chair Powell Testifies,InvestingC(2019-21),2021-03-24 11:00:00-04:00,InvestingB(scraper),2021-03-24 10:00:00-04:00,60.0
+2021-03-24,FOMC Member Williams Speaks,InvestingC(2019-21),2021-03-24 14:45:00-04:00,InvestingB(scraper),2021-03-24 13:45:00-04:00,60.0
+2021-03-25,FOMC Member Williams Speaks,InvestingC(2019-21),2021-03-25 06:30:00-04:00,InvestingB(scraper),2021-03-25 05:30:00-04:00,60.0
+2021-03-25,Initial Jobless Claims,InvestingC(2019-21),2021-03-25 09:30:00-04:00,InvestingB(scraper),2021-03-25 08:30:00-04:00,60.0
+2021-03-26,Michigan 5-Year Inflation Expectations,InvestingC(2019-21),2021-03-26 11:00:00-04:00,InvestingB(scraper),2021-03-26 10:00:00-04:00,60.0
+2021-03-26,Michigan Consumer Sentiment,InvestingC(2019-21),2021-03-26 11:00:00-04:00,InvestingB(scraper),2021-03-26 10:00:00-04:00,60.0
+2021-03-30,CB Consumer Confidence,InvestingC(2019-21),2021-03-30 11:00:00-04:00,InvestingB(scraper),2021-03-30 10:00:00-04:00,60.0
+2021-03-30,FOMC Member Williams Speaks,InvestingC(2019-21),2021-03-30 15:00:00-04:00,InvestingB(scraper),2021-03-30 14:00:00-04:00,60.0
+2021-03-31,ADP Nonfarm Employment Change,InvestingC(2019-21),2021-03-31 09:15:00-04:00,InvestingB(scraper),2021-03-31 08:15:00-04:00,60.0
+2021-04-01,Initial Jobless Claims,InvestingC(2019-21),2021-04-01 09:30:00-04:00,InvestingB(scraper),2021-04-01 08:30:00-04:00,60.0
+2021-04-01,ISM Manufacturing PMI,InvestingC(2019-21),2021-04-01 11:00:00-04:00,InvestingB(scraper),2021-04-01 10:00:00-04:00,60.0
+2021-04-02,Nonfarm Payrolls,InvestingC(2019-21),2021-04-02 09:30:00-04:00,InvestingB(scraper),2021-04-02 08:30:00-04:00,60.0
+2021-04-02,Unemployment Rate,InvestingC(2019-21),2021-04-02 09:30:00-04:00,InvestingB(scraper),2021-04-02 08:30:00-04:00,60.0
+2021-04-05,ISM Non-Manufacturing PMI,InvestingC(2019-21),2021-04-05 11:00:00-04:00,InvestingB(scraper),2021-04-05 10:00:00-04:00,60.0
+2021-04-07,FOMC Meeting Minutes,InvestingC(2019-21),2021-04-07 15:00:00-04:00,InvestingB(scraper),2021-04-07 14:00:00-04:00,60.0
+2021-04-08,Initial Jobless Claims,InvestingC(2019-21),2021-04-08 09:30:00-04:00,InvestingB(scraper),2021-04-08 08:30:00-04:00,60.0
+2021-04-08,Fed Chair Powell Speaks,InvestingC(2019-21),2021-04-08 13:00:00-04:00,InvestingB(scraper),2021-04-08 12:00:00-04:00,60.0
+2021-04-12,10-Year Note Auction,InvestingC(2019-21),2021-04-12 14:00:00-04:00,InvestingB(scraper),2021-04-12 13:00:00-04:00,60.0
+2021-04-13,30-Year Bond Auction,InvestingC(2019-21),2021-04-13 14:00:00-04:00,InvestingB(scraper),2021-04-13 13:00:00-04:00,60.0
+2021-04-14,Fed Chair Powell Speaks,InvestingC(2019-21),2021-04-14 13:00:00-04:00,InvestingB(scraper),2021-04-14 12:00:00-04:00,60.0
+2021-04-14,FOMC Member Williams Speaks,InvestingC(2019-21),2021-04-14 15:30:00-04:00,InvestingB(scraper),2021-04-14 14:30:00-04:00,60.0
+2021-04-15,Initial Jobless Claims,InvestingC(2019-21),2021-04-15 09:30:00-04:00,InvestingB(scraper),2021-04-15 08:30:00-04:00,60.0
+2021-04-15,NY Empire State Manufacturing Index,InvestingC(2019-21),2021-04-15 09:30:00-04:00,InvestingB(scraper),2021-04-15 08:30:00-04:00,60.0
+2021-04-15,Philadelphia Fed Manufacturing Index,InvestingC(2019-21),2021-04-15 09:30:00-04:00,InvestingB(scraper),2021-04-15 08:30:00-04:00,60.0
+2021-04-16,Housing Starts,InvestingC(2019-21),2021-04-16 09:30:00-04:00,InvestingB(scraper),2021-04-16 08:30:00-04:00,60.0
+2021-04-16,Michigan 5-Year Inflation Expectations,InvestingC(2019-21),2021-04-16 11:00:00-04:00,InvestingB(scraper),2021-04-16 10:00:00-04:00,60.0
+2021-04-16,Michigan Consumer Sentiment,InvestingC(2019-21),2021-04-16 11:00:00-04:00,InvestingB(scraper),2021-04-16 10:00:00-04:00,60.0
+2021-04-22,Initial Jobless Claims,InvestingC(2019-21),2021-04-22 09:30:00-04:00,InvestingB(scraper),2021-04-22 08:30:00-04:00,60.0
+2021-04-23,New Home Sales,InvestingC(2019-21),2021-04-23 11:00:00-04:00,InvestingB(scraper),2021-04-23 10:00:00-04:00,60.0

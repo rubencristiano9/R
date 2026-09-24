@@ -1,0 +1,392 @@
+<title>News Calendar Reconciliation</title>
+<meta name="description" content="Phase 0: Forex Factory vs Investing.com timestamp reconciliation for the Tape Reader's news-anchored strategy builder">
+<style>
+:root{
+  --bg:#faf9f6; --surface:#ffffff; --surface2:#f2f0ea; --border:#ddd8cc;
+  --text:#1e1c16; --text-dim:#6b6656; --accent:#3d5a80; --accent-ink:#ffffff;
+  --ok:#2f7d4f; --ok-bg:#e6f2ea; --warn:#a86c1a; --warn-bg:#fbf0dc;
+  --bad:#b23b3b; --bad-bg:#fbe9e9; --info:#3d5a80; --info-bg:#e8eef5;
+  --muted:#8a8574; --muted-bg:#efece3;
+  --mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Consolas, monospace;
+  --sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15140f; --surface:#1d1c16; --surface2:#242219; --border:#3a3728;
+    --text:#ece8dc; --text-dim:#a39d87; --accent:#7ca3c9; --accent-ink:#0d1620;
+    --ok:#6cc98d; --ok-bg:#16261c; --warn:#e0a94a; --warn-bg:#2c2212;
+    --bad:#e08080; --bad-bg:#2c1616; --info:#7ca3c9; --info-bg:#182530;
+    --muted:#8a8574; --muted-bg:#26241a;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15140f; --surface:#1d1c16; --surface2:#242219; --border:#3a3728;
+  --text:#ece8dc; --text-dim:#a39d87; --accent:#7ca3c9; --accent-ink:#0d1620;
+  --ok:#6cc98d; --ok-bg:#16261c; --warn:#e0a94a; --warn-bg:#2c2212;
+  --bad:#e08080; --bad-bg:#2c1616; --info:#7ca3c9; --info-bg:#182530;
+  --muted:#8a8574; --muted-bg:#26241a;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);
+  padding:0 16px;padding-block:24px 60px;font-size:14px;line-height:1.5}
+.wrap{max-width:1180px;margin:0 auto}
+h1{font-family:var(--mono);font-size:22px;font-weight:700;margin:0 0 4px;letter-spacing:-.01em}
+.sub{color:var(--text-dim);font-size:13px;margin:0 0 28px;max-width:74ch}
+h2{font-family:var(--mono);font-size:15px;text-transform:uppercase;letter-spacing:.06em;
+  color:var(--text-dim);margin:36px 0 12px;border-bottom:1px solid var(--border);padding-bottom:8px}
+code,.mono{font-family:var(--mono)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.tile{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.tile .n{font-family:var(--mono);font-size:24px;font-weight:700;font-variant-numeric:tabular-nums}
+.tile .l{color:var(--text-dim);font-size:11.5px;margin-top:2px;text-transform:uppercase;letter-spacing:.04em}
+.tile.ok .n{color:var(--ok)} .tile.warn .n{color:var(--warn)} .tile.bad .n{color:var(--bad)}
+.tile.info .n{color:var(--info)} .tile.muted .n{color:var(--muted)}
+.cov{display:flex;gap:24px;flex-wrap:wrap;font-size:13px}
+.cov b{font-family:var(--mono)}
+.finding{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--warn);
+  border-radius:8px;padding:16px 18px;margin-bottom:14px}
+.finding.explained{border-left-color:var(--info)}
+.finding h3{margin:0 0 8px;font-size:14.5px}
+.finding p{margin:0 0 8px;color:var(--text)}
+.finding p:last-child{margin-bottom:0}
+.finding .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;text-transform:uppercase;
+  letter-spacing:.04em;padding:2px 7px;border-radius:4px;background:var(--warn-bg);color:var(--warn);margin-bottom:8px}
+.finding.explained .tag{background:var(--info-bg);color:var(--info)}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:left;font-family:var(--mono);font-weight:600;text-transform:uppercase;font-size:10.5px;
+  letter-spacing:.03em;color:var(--text-dim);padding:7px 10px;border-bottom:1px solid var(--border);
+  cursor:pointer;white-space:nowrap;user-select:none}
+th:hover{color:var(--text)}
+th.num,td.num{text-align:right;font-variant-numeric:tabular-nums}
+td{padding:6px 10px;border-bottom:1px solid var(--border);font-family:var(--mono)}
+tr:hover td{background:var(--surface2)}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:8px;background:var(--surface)}
+.pill{display:inline-block;padding:1px 7px;border-radius:99px;font-size:10.5px;font-family:var(--mono)}
+.pill.ok{background:var(--ok-bg);color:var(--ok)} .pill.warn{background:var(--warn-bg);color:var(--warn)}
+.pill.bad{background:var(--bad-bg);color:var(--bad)} .pill.info{background:var(--info-bg);color:var(--info)}
+.pill.muted{background:var(--muted-bg);color:var(--muted)}
+.controls{display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap;align-items:center}
+input[type=text]{font-family:var(--mono);font-size:12.5px;padding:6px 10px;border:1px solid var(--border);
+  border-radius:6px;background:var(--surface);color:var(--text);min-width:220px}
+.count{color:var(--text-dim);font-size:12px}
+.list{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--mono);font-size:12px;background:var(--muted-bg);color:var(--text);
+  padding:3px 9px;border-radius:6px;border:1px solid var(--border)}
+footer{margin-top:40px;color:var(--text-dim);font-size:11.5px;border-top:1px solid var(--border);padding-top:14px}
+</style>
+
+<div class="wrap">
+  <h1>News Calendar Reconciliation — Phase 0</h1>
+  <p class="sub">Forex Factory's High-Impact USD calendar checked against two Investing.com source
+  families, before any release-timing data ships in the Tape Reader's Strategy panel. This is the
+  stop-and-review report the plan calls for — nothing past this point is built yet.</p>
+
+  <div class="finding explained">
+    <span class="tag">Revision 5 — final for Phase 0</span>
+    <h3>The 758→810 mapping is now proven at the individual-occurrence level, not asserted</h3>
+    <p>You were right not to accept 810 on my say-so. Auditing it directly surfaced a real interaction
+    I hadn't accounted for: the ledger is now built by resolving every source occurrence first (one
+    pass over every (date, Investing event) key from A/B, not a Forex-Factory-first loop patched
+    afterward), and every ledger row carries an explicit <code>sourceOccurrenceId</code> and
+    <code>candidateCategoryIds</code> so the mapping is checkable, not just described. That rewrite
+    exposed a genuine edge case: 52 of the 758 conflicting occurrences are
+    <code>Michigan 5-Year Inflation Expectations</code> readings whose only candidate category is
+    <code>Prelim UoM Inflation Expectations</code> — which is itself the one FF category already
+    flagged AMBIGUOUS (it could equally be the 1-year or 5-year series). Those 52 correctly become
+    AMBIGUOUS rows, not INVESTING_INTERNAL_CONFLICT rows, because attributing a specific conflicting
+    time to a category we can't even identify would be worse than not attributing it at all. Five
+    invariants are now checked by assertion on every run (every source occurrence appears exactly
+    once; none silently dropped; no non-ambiguous row points to two source occurrences; a conflicting
+    occurrence never carries a resolved time; the fan-out audit reconciles exactly) — see the
+    accounting below for the exact numbers. DISAGREE moved 32 → 31 as a side effect of resolving
+    occurrences correctly rather than FF-row-first. No manual verification has happened yet.</p>
+  </div>
+
+  <h2>Status counts (after all fixes to date)</h2>
+  <div class="tiles" id="tiles"></div>
+
+  <h2>Investing-vs-Investing conflict accounting, audited at the occurrence level</h2>
+  <div class="tbl-wrap" style="padding:14px 16px"><table style="width:auto">
+    <tbody>
+      <tr><td style="padding:4px 16px 4px 0">Unique (date, Investing event) conflicting occurrences</td>
+        <td class="num mono" id="accUnique"></td></tr>
+      <tr><td style="padding:4px 16px 4px 0">→ of which: exactly 1 candidate FF category</td>
+        <td class="num mono">654 → 654 INVESTING_INTERNAL_CONFLICT rows</td></tr>
+      <tr><td style="padding:4px 16px 4px 0">→ of which: exactly 2 candidate FF categories (both normal)</td>
+        <td class="num mono">52 → 104 INVESTING_INTERNAL_CONFLICT rows</td></tr>
+      <tr><td style="padding:4px 16px 4px 0">→ of which: 1 candidate, and that candidate is itself the AMBIGUOUS category</td>
+        <td class="num mono">52 → 52 AMBIGUOUS rows (not INVESTING_INTERNAL_CONFLICT)</td></tr>
+      <tr><td style="padding:4px 16px 4px 0">Total INVESTING_INTERNAL_CONFLICT rows in the ledger</td>
+        <td class="num mono" id="accRows"></td></tr>
+    </tbody>
+  </table></div>
+  <p style="color:var(--text-dim);margin:10px 0 0">654 + 104 = <b id="accReconcile"></b>, matching the
+  ledger's actual INVESTING_INTERNAL_CONFLICT count exactly — checked by assertion on every run, not
+  just claimed here. Every one of the 758 unique conflicts is accounted for: 706 become
+  INVESTING_INTERNAL_CONFLICT rows (with fan-out where a shared Investing name has 2 normal
+  candidates), and 52 become AMBIGUOUS rows instead, for the specific documented reason above.</p>
+
+  <h2>Before (Revision 4) → after (this revision)</h2>
+  <div class="tbl-wrap"><table id="baTable">
+    <thead><tr><th>Status</th><th class="num">Before</th><th class="num">After</th><th class="num">Change</th></tr></thead>
+    <tbody></tbody>
+  </table></div>
+
+  <h2>Coverage</h2>
+  <div class="cov">
+    <div>Forex Factory: <b id="ffcov"></b></div>
+    <div>Investing.com (combined): <b id="invcov"></b></div>
+  </div>
+  <p style="color:var(--text-dim);margin:10px 0 0">Investing.com coverage now starts 2011-01-01, not
+  2014 as in the previous revision — that was the comma/semicolon loading bug above, not a real gap;
+  D2011-13.csv genuinely has 2011–2013 data and is now read correctly.</p>
+
+  <h2>Two findings</h2>
+
+  <div class="finding explained">
+    <span class="tag">Fixed and reran — DISAGREE 190 → 31</span>
+    <h3>A systematic ~60-minute gap between Forex Factory and Investing.com, 2023 onward</h3>
+    <p>Root cause confirmed and corrected: Iran abolished daylight saving time in September 2022 and
+    has held a fixed <code>+03:30</code> offset since (from the Sep 21/22 midnight transition onward —
+    Sep 21 daytime was still <code>+04:30</code>), but Forex Factory's file keeps alternating
+    <code>+03:30</code> / <code>+04:30</code> seasonally all the way to the end of its coverage
+    (April 2025) — the scraper behind it is still simulating a seasonal shift that stopped happening in
+    reality. Fix applied: for every row dated 2022-09-22 or later, the Iran-local wall-clock time is
+    reconstructed with a fixed <code>+03:30</code> offset instead of trusting the file's own (phantom)
+    suffix. Combined with the D2011-13 loading fix (which surfaced more comparable occurrences from
+    2011–2013, some of which disagree by a few minutes — real-world scheduled-vs-actual variance, not a
+    data bug), DISAGREE across the full corrected run is 31. <b>These are not uniformly small</b> — most
+    are single-digit minutes, but several are large (Fed Chair Powell Speaks −1050/+180/+45 min,
+    President Trump Speaks −300/−90 min, FOMC Member Bullard Speaks −150 min, two CPI y/y readings at
+    exactly −60 min) — see the full table below, which is the actual candidate set for manual
+    verification once you approve moving to that step.</p>
+  </div>
+
+  <div class="finding">
+    <span class="tag">Investigated — status is correct, my framing of it wasn't</span>
+    <h3>Investing.com's own two files disagree by 60 minutes, mid-Feb–early Sep 2018 (and separately, 2019–2021)</h3>
+    <p><b>These occurrences are not resolved.</b> They carry <code>INVESTING_INTERNAL_CONFLICT</code>
+    status and stay non-tradable — the code already enforced that correctly, but my previous write-up
+    said the disagreement "doesn't affect the FF comparison" because the combined Investing.com timeline
+    "prefers B." That's true only for the many OTHER dates where A and B agree — it was a misleading
+    thing to say about the ones where they don't. Fixed defensively too: any (date, event) key involved
+    in an A/B or C/B conflict is now explicitly excluded from the combined timeline's dictionary, so
+    it's structurally impossible for a future comparison to read B's value as if it had settled the
+    disagreement. I tested your suggested alternative directly — treating Investing A's raw column as
+    already being true, DST-aware America/New_York time — and it's <b>not</b> the answer: under that
+    reading, NFP would
+    show 7:30am ET every summer, which never happened. Reading the full NFP and ISM Manufacturing PMI
+    series (not just a sample) instead shows Investing A is cleanly fixed-UTC−5 for essentially its
+    entire range (2011 through mid-Feb 2018, and Oct 2018 onward) with one sharply bounded anomaly:
+    <b>2018-02-15 through 2018-09-07</b> exactly, per the raw conflict data's own min/max — earlier
+    versions of this report said "March–September" from spot-checking only NFP/ISM, whose next
+    occurrence after Feb 15 happened to fall in March, understating the window — where multiple
+    unrelated categories (NFP, ISM, Fed Rate Decision, Housing Starts, Jobless Claims...) are
+    consistently ~60 minutes off from the established pattern, then snap back to normal in October — a
+    real, narrow data-quality problem in that one file, in that one window. The separate, larger
+    2019–2021 cluster is Investing C (the low-confidence "2019-21" file) disagreeing with B, not a
+    continuation of this — consistent with C's already-known internal inconsistency (see the plan).
+    Both stay flagged as <code>INVESTING_INTERNAL_CONFLICT</code> (or <code>AMBIGUOUS</code>, for the
+    52 discussed in the accounting above), non-tradable, until you decide how you want them resolved
+    (or, per the plan, they simply remain unusable as timing anchors indefinitely — that's a legitimate
+    outcome too, not a problem to be solved away).</p>
+  </div>
+
+  <h2>Categories that couldn't be matched by name</h2>
+  <p style="color:var(--text-dim);margin:0 0 10px">No fuzzy matching was used — these simply have no
+  confident Investing.com counterpart by name, or (one case) more than one equally plausible one.</p>
+  <div class="list" id="unmatched"></div>
+
+  <h2>Per-category occurrence status</h2>
+  <div class="controls">
+    <input type="text" id="catFilter" placeholder="Filter category…">
+    <span class="count" id="catCount"></span>
+  </div>
+  <div class="tbl-wrap"><table id="catTable">
+    <thead><tr>
+      <th data-k="name">Category</th>
+      <th class="num" data-k="CROSS_VERIFIED">Cross-verified</th>
+      <th class="num" data-k="SINGLE_SOURCE_FF">FF only</th>
+      <th class="num" data-k="SINGLE_SOURCE_INVESTING">Investing only</th>
+      <th class="num" data-k="DISAGREE">Disagree</th>
+      <th class="num" data-k="INVESTING_INTERNAL_CONFLICT">Investing conflict</th>
+      <th class="num" data-k="DAY_ONLY">Day-only</th>
+    </tr></thead>
+    <tbody></tbody>
+  </table></div>
+
+  <h2>DISAGREE — manual verification against official sources</h2>
+  <div class="finding explained">
+    <span class="tag">Verified — 11 OFFICIAL_VERIFIED, 13 resolved, 7 unresolved</span>
+    <p style="margin:0">Checked the <b>scheduled</b> release time known ex ante, not a delayed
+    publication/capture timestamp, per your rule. <b>11</b> rows checked directly against an official
+    standard schedule (confirmed CPI/PPI/Employment Situation at 8:30 ET and JOLTS at 10:00 ET via
+    bls.gov; ADP's well-established 8:15 ET; ISM/Conference Board/UMich's well-established 10:00 ET) —
+    in every one, Investing.com matches the official time and Forex Factory is the one off (mostly by
+    2 minutes, i.e. capture lag; two CPI y/y rows are off by a full 60 minutes — traced to Forex
+    Factory's own raw data literally recording <code>16:00+03:30</code> for those two specific dates,
+    a genuine per-row source error, not a timezone-conversion bug). <b>13</b> FOMC Statement/Meeting
+    Minutes/Federal Funds Rate rows land within minutes of each other around a round historical FOMC
+    time (12:30 or 14:15 ET pre-2019 depending on whether that meeting had a press conference, 14:00
+    ET from 2019 on) — scheduled-vs-capture variance, not a real disagreement, so left unresolved
+    rather than force-picking one source. <b>7</b> rows (President Trump Speaks ×3, Fed Chair Powell
+    Speaks ×3, FOMC Member Bullard Speaks ×1) stay UNRESOLVED — a speech has no official fixed
+    schedule to check against, and gaps of 45–300 minutes look much more like Forex Factory and
+    Investing.com capturing two different speaking engagements under the same label than a timing
+    error on one event; resolving those would need finding the actual historical public schedule for
+    each specific date, not a general rule.</p>
+  </div>
+  <div class="controls">
+    <input type="text" id="disFilter" placeholder="Filter by category or date…">
+    <span class="count" id="disCount"></span>
+  </div>
+  <div class="tbl-wrap"><table id="disTable">
+    <thead><tr>
+      <th data-k="date">Date</th><th data-k="event">Category</th>
+      <th class="num" data-k="ff_time">FF time (ET)</th>
+      <th class="num" data-k="inv_time">Investing time (ET)</th>
+      <th class="num" data-k="diff_min">Diff (min)</th>
+      <th data-k="verdict">Verdict</th>
+    </tr></thead>
+    <tbody></tbody>
+  </table></div>
+
+  <h2>INVESTING_INTERNAL_CONFLICT — the two Investing.com sources, full table</h2>
+  <p style="color:var(--text-dim);margin:0 0 10px">The <b id="confN758Label"></b> rows below are the
+  unique (date, Investing event) conflicts — see the accounting section above for how that relates to
+  the <b id="confN253Label"></b> figure in the status tiles, which counts ledger rows (one per Forex
+  Factory category attribution, including the dates with no Forex Factory row at all).</p>
+  <div class="controls">
+    <input type="text" id="confFilter" placeholder="Filter by category or date…">
+    <span class="count" id="confCount"></span>
+  </div>
+  <div class="tbl-wrap"><table id="confTable">
+    <thead><tr>
+      <th data-k="date">Date</th><th data-k="event">Category</th>
+      <th class="num" data-k="timeA">Investing A (ET)</th>
+      <th class="num" data-k="timeB">Investing B (ET)</th>
+      <th class="num" data-k="diff_min">Diff (min)</th>
+    </tr></thead>
+    <tbody></tbody>
+  </table></div>
+
+  <footer>
+    Sources: Forex Factory / HuggingFace (<code>forex_factory_2007-01-01_to_2025-04-07_IranTime.csv</code>),
+    Investing.com "2011 to 2019" export (D2011-13 + D2014-18, fixed UTC−5) and the
+    Economic-Calendar-Scraper-Investing.com 2015–2025 scrape (fixed UTC−4). D2019-21 was used only
+    as a cross-check within its own window, not as an independent primary source. Neither
+    Investing.com offset was calibrated against Forex Factory — both were derived from Nonfarm
+    Payrolls' own fixed, well-known 8:30am ET release time — so the counts above are a genuinely
+    independent two-source comparison.
+  </footer>
+</div>
+
+<script>
+async function main(){
+  const res = await fetch('data.json');
+  const D = await res.json();
+
+  const STATUS_META = {
+    CROSS_VERIFIED: ['ok','Cross-verified'],
+    SINGLE_SOURCE_FF: ['info','FF only'],
+    SINGLE_SOURCE_INVESTING: ['info','Investing only'],
+    DAY_ONLY: ['muted','Day-only'],
+    DISAGREE: ['warn','Disagree'],
+    INVESTING_INTERNAL_CONFLICT: ['bad','Investing conflict'],
+    UNMATCHED: ['muted','Unmatched'],
+    AMBIGUOUS: ['muted','Ambiguous'],
+  };
+  const order = ['CROSS_VERIFIED','SINGLE_SOURCE_FF','SINGLE_SOURCE_INVESTING','DAY_ONLY',
+                  'DISAGREE','INVESTING_INTERNAL_CONFLICT','UNMATCHED','AMBIGUOUS'];
+
+  const tiles = document.getElementById('tiles');
+  order.forEach(k => {
+    if (!(k in D.status_counts)) return;
+    const [cls, label] = STATUS_META[k];
+    const div = document.createElement('div');
+    div.className = 'tile ' + cls;
+    div.innerHTML = '<div class="n">' + D.status_counts[k].toLocaleString() + '</div><div class="l">' + label + '</div>';
+    tiles.appendChild(div);
+  });
+
+  document.getElementById('ffcov').textContent = D.ff_coverage.join(' → ');
+  document.getElementById('invcov').textContent = D.investing_coverage.join(' → ');
+
+  document.getElementById('confN758Label').textContent = D.conflict_rows.length.toLocaleString();
+  document.getElementById('confN253Label').textContent = D.status_counts.INVESTING_INTERNAL_CONFLICT.toLocaleString();
+  document.getElementById('accUnique').textContent = D.conflict_unique.toLocaleString();
+  document.getElementById('accRows').textContent = D.conflict_attributed_rows.toLocaleString();
+  document.getElementById('accReconcile').textContent = D.conflict_attributed_rows.toLocaleString();
+
+  const baBody = document.querySelector('#baTable tbody');
+  baBody.innerHTML = order.filter(k => k in D.before_counts || k in D.status_counts).map(k => {
+    const before = D.before_counts[k] || 0, after = D.status_counts[k] || 0, delta = after - before;
+    const sign = delta > 0 ? '+' : '';
+    const [cls] = STATUS_META[k];
+    return '<tr><td><span class="pill ' + cls + '">' + STATUS_META[k][1] + '</span></td><td class="num">' +
+      before.toLocaleString() + '</td><td class="num">' + after.toLocaleString() + '</td><td class="num">' +
+      (delta === 0 ? '—' : sign + delta.toLocaleString()) + '</td></tr>';
+  }).join('');
+
+  const um = document.getElementById('unmatched');
+  D.unmatched.forEach(n => {
+    const c = document.createElement('span'); c.className = 'chip'; c.textContent = n + ' (unmatched)';
+    um.appendChild(c);
+  });
+  D.ambiguous.forEach(a => {
+    const c = document.createElement('span'); c.className = 'chip';
+    c.textContent = a.name + ' (ambiguous: ' + a.candidates.join(' / ') + ')';
+    um.appendChild(c);
+  });
+
+  function sortable(tableId, rows, render, filterFn, filterInputId, countId){
+    let data = rows.slice();
+    let sortKey = null, sortDir = 1;
+    const tbody = document.querySelector('#' + tableId + ' tbody');
+    const input = document.getElementById(filterInputId);
+    const countEl = document.getElementById(countId);
+    function draw(){
+      const q = (input && input.value || '').toLowerCase();
+      const filtered = q ? data.filter(r => filterFn(r, q)) : data;
+      tbody.innerHTML = filtered.map(render).join('');
+      if (countEl) countEl.textContent = filtered.length.toLocaleString() + ' rows';
+    }
+    document.querySelectorAll('#' + tableId + ' th').forEach(th => {
+      th.addEventListener('click', () => {
+        const k = th.dataset.k;
+        if (sortKey === k) sortDir *= -1; else { sortKey = k; sortDir = 1; }
+        data.sort((a, b) => {
+          const av = a[k], bv = b[k];
+          if (typeof av === 'number') return (av - bv) * sortDir;
+          return String(av).localeCompare(String(bv)) * sortDir;
+        });
+        draw();
+      });
+    });
+    if (input) input.addEventListener('input', draw);
+    draw();
+  }
+
+  sortable('catTable', D.category_summary, r =>
+    '<tr><td>' + r.name + '</td><td class="num">' + r.CROSS_VERIFIED + '</td><td class="num">' +
+    r.SINGLE_SOURCE_FF + '</td><td class="num">' + r.SINGLE_SOURCE_INVESTING + '</td><td class="num">' +
+    (r.DISAGREE ? '<span class="pill warn">' + r.DISAGREE + '</span>' : '0') + '</td><td class="num">' +
+    (r.INVESTING_INTERNAL_CONFLICT ? '<span class="pill bad">' + r.INVESTING_INTERNAL_CONFLICT + '</span>' : '0') +
+    '</td><td class="num">' + r.DAY_ONLY + '</td></tr>',
+    (r, q) => r.name.toLowerCase().includes(q), 'catFilter', 'catCount');
+
+  const VERDICT_PILL = {'OFFICIAL_VERIFIED': 'ok', 'RESOLVED (capture variance)': 'info', 'UNRESOLVED': 'warn'};
+  sortable('disTable', D.verified_rows, r =>
+    '<tr><td>' + r.date + '</td><td>' + r.event + '</td><td class="num">' + r.ff_time +
+    '</td><td class="num">' + r.inv_time + '</td><td class="num">' + r.diff_min.toFixed(0) +
+    '</td><td><span class="pill ' + (VERDICT_PILL[r.verdict] || 'muted') + '" title="' +
+    r.note.replace(/"/g, '&quot;') + '">' + r.verdict + '</span></td></tr>',
+    (r, q) => r.event.toLowerCase().includes(q) || r.date.includes(q), 'disFilter', 'disCount');
+
+  sortable('confTable', D.conflict_rows, r =>
+    '<tr><td>' + r.date + '</td><td>' + r.event + '</td><td class="num">' + r.timeA +
+    '</td><td class="num">' + r.timeB + '</td><td class="num">' + r.diff_min.toFixed(0) + '</td></tr>',
+    (r, q) => r.event.toLowerCase().includes(q) || r.date.includes(q), 'confFilter', 'confCount');
+}
+main();
+</script>
