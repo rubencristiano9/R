@@ -325,7 +325,7 @@ td b{color:var(--ink);font-weight:500}
 .nwprev{border:1px solid var(--rule);border-left:3px solid var(--accent);border-radius:5px;padding:10px 12px;
         margin-top:14px;background:var(--panel)}
 .nwrule{font-size:12.5px !important;color:var(--ink) !important;line-height:1.5;margin:0 0 4px !important}
-.nwstats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0 6px}
+.nwstats{display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:8px;margin:10px 0 6px}
 .nwstat b{display:block;font-family:var(--sans);font-size:19px;font-weight:600;color:var(--ink);line-height:1.1}
 .nwstat span{font-family:var(--mono);font-size:9px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.04em}
 .nwwarn{border-radius:4px;padding:7px 10px;margin:6px 0;font-size:11.5px;line-height:1.45;color:var(--ink);
@@ -4557,7 +4557,8 @@ function newsRuleSentence(C){
                 every: 'every one'}[C.cuNewsMode];
   let what;
   if (!ids.length) what = 'at ' + hhmm(C.cuEntryMin) + ' ET';
-  else if (newsAround(C)) what = offsetWords(newsOffsetMin(C)) + ' of ' + newsNames(ids) +
+  else if (newsAround(C)) what = (newsOffsetMin(C) === 0 ? 'at the release of ' : offsetWords(newsOffsetMin(C)) + ' ') +
+    newsNames(ids) +
     (ids.length > 1 ? ' (' + mode + ' of them on a day with several)' : '');
   else what = 'at ' + hhmm(C.cuEntryMin) + ' ET, ' + (C.cuNewsSkip ? 'except' : 'only') +
     ' on days with ' + newsNames(ids);
@@ -4577,12 +4578,17 @@ function newsStats(C){
   buildNewsSides(C, st);
   return st;
 }
-/* the loaded hours, from the longest session in the span (the first one may be a short day) */
-function newsHours(){
+/* the loaded hours, from the longest session in the span (the first one may be a short day):
+   [first bar minute, last bar minute], or null */
+function newsOpenClose(){
   const [lo, hi] = newsSpan();
   const full = BASE.sessions.filter(S => S.day >= lo && S.day <= hi)
     .reduce((x, y) => (!x || y.b - y.a > x.b - x.a ? y : x), null);
-  return full ? hhmm(BASE.mins[full.a]) + '\u2013' + hhmm(BASE.mins[full.b]) : 'none';
+  return full ? [BASE.mins[full.a], BASE.mins[full.b]] : null;
+}
+function newsHours(){
+  const oc = newsOpenClose();
+  return oc ? hhmm(oc[0]) + '\u2013' + hhmm(oc[1]) : 'none';
 }
 /* what the No-bar choice did, right under it: the reason a release traded at the open, or
    did not trade at all, is never left for the reader to find at the bottom of the panel */
@@ -4627,10 +4633,16 @@ function newsPreviewHTML(C){
     const relDays = Object.keys(rel).filter(d => d >= lo && d <= hi && dowOk(d));
     const trade = Object.keys(st.slots).length, off = st.none;
     const untimed = relDays.filter(d => !st.timedDays[d]).length;
+    const withBar = st.anchors - st.none;
     out += '<div class="nwstats">' + nwStat(relDays.length.toLocaleString(), 'release days in span') +
-      nwStat(st.anchors.toLocaleString(), 'entry times') +
-      nwStat(trade.toLocaleString(), 'can trade') +
-      nwStat(off.toLocaleString(), 'no bar there') + '</div>';
+      nwStat(st.anchors.toLocaleString(), 'timed releases') +
+      nwStat(withBar.toLocaleString(), 'with a bar') +
+      nwStat(off.toLocaleString(), 'no bar there') +
+      nwStat(trade.toLocaleString(), 'entries') + '</div>';
+    if (trade < withBar)
+      out += '<p class="nwnote">' + withBar.toLocaleString() + ' releases with a bar make ' +
+        trade.toLocaleString() + ' entries: releases at the same minute share one (on a Fed day ' +
+        'the decision, the rate and the statement are all 14:00, one trade).</p>';
     if (untimed)
       out += '<p class="nwnote">' + untimed.toLocaleString() +
         ' release days have no time the chosen source quality (' +
@@ -4654,13 +4666,17 @@ function newsPreviewHTML(C){
         '<span class="nwhint">dotted lines on the bar each release landed in</span></div>';
   const up = newsUpcoming(C, 5);
   if (up.length){
-    const offMin = newsAround(C) ? newsOffsetMin(C) : null;
+    const offMin = newsAround(C) ? newsOffsetMin(C) : null, oc = newsOpenClose();
+    /* an entry the loaded hours do not have (a 24-hour session may wrap past midnight) */
+    const outside = m => oc && (oc[0] <= oc[1] ? m < oc[0] || m > oc[1] : m < oc[0] && m > oc[1]);
     out += '<div class="nwuphead">Coming up (published schedule)</div>' + up.map(e => {
       const wd = DOW_WORD[DOW_NAMES[Core.dowOf(e.date)]] || '';
       const t = e.etMinute == null ? 'time tba' : hhmm(e.etMinute);
-      const entry = offMin === null || e.etMinute == null ? '' :
-        ' <span style="color:var(--accent)">\u2192 entry ' + hhmm(((e.etMinute - offMin) % 1440 + 1440) % 1440) +
-        (C.cuNoBar === 'next' ? ' (or the next bar)' : '') + '</span>';
+      const m = e.etMinute == null ? null : ((e.etMinute - offMin) % 1440 + 1440) % 1440;
+      const entry = offMin === null || m === null ? '' :
+        ' <span style="color:var(--accent)">\u2192 entry ' + hhmm(m) +
+        (!outside(m) ? '' : C.cuNoBar === 'next' ? ', at the next bar on this tape' : ', no bar on this tape: skipped') +
+        '</span>';
       return '<div class="nwup"><span>' + wd + ' ' + e.date + '</span><span>' + t + '</span><span>' +
         e.eventName + entry + '</span></div>';
     }).join('');

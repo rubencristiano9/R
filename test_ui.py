@@ -932,7 +932,28 @@ check("a timing preset with nothing ticked falls back to the plain fixed-time en
       not o.get("slotsFromTable") and o["startMin"] == 600)
 sent = interp.evaljs("ST.cuNews = {cpi_m_m: true}; ST.cuNewsOffset = -5; ST.cuHold = 15; newsRuleSentence(ST)")
 check("the rule sentence says what the settings add up to",
-      "5 min after" in sent and "CPI m/m" in sent and "hold 15 min" in sent, sent)
+      "5 min after CPI m/m" in sent and " of CPI" not in sent and "hold 15 min" in sent, sent)
+# the reported screen: 1 min before the Fed-day and 08:30 releases, every one, verified, skip.
+# Its tiles must add up: timed = with a bar + no bar there, and entries <= with a bar.
+st = json.loads(interp.evaljs(
+    "ST.cuNews = {fomc_decision_day: true, federal_funds_rate: true, fomc_statement: true,"
+    " non_farm_employment_change: true, cpi_m_m: true, core_pce_price_index_m_m: true};"
+    " ST.cuNewsOffset = 1; ST.cuNewsMode = 'every'; ST.cuNewsQuality = 'verified'; ST.cuNoBar = 'skip';"
+    " JSON.stringify((function(){ var s = newsStats(ST); return {a: s.anchors, none: s.none, day: s.noDay,"
+    " e: Object.keys(s.slots).length}; })())"))
+prev = interp.evaljs("newsPreviewHTML(ST)")
+nums = [int(x.replace(",", "")) for x in re.findall(r'<div class="nwstat"><b>([\d,]+)</b>', prev)]
+check("the preview's tiles add up: timed releases = with a bar + no bar there, entries <= with a bar",
+      len(nums) == 5 and nums[1] == nums[2] + nums[3] and nums[4] <= nums[2]
+      and nums[1] == st["a"] and nums[3] == st["none"], "%s %s" % (nums, st))
+check("and say why entries are fewer: releases at the same minute share one",
+      "share one" in prev and st["e"] < st["a"] - st["none"])
+check("the coming-up list flags an 08:29 entry the RTH tape has no bar for",
+      "08:29, no bar on this tape: skipped" in prev)
+interp.evaljs("ST.cuNoBar = 'next';")
+check("... or says it is taken at the next bar, with that choice on",
+      "08:29, at the next bar on this tape" in interp.evaljs("newsPreviewHTML(ST)"))
+interp.evaljs("ST.cuNewsMode = 'important'; ST.cuNewsQuality = 'any';")
 h = interp.evaljs("ST.cuNews = {cpi_m_m: true}; ST.cuNewsOffset = 30; customEntryHTML(ST)")
 check("the panel has presets, chips, search, the three modes and the preview",
       all(k in h for k in ('data-cu-preset="big3"', 'data-cu-unpick="cpi_m_m"', 'id="cuNewsQ"',
