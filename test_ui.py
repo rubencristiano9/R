@@ -1073,6 +1073,18 @@ fb = json.loads(interp.evaljs(
 check("Flat by 16:00: the RTH tape keeps the session close, a 24-hour tape closes at 16:00; "
       "a strategy's own exit and a time set in the box still win",
       fb == {"rth": [None, 949], "eth": [960, 949], "set": 900}, str(fb))
+# Hours: one RTH/ETH switch in the Data bar (the chart-only time filter is 'Filter' now), and
+# the news warning names it: a 24-hour file loaded with RTH on was silently cut to 09:30-15:59
+top = page[:page.index("<script>")]
+check("the Data bar has one Hours switch (RTH | ETH); the chart filter is no longer also called RTH",
+      'data-hours="rth"' in top and 'data-hours="eth"' in top and '>Filter</button>' in top
+      and 'id="brth"' not in top)
+hint = interp.evaljs("LAST_BARS_FILE = null; newsEthHint()")
+check("on the built-in tape the news warning says how to get pre-market bars (Hours ETH + Bars)",
+      "Hours to" in hint and "ETH" in hint and "Bars" in hint, hint)
+hint = interp.evaljs("LAST_BARS_FILE = {name: 'NQ_1m.csv'}; S.rthOnly = true; var h = newsEthHint(); LAST_BARS_FILE = null; h")
+check("with a file loaded under RTH it offers to reload that file with every hour",
+      'data-cu-eth' in hint and "NQ_1m.csv" in hint, hint)
 interp.evaljs("ST.key = 'reentry'; ST.exitMin = 960; ST.cuNews = {}; ST.cuNewsOffset = null;"
               " ST.cuHold = null; ST.cuNewsSkip = false; ST.cuNewsQuality = 'any'; ST.cuNoBar = 'skip';"
               " ST.cuDir = 'random';"

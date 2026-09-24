@@ -229,6 +229,13 @@ strategy's own exit (15:49) or a Flat-by time win. Verified end to end on a synt
 databento-format file: 08:29 entries taken, exits at 16:00. A built-in ETH tape needs the NQ
 1-min file (not in any repo): ~3.5x the RTH bars, ~14 MB page for full hours, and the shipped
 4,670-trade list is indexed to RTH bars. test_ui 305.
+Hours switch (2026-09-24, user report "loaded the csv but it still only enters during RTH"): the
+Data-bar 'RTH' toggle only applied to the NEXT load and shared its label with the chart-only time
+filter, so a 24-hour file loaded with it on (the default) was cut to 09:30-15:59 and switching it
+off afterwards did nothing. Now: Data bar 'Hours: RTH | ETH' (`data-hours`, `setHours`), and a
+change re-reads the loaded file (`LAST_BARS_FILE`); the Tools button is 'Filter'. The Custom news
+warning offers 'Reload <file> with every hour (ETH)' (`newsEthHint`), or says how on the built-in
+tape. A reload under the open Strategy panel refreshes it. test_ui 308.
 Still open: nothing from the user's list. Resolving the remaining DISAGREE rows of the
 OFFICIAL_STANDARD categories (7) by the official schedule would need the user's go-ahead: the
 approval covers DAY_ONLY gap-fills only.

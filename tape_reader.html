@@ -345,7 +345,7 @@ td b{color:var(--ink);font-weight:500}
     <button class="btn" id="bfit">Fit</button>
     <span class="lbl">Tools</span>
     <button class="btn" id="bmag" title="Snap the crosshair to the nearest O/H/L/C">Magnet</button>
-    <button class="btn" id="bfilt" title="Restrict the chart to a time-of-day window">RTH</button>
+    <button class="btn" id="bfilt" title="Hide the chart's bars outside a time-of-day window (set in Settings). Display only: it does not change what is loaded or traded">Filter</button>
     <button class="btn" id="bmeas" title="Drag to measure points, % and bars">Measure</button>
     <button class="btn on" id="btr">Trades</button>
     <div class="spacer"></div>
@@ -355,7 +355,8 @@ td b{color:var(--ink);font-weight:500}
   <div class="bar b3">
     <span class="lbl">Data</span>
     <label class="btn" for="fbars">Bars</label><input type="file" id="fbars" accept=".csv,.json,.txt" hidden>
-    <button class="btn" id="brth" title="On: a loaded bar file is converted to New York time (when its timestamps carry a UTC offset, as databento exports do) and cut to the 09:30-15:59 day session, exactly as the shipped NQ tape was built. Off: every hour in the file is kept and a session is a calendar day of the converted clock. Applies to the next file you load.">RTH</button>
+    <span class="lbl">Hours</span>
+    <span class="seg"><button class="btn" data-hours="rth" title="A loaded bar file is converted to New York time (when its timestamps carry a UTC offset, as databento exports do) and cut to the 09:30-15:59 day session, exactly as the shipped NQ tape was built">RTH</button><button class="btn" data-hours="eth" title="Every hour in a loaded bar file is kept (pre-market, overnight); a session is a calendar day of the New York clock. Needs a 24-hour file: the built-in tape is RTH only">ETH</button></span>
     <label class="btn" for="ftrades">Trades</label><input type="file" id="ftrades" accept=".csv,.json,.txt" hidden>
     <button class="btn" id="demo">Demo</button>
     <span class="lbl">Go</span>
@@ -3977,7 +3978,20 @@ tog('blog', () => S.log, v => { S.log = v; });
 tog('bmag', () => S.magnet, v => { S.magnet = v; });
 tog('bmeas', () => S.measure, v => { S.measure = v; if (!v) meas = null; });
 tog('btr', () => S.showTrades, v => { S.showTrades = v; lastSig = ''; });
-tog('brth', () => S.rthOnly, v => { S.rthOnly = v; });
+/* which hours a loaded bar file keeps. A change after a file is loaded re-reads that same
+   file, so the choice takes effect now instead of silently waiting for the next load (it
+   used to, and a 24-hour file loaded with RTH on stayed cut to 09:30-15:59). */
+let LAST_BARS_FILE = null;
+function paintHours(){
+  document.querySelectorAll('button[data-hours]').forEach(b =>
+    b.classList.toggle('on', (b.dataset.hours === 'rth') === !!S.rthOnly));
+}
+function setHours(eth){
+  S.rthOnly = !eth; save(); paintHours();
+  if (LAST_BARS_FILE) loadFile(LAST_BARS_FILE, 'bars');
+}
+document.querySelectorAll('button[data-hours]').forEach(b => b.onclick = () => setHours(b.dataset.hours === 'eth'));
+paintHours();
 tog('beq', () => S.showEq, v => { S.showEq = v; });
 document.getElementById('bfit').onclick = () => fitPrice();
 document.getElementById('ltog').onclick = e => {
@@ -6276,29 +6290,40 @@ function newsHours(){
 }
 /* what the No-bar choice did, right under it: the reason a release traded at the open, or
    did not trade at all, is never left for the reader to find at the bottom of the panel */
+/* the way to the release's own minute: re-read the loaded file with every hour, or say how */
+function newsEthHint(){
+  if (tapeHasEth()) return '';
+  if (LAST_BARS_FILE && S.rthOnly)
+    return '<div class="szbar"><button class="btn" data-cu-eth>Reload ' + LAST_BARS_FILE.name.replace(/</g, '') +
+      ' with every hour (ETH)</button><span class="nwhint">it was cut to 09:30\u201315:59 when it loaded</span></div>';
+  return '<p class="nwnote">The built-in NQ tape is 09:30\u201315:59 only. For pre-market entries set Hours to ' +
+    '<b>ETH</b> in the Data bar and load a 24-hour file (e.g. your databento NQ file) with Bars.</p>';
+}
 function newsNoBarHTML(C, st){
   const hours = newsHours(), trade = Object.keys(st.slots).length, skipped = st.none - st.noDay;
   /* a release on a day the tape has no session for (closed, or not in the file) has no
      next bar either: said as such, never offered a fix that cannot help */
-  const noDay = !st.noDay ? '' : '<p class="nwnote">' + st.noDay.toLocaleString() +
+  let noDayPlus = '';
+  const noDay = () => noDayPlus + (!st.noDay ? '' : '<p class="nwnote">' + st.noDay.toLocaleString() +
     ' release day' + (st.noDay > 1 ? 's have' : ' has') + ' no bars at all in the loaded tape (e.g. ' +
-    st.noDayEx + '), so ' + (st.noDay > 1 ? 'they do' : 'it does') + ' not trade.</p>';
+    st.noDayEx + '), so ' + (st.noDay > 1 ? 'they do' : 'it does') + ' not trade.</p>');
+  if (skipped || st.moved) noDayPlus = newsEthHint();
   if (skipped && !trade)
     return '<div class="nwwarn bad"><span><b>Nothing can trade.</b> Every entry time (e.g. ' +
       hhmm(st.outEx) + ') falls where the loaded bars have none: they run ' + hours +
-      ' ET. Enter at the next bar that day, or turn RTH off in the Data bar and load a 24-hour file ' +
-      'with Bars.</span><button class="btn" data-cu-nobar="next">Enter at the next bar</button></div>' + noDay;
+      ' ET. Enter at the next bar that day, or set Hours to ETH in the Data bar and load a 24-hour file ' +
+      'with Bars.</span><button class="btn" data-cu-nobar="next">Enter at the next bar</button></div>' + noDay();
   if (skipped)
     return '<div class="nwwarn mid"><span>' + skipped.toLocaleString() + ' of ' + st.anchors.toLocaleString() +
       ' entry times fall where the loaded bars (' + hours + ' ET) have none and are skipped.</span>' +
-      '<button class="btn" data-cu-nobar="next">Enter at the next bar</button></div>' + noDay;
+      '<button class="btn" data-cu-nobar="next">Enter at the next bar</button></div>' + noDay();
   if (st.moved)
     return '<div class="nwwarn ok"><span>' + st.moved.toLocaleString() + ' of ' + st.anchors.toLocaleString() +
       ' entries have no bar at their time (e.g. ' + hhmm(st.moveEx[0]) + ') and are taken at the next bar ' +
       'that day (' + hhmm(st.moveEx[1]) + '): the loaded bars run ' + hours + ' ET, so price has already ' +
-      'reacted. For the release itself, turn RTH off in the Data bar and load a 24-hour file with Bars.</span>' +
-      '<button class="btn" data-cu-nobar="skip">Skip them instead</button></div>' + noDay;
-  return noDay;
+      'reacted. For the release itself, set Hours to ETH in the Data bar and load a 24-hour file with Bars.</span>' +
+      '<button class="btn" data-cu-nobar="skip">Skip them instead</button></div>' + noDay();
+  return noDay();
 }
 function newsPreviewHTML(C){
   const [lo, hi] = newsSpan();
@@ -6859,6 +6884,7 @@ function bindStrategy(){
   sh.querySelectorAll('button[data-cu-custom-dir]').forEach(b => b.onclick = () => {
     C.cuNewsCustomAfter = b.dataset.cuCustomDir === 'after'; STRES = null; redraw();
   });
+  sh.querySelectorAll('button[data-cu-eth]').forEach(b => b.onclick = () => setHours(true));
   sh.querySelectorAll('button[data-cu-marks]').forEach(b => b.onclick = () => {
     ST.cuShowMarks = !ST.cuShowMarks; redraw(); render();
   });
@@ -8008,16 +8034,21 @@ function loadFile(file, kind){
           ['entry_time','entry_bar','exit_time','exit_bar','pnl'].indexOf(x) >= 0);
         isTrades ? applyTrades(tradesFromCSV(txt, BASE)) : applyBars(barsFromCSV(txt), false, sym);
       }
+      if (document.getElementById('modal').classList.contains('peek')) openStrategy();
     } catch (err){
       document.getElementById('sub').textContent = 'Could not load ' + file.name + ' \u2014 ' + err.message;
     }
   };
   fr.readAsText(file);
 }
-document.getElementById('fbars').onchange = e => e.target.files[0] && loadFile(e.target.files[0], 'bars');
+document.getElementById('fbars').onchange = e => {
+  if (!e.target.files[0]) return;
+  LAST_BARS_FILE = e.target.files[0]; loadFile(LAST_BARS_FILE, 'bars');
+};
 document.getElementById('ftrades').onchange = e => e.target.files[0] && loadFile(e.target.files[0], 'trades');
 document.getElementById('demo').onclick = () => {
   BASE = BASE0; TRADES = TRADES0;  DATA_GEN++;   /* every cached view is now stale */
+  LAST_BARS_FILE = null;   /* the Hours switch has no file to re-read now */
   dropTapeResults();
   /* the shipped tape is always NQ; without this, Demo after loading a
      different market left LOADED_SYM and the pricing pointed at it */
