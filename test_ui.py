@@ -807,6 +807,38 @@ if cpi:
           slot is not None and any(a["status"] == "OFFICIAL_STANDARD" and a["releaseMinute"] == 510
                                    for a in slot["anchors"]), "%s: %s" % (d0, slot))
 
+# Forex Factory from 2025-04-05 on comes from newfac (build_news_calendar.extend_with_newfac).
+# The 2025 US government shutdown (Oct 1 - Nov 12) cancelled or moved BLS releases; the
+# calendar must say what actually happened, not the pre-shutdown schedule.
+EV = json.loads(interp.evaljs("JSON.stringify(NEWSCAL.events)"))
+def rel(day, name):
+    return [e for e in EV if e["date"] == day and e["eventName"] == name]
+def at(day, name, minute):
+    return any(e["etMinute"] == minute for e in rel(day, name))
+nf = [e for e in EV if e.get("newfac")]
+check("newfac rows exist, all from 2025-04-05 on", len(nf) > 0 and min(e["date"] for e in nf) >= "2025-04-05",
+      "%d rows" % len(nf))
+check("every newfac-only row carries a Forex Factory time or a status with none",
+      all(e["sourceTimes"]["ff"] == e["etMinute"] or e["etMinute"] is None for e in nf))
+cpi_names = ("CPI m/m", "CPI y/y", "Core CPI m/m")
+check("no October 2025 CPI: nothing between the Oct 24 and Dec 18 releases",
+      not [e for e in EV if e["eventName"] in cpi_names and "2025-10-25" <= e["date"] <= "2025-12-17"])
+check("September 2025 CPI released Oct 24, 08:30",
+      at("2025-10-24", "CPI m/m", 510) and at("2025-10-24", "CPI y/y", 510))
+check("no jobs report on its scheduled Oct 3 or Nov 7 2025",
+      not rel("2025-10-03", "Non-Farm Employment Change") and not rel("2025-11-07", "Non-Farm Employment Change"))
+check("September 2025 jobs report released Nov 20, 08:30", at("2025-11-20", "Non-Farm Employment Change", 510))
+check("October + November payrolls released together Dec 16, 08:30, one row",
+      len(rel("2025-12-16", "Non-Farm Employment Change")) == 1 and at("2025-12-16", "Non-Farm Employment Change", 510)
+      and at("2025-12-16", "Unemployment Rate", 510))
+check("Dec 18 2025: only the y/y CPI figures (no m/m for November)",
+      at("2025-12-18", "CPI y/y", 510) and not rel("2025-12-18", "CPI m/m") and not rel("2025-12-18", "Core CPI m/m"))
+check("Sep 16 2026 FOMC day matches the calendar: 14:00 decision, 14:30 press conference",
+      at("2026-09-16", "Federal Funds Rate", 840) and at("2026-09-16", "FOMC Press Conference", 870)
+      and at("2026-09-16", "Retail Sales m/m", 510))
+fd = [e for e in EV if e["eventName"] == "FOMC decision day" and e["date"] == "2026-09-16"]
+check("the FOMC decision day row links to that 14:00", len(fd) == 1 and fd[0]["etMinute"] == 840, str(fd))
+
 # midnight-crossing: the previous-day helper must be pure calendar arithmetic, not
 # dependent on whichever machine's local timezone the browser happens to run in --
 # checked across a month boundary, a year boundary and a leap day, where a naive

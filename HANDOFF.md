@@ -140,8 +140,30 @@ Goods). No category's typical time moved. The raw FF / Investing files were not 
 from the cloud session that did this, so the function was run on the checked-in
 `news_calendar.json` rather than via a full `main()`; a full re-run gives the same rows.
 `typical_et_minute` replaced the pandas `mode()` call (same value on all 52 categories).
-Still open: the calendar ends 2025-04-04 (FF) / 2025-08-15 (Investing), plus FOMC decision
-days to 2026. Data after that needs a new source.
+Forex Factory to today via newfac (2026-09-24): from 2025-04-05 (the day after the Phase 0 FF
+file ends) Forex Factory comes from newfac's nightly full-history CSV
+(github.com/janickfarrell/newfac, release `calendar-data`, GMT times), downloaded fresh on every
+`build_news_calendar.py` run; `--extend-only` redoes just that step on the checked-in JSON (no
+Phase 0 source files needed; it refuses to write if any row before 2025-04-05 would change, and
+a re-run is identical apart from the download stamp). Checked first against the Phase 0 ledger:
+same date and time on 92.6% of CROSS_VERIFIED rows and 100% of OFFICIAL_STANDARD ones; it
+repeats the old FF file's own odd times, so it is the same source continued. Rules are Phase 0's:
+USD only, event names matched to the existing categories (plus one relabel, `Fed Chairman Powell
+Testifies`); a (date, category) the calendar already had -- Investing rows to 2025-08-15 -- is
+reconciled, not duplicated (within 1 min -> CROSS_VERIFIED, else DISAGREE; 182 and 6, the six all
+speeches or an auction). New rows are SINGLE_SOURCE_FF (620), or UNMATCHED / AMBIGUOUS for those
+categories. Rows whose FF "time" is a reference period ("Oct Data", "Sep 27th": the shutdown's
+catch-up figures, 18) are skipped. Every added row carries `newfac: true`, every reconciled one
+`preNewfac` (its state before), so the step is exactly reversible (`strip_newfac`). Result:
+9,106 -> 9,742 events, 7,632 -> 8,255 with a usable time, coverage to 2026-09-24. `test_ui.py`
+pins the 2025 shutdown (no October CPI; September CPI Oct 24; September payrolls Nov 20; Oct+Nov
+payrolls Dec 16; Dec 18 y/y CPI only) and the 2026-09-16 FOMC day; 259 assertions.
+`phase0_reconcile.py` now imports `lh5_tape` inside `main()` so its ALIAS table imports anywhere.
+The FOMC decision-day step is now plain Python (`add_fomc_decision_days`), same values; its times
+are written as 840 instead of pandas' 840.0.
+Still open: `FOMC Member Powell Speaks` (newfac's single label for Powell's speeches as governor,
+chair and ex-chair) and `Fed Chairman Warsh Speaks/Testifies` are not mapped to any category --
+the user decides. Forex Factory's own terms on automated collection have not been checked.
 
 Restore points: `golden_2026-09-18/` holds build_viewer3.py, viewer_core.js, tape_reader.html
 and the test files as they were before the 2026-09-18 pass-line fix (after the presets and
