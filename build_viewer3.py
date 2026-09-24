@@ -291,6 +291,53 @@ td b{color:var(--ink);font-weight:500}
 /* the per-stage strategy block; gold while the funded strategy is being edited */
 .stgbox{border:1px solid var(--rule);border-radius:5px;padding:8px 12px 10px;margin-top:14px}
 .stgbox.funded{border-color:var(--accent);background:rgba(216,162,74,.035)}
+/* Strategy -> Custom: the news picker, its three modes and the live preview */
+.nwbox{border:1px solid var(--rule);border-radius:6px;padding:4px 12px 12px;margin-top:6px;background:var(--panel-2)}
+.nwstep{font-family:var(--mono);font-size:9.5px;color:var(--accent);letter-spacing:.07em;
+        text-transform:uppercase;margin:12px 0 6px;display:flex;gap:7px;align-items:center}
+.nwstep i{font-style:normal;display:inline-flex;width:16px;height:16px;border-radius:50%;
+          border:1px solid var(--accent);align-items:center;justify-content:center;font-size:9px}
+.nwhint{color:var(--ink-faint);font-size:9.5px}
+.nwlab{min-width:118px}
+.nwnote{font-size:10.5px !important;color:var(--ink-faint) !important;line-height:1.5;margin:6px 0 !important}
+.nwchips{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0 4px}
+.nwchip{font-family:var(--mono);font-size:10px;padding:2px 3px 2px 9px;border-radius:10px;color:var(--ink);
+        background:rgba(216,162,74,.14);border:1px solid rgba(216,162,74,.5);display:inline-flex;gap:3px;align-items:center}
+.nwchip button{background:none;border:0;color:var(--ink-dim);cursor:pointer;padding:0 4px;font-size:12px;line-height:1}
+.nwchip button:hover{color:var(--down)}
+.nwsearch{width:100%;margin:6px 0;font-size:11.5px;padding:5px 8px}
+.nwlist{max-height:320px;overflow-y:auto;border:1px solid var(--rule-soft);border-radius:5px;background:var(--panel)}
+.nwlist details{border-bottom:1px solid var(--rule-soft)}
+.nwlist details:last-child{border-bottom:0}
+.nwlist summary{cursor:pointer;padding:6px 10px;font-family:var(--mono);font-size:9.5px;color:var(--ink-dim);
+                text-transform:uppercase;letter-spacing:.05em;display:flex;justify-content:space-between;list-style:none}
+.nwlist summary::-webkit-details-marker{display:none}
+.nwlist summary span:first-child::before{content:'\25B8';display:inline-block;width:12px;color:var(--ink-faint)}
+.nwlist details[open] summary span:first-child::before{content:'\25BE'}
+.nwlist summary:hover{color:var(--ink)}
+.nwrow{display:grid;grid-template-columns:16px 1fr auto 86px;gap:8px;align-items:center;padding:3px 10px 3px 22px;
+       font-size:11.5px;color:var(--ink-dim);cursor:pointer}
+.nwrow:hover{background:var(--panel-2);color:var(--ink)}
+.nwrow.on{color:var(--ink);background:rgba(216,162,74,.07)}
+.nwrow input{accent-color:var(--accent);margin:0}
+.nwrow .t{font-family:var(--mono);font-size:10px;color:var(--ink-dim)}
+.nwrow .n{font-family:var(--mono);font-size:9.5px;color:var(--ink-faint);text-align:right}
+.nwprev{border:1px solid var(--rule);border-left:3px solid var(--accent);border-radius:5px;padding:10px 12px;
+        margin-top:14px;background:var(--panel)}
+.nwrule{font-size:12.5px !important;color:var(--ink) !important;line-height:1.5;margin:0 0 4px !important}
+.nwstats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0 6px}
+.nwstat b{display:block;font-family:var(--sans);font-size:19px;font-weight:600;color:var(--ink);line-height:1.1}
+.nwstat span{font-family:var(--mono);font-size:9px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.04em}
+.nwwarn{border-radius:4px;padding:7px 10px;margin:6px 0;font-size:11.5px;line-height:1.45;color:var(--ink);
+        display:flex;gap:10px;align-items:center;justify-content:space-between}
+.nwwarn .btn{flex:none}
+.nwwarn.bad{background:rgba(209,86,90,.12);border:1px solid rgba(209,86,90,.55)}
+.nwwarn.mid{background:rgba(216,162,74,.10);border:1px solid rgba(216,162,74,.5)}
+.nwwarn.ok{background:rgba(75,176,115,.09);border:1px solid rgba(75,176,115,.4)}
+.nwuphead{font-family:var(--mono);font-size:9px;color:var(--ink-faint);text-transform:uppercase;
+          letter-spacing:.05em;margin:10px 0 3px}
+.nwup{display:grid;grid-template-columns:118px 64px 1fr;gap:6px;font-family:var(--mono);font-size:10.5px;
+      color:var(--ink-dim);padding:2px 0;border-top:1px solid var(--rule-soft)}
 .setrow .tag{margin-right:4px;vertical-align:1px}
 /* the Strategy sheet sits to the side with the chart live underneath, so the
    trade boxes can be watched moving as a number is changed; the backdrop lets
@@ -1745,9 +1792,12 @@ function newsAnchorTitle(t){
   const day = sides[t.day];
   const slot = day && day[String(BASE.mins[t.entry_bar])];
   if (!slot || !slot.anchors || !slot.anchors.length) return '';
-  return slot.anchors.map(a => a.event + ' ' + hhmm(a.releaseMinute) + ' ET (' +
-    a.status + (a.offset ? ', ' + a.offset + 'min before' : '') + ')').join(' + ');
+  return slot.anchors.map(a => a.event + ' ' + hhmm(a.releaseMinute) + ' ET (' + a.status +
+    (a.offset === undefined ? '' : ', entry ' + offsetWords(a.offset)) +
+    (a.moved ? '; ' + hhmm(a.plannedMinute) + ' had no bar, moved to ' + hhmm(BASE.mins[t.entry_bar]) : '') +
+    ')').join(' + ');
 }
+
 function bindName(t){
   if (!t.why) return '';
   /* Strategy-panel rows say outright which barrier closed them; the shipped
@@ -3575,6 +3625,11 @@ const ST = {
   cuNewsMode: 'important',         /* 'important' | 'first' | 'last' | 'every' */
   cuNewsOffset: null,              /* null | 60 | 30 | 10 | 1 | 'custom' */
   cuNewsOffsetCustom: 30,          /* minutes; used when cuNewsOffset === 'custom' */
+  cuNewsCustomAfter: false,        /* the custom offset counts after the release, not before */
+  cuNewsSkip: false,               /* day mode: true = trade every day EXCEPT release days */
+  cuNewsQuality: 'any',            /* 'any' | 'verified' | 'cross': which timed rows may anchor */
+  cuNewsOutside: 'skip',           /* an entry time with no bar that day: 'skip' | 'next' bar */
+  cuHold: null,                    /* minutes each trade is held; null = until the Flat by time */
   /* what the FUNDED account trades, once it differs from the evaluation:
      its own entry, size, units, risk/target and loss limit. `same` (the
      default) means it trades exactly as the evaluation does. */
@@ -3584,7 +3639,8 @@ const ST = {
            boFraction: 4, boDxPeriod: 100, boDxShift: 20, boDxThreshold: 35,
            cuDow: {mon: true, tue: true, wed: true, thu: true, fri: true}, cuEntryMin: 600,
            cuDir: 'random', cuNews: {}, cuNewsMode: 'important', cuNewsOffset: null,
-           cuNewsOffsetCustom: 30},
+           cuNewsOffsetCustom: 30, cuNewsCustomAfter: false, cuNewsSkip: false,
+           cuNewsQuality: 'any', cuNewsOutside: 'skip', cuHold: null},
   stageView: 'eval'                /* which stage the stage-specific inputs edit */
 };
 /* the object the stage-specific inputs read and write */
@@ -3594,8 +3650,29 @@ const STAGE_KEYS = ['key', 'contracts', 'pointValue', 'commission', 'riskMode',
                     'boSide', 'boN', 'boAdxPeriod', 'boAdxThreshold', 'boAdxDir',
                     'boFraction', 'boDxPeriod', 'boDxShift', 'boDxThreshold',
                     'cuDow', 'cuEntryMin', 'cuDir', 'cuNews', 'cuNewsMode',
-                    'cuNewsOffset', 'cuNewsOffsetCustom'];
+                    'cuNewsOffset', 'cuNewsOffsetCustom', 'cuNewsCustomAfter', 'cuNewsSkip',
+                    'cuNewsQuality', 'cuNewsOutside', 'cuHold'];
 try { mergeState(ST, JSON.parse(localStorage.getItem('tape.strat') || '{}')); } catch(e){}
+/* mergeState only copies keys the default already has, of the same type: cuNews ({})
+   has no keys and cuNewsOffset / cuHold default to null, so a saved news selection,
+   timing preset or hold was silently dropped on every reload. Restore those three by
+   hand, checking each value's shape. */
+function restoreCustom(dst, src){
+  if (!src || typeof src !== 'object') return;
+  if (src.cuNews && typeof src.cuNews === 'object'){
+    const known = {}; NEWSCAL.categories.forEach(c => { known[c.id] = 1; });
+    dst.cuNews = {};
+    Object.keys(src.cuNews).forEach(k => { if (src.cuNews[k] === true && known[k]) dst.cuNews[k] = true; });
+  }
+  const off = src.cuNewsOffset;
+  if (off === null || off === 'custom' || (typeof off === 'number' && isFinite(off))) dst.cuNewsOffset = off;
+  const hold = src.cuHold;
+  if (hold === null || (typeof hold === 'number' && hold >= 1)) dst.cuHold = hold;
+}
+try {
+  const saved = JSON.parse(localStorage.getItem('tape.strat') || '{}');
+  restoreCustom(ST, saved); restoreCustom(ST.funded, saved.funded);
+} catch(e){}
 /* If the stage is priced for a market the entry rule was never fitted on,
    snap it onto the first market that rule does cover, so a stored, offline
    decision (a fill level, a long/short call) is never read against a $/pt
@@ -3672,10 +3749,17 @@ const NEWSCAL_BY_DATE = (() => {
   for (const e of NEWSCAL.events) (idx[e.date] || (idx[e.date] = [])).push(e);
   return idx;
 })();
-/* statuses a timing preset may anchor on; DISAGREE/INVESTING_INTERNAL_CONFLICT/
-   UNMATCHED/AMBIGUOUS/DAY_ONLY never do, even if the category is checked */
-const NEWS_USABLE = {CROSS_VERIFIED: 1, SINGLE_SOURCE_FF: 1, SINGLE_SOURCE_INVESTING: 1,
-                     OFFICIAL_VERIFIED: 1, OFFICIAL_STANDARD: 1};
+/* which timed rows a timing preset may anchor on, by the Source quality picked in the
+   panel. 'any' is what every earlier build used. DISAGREE / INVESTING_INTERNAL_CONFLICT /
+   UNMATCHED / AMBIGUOUS / DAY_ONLY never anchor, whichever is picked. */
+const NEWS_QUALITY = {
+  any:      {CROSS_VERIFIED: 1, SINGLE_SOURCE_FF: 1, SINGLE_SOURCE_INVESTING: 1,
+             OFFICIAL_VERIFIED: 1, OFFICIAL_STANDARD: 1},
+  verified: {CROSS_VERIFIED: 1, OFFICIAL_VERIFIED: 1, OFFICIAL_STANDARD: 1},
+  cross:    {CROSS_VERIFIED: 1, OFFICIAL_VERIFIED: 1}
+};
+const NEWS_QUALITY_LABEL = {any: 'Any source', verified: 'Verified or official time',
+                            cross: 'Two sources agree only'};
 const NEWS_PRIORITY_RANK = (() => {
   const r = {}; (NEWSCAL.newsPriority || []).forEach((n, i) => { r[n] = i; }); return r;
 })();
@@ -3683,15 +3767,27 @@ const DOW_NAMES = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 /* pure calendar-date arithmetic: Date.UTC construction, getUTC/setUTC reads only --
    never the local-time variants, whose "previous day" depends on the viewer's own
    browser/OS timezone (this page runs on whoever's machine has it open) */
-function prevIsoDay(day){
+function shiftIsoDay(day, n){
   const dt = new Date(Date.UTC(+day.slice(0, 4), +day.slice(5, 7) - 1, +day.slice(8, 10)));
-  dt.setUTCDate(dt.getUTCDate() - 1);
+  dt.setUTCDate(dt.getUTCDate() + n);
   return dt.getUTCFullYear() + '-' + String(dt.getUTCMonth() + 1).padStart(2, '0') +
     '-' + String(dt.getUTCDate()).padStart(2, '0');
 }
-function newsEligibleForDay(date, checked){
+function prevIsoDay(day){ return shiftIsoDay(day, -1); }
+function newsAny(C){ const c = C.cuNews || {}; return Object.keys(c).some(k => c[k]); }
+/* timed around the release only when something is ticked; with nothing ticked the
+   custom entry is the plain fixed-time rule, whatever the Timing buttons last said */
+function newsAround(C){ return newsAny(C) && C.cuNewsOffset !== null; }
+/* the entry's distance from the release in minutes: positive = before it, negative = after */
+function newsOffsetMin(C){
+  if (C.cuNewsOffset === 'custom') return C.cuNewsCustomAfter ? -C.cuNewsOffsetCustom : C.cuNewsOffsetCustom;
+  return C.cuNewsOffset;
+}
+const offsetWords = o => o === 0 ? 'at the release' : Math.abs(o) + ' min ' + (o > 0 ? 'before' : 'after');
+function newsEligibleForDay(date, checked, quality){
+  const ok = NEWS_QUALITY[quality] || NEWS_QUALITY.any;
   return (NEWSCAL_BY_DATE[date] || []).filter(e =>
-    checked[e.catId] && NEWS_USABLE[e.status] && e.etMinute != null);
+    checked[e.catId] && ok[e.status] && e.etMinute != null && !e.scheduled);
 }
 /* one day's checked, eligible events -> the anchor event(s) 'cuNewsMode' picks.
    'important': lowest NEWS_PRIORITY rank (unranked categories sort last, deterministic,
@@ -3708,60 +3804,113 @@ function reduceNewsEvents(evs, mode){
     return (rb === undefined ? Infinity : rb) < (ra === undefined ? Infinity : ra) ? b : a;
   })];
 }
+/* day -> its session in the loaded bars, rebuilt only when the tape changes */
+let _sessByDay = null, _sessByDayBase = null;
+function sessionByDay(){
+  if (_sessByDayBase !== BASE){
+    _sessByDay = {};
+    BASE.sessions.forEach(S => { _sessByDay[S.day] = S; });
+    _sessByDayBase = BASE;
+  }
+  return _sessByDay;
+}
+/* the bar an entry at `minute` lands on in session S: the bar at exactly that minute (as
+   Core's barAt finds it), else with 'next' the earliest bar after it that day -- 08:00 on
+   an RTH tape becomes the 09:30 open; a 24-hour session that starts the evening before
+   still picks 08:00, not 18:00. -1 = no bar. */
+function anchorBar(S, minute, outside){
+  let next = -1, gap = Infinity;
+  for (let i = S.a; i <= S.b; i++){
+    const m = BASE.mins[i];
+    if (m === minute) return i;
+    if (m > minute && m - minute < gap){ gap = m - minute; next = i; }
+  }
+  return outside === 'next' ? next : -1;
+}
 /* the per-day slotsFromTable schedule for a news-anchored custom stage. Values are a
    structured {anchors:[...]} record, explicitly merged (pushed onto), never
    overwritten -- two different releases can legitimately share one anchor minute with
    different underlying status/sourceTimes. The engine itself only ever reads this
    table's KEYS when direction isn't 'table' (verified, see the plan); the anchors
-   array is inert to it and exists purely for the ledger's UI-layer lookup below. */
-function buildNewsSides(C){
+   array is inert to it and exists purely for the ledger's UI-layer lookup and the
+   panel's preview. The key is the bar minute the entry will actually use: the planned
+   minute, or with cuNewsOutside 'next' the next bar that day (the anchor then records
+   plannedMinute and moved). `stats`, when given, counts what happened to each anchor
+   inside the run's span, for the preview. */
+function buildNewsSides(C, stats){
   const checked = C.cuNews || {};
-  if (!Object.keys(checked).some(k => checked[k])) return {};
-  const offsetMin = C.cuNewsOffset === 'custom' ? C.cuNewsOffsetCustom : C.cuNewsOffset;
+  if (!newsAny(C)) return {};
+  const offsetMin = newsOffsetMin(C), outside = C.cuNewsOutside || 'skip';
+  const sess = sessionByDay(), [lo, hi] = newsSpan();
   const sides = {};
   for (const date in NEWSCAL_BY_DATE){
     if (!C.cuDow[DOW_NAMES[Core.dowOf(date)]]) continue;   // release-day weekday filter
-    const chosen = reduceNewsEvents(newsEligibleForDay(date, checked), C.cuNewsMode);
+    const chosen = reduceNewsEvents(newsEligibleForDay(date, checked, C.cuNewsQuality), C.cuNewsMode);
     for (const e of chosen){
-      let anchorMin = e.etMinute - offsetMin, anchorDate = date;
-      if (anchorMin < 0){ anchorDate = prevIsoDay(date); anchorMin += 1440; }
-      const key = String(anchorMin);
+      let plan = e.etMinute - offsetMin, anchorDate = date;
+      if (plan < 0){ anchorDate = shiftIsoDay(date, -1); plan += 1440; }
+      else if (plan >= 1440){ anchorDate = shiftIsoDay(date, 1); plan -= 1440; }
+      const S = sess[anchorDate];
+      const i = S ? anchorBar(S, plan, outside) : -1;
+      const key = i >= 0 ? BASE.mins[i] : plan, moved = i >= 0 && key !== plan;
+      if (stats && anchorDate >= lo && anchorDate <= hi){
+        stats.anchors++;
+        if (!S) stats.noSession++;
+        else if (i < 0) stats.outside++;
+        else if (moved){ stats.moved++; if (!stats.moveEx) stats.moveEx = [plan, key]; }
+        else stats.exact++;
+        if (!S || i < 0) stats.outEx = stats.outEx || plan;
+      }
       if (!sides[anchorDate]) sides[anchorDate] = {};
-      if (!sides[anchorDate][key]) sides[anchorDate][key] = {anchors: []};
-      sides[anchorDate][key].anchors.push({event: e.eventName, catId: e.catId,
+      const k = String(key);
+      if (!sides[anchorDate][k]) sides[anchorDate][k] = {anchors: []};
+      sides[anchorDate][k].anchors.push({event: e.eventName, catId: e.catId,
         releaseMinute: e.etMinute, offset: offsetMin, status: e.status,
-        sourceTimes: e.sourceTimes});
+        sourceTimes: e.sourceTimes, plannedMinute: plan, moved: moved});
     }
   }
   return sides;
 }
-/* the plain (no timing preset) day filter: which days are eligible, from every
-   checked category's own occurrences -- day-filter only, no per-occurrence time
-   needed here, unlike buildNewsSides above */
-function buildNewsDays(C){
-  const checked = C.cuNews || {};
-  if (!Object.keys(checked).some(k => checked[k])) return null;
-  const days = {};
+/* the plain (no timing preset) day filter: the days any checked category released
+   (status-agnostic: the day is known even when the time is not), or with cuNewsSkip
+   every loaded session EXCEPT those days */
+function newsReleaseDays(C){
+  const checked = C.cuNews || {}, days = {};
   for (const date in NEWSCAL_BY_DATE)
-    if (NEWSCAL_BY_DATE[date].some(e => checked[e.catId])) days[date] = true;
+    if (NEWSCAL_BY_DATE[date].some(e => checked[e.catId] && !e.scheduled)) days[date] = true;
   return days;
+}
+function buildNewsDays(C){
+  if (!newsAny(C)) return null;
+  const hit = newsReleaseDays(C);
+  if (!C.cuNewsSkip) return hit;
+  const days = {};
+  BASE.sessions.forEach(S => { if (!hit[S.day]) days[S.day] = true; });
+  return days;
+}
+/* the run's span of days, as the panel's From/To and the tape's own ends give it */
+function newsSpan(){
+  const [a, b] = tapeEnds();
+  return [ST.from && ST.from > a ? ST.from : a, ST.to && ST.to < b ? ST.to : b];
 }
 function customStageOpts(C){
   const dow = C.cuDow || {};
   const daysOfWeek = [0, 1, 2, 3, 4, 5, 6].filter(n => dow[DOW_NAMES[n]]);
   const exitMin = ST.exitMin < 960 ? ST.exitMin : null;
-  const entry = C.cuNewsOffset === null
+  const holdMin = C.cuHold === null || C.cuHold === undefined ? null : C.cuHold;
+  const entry = !newsAround(C)
     ? {mode: 'reentry', startMin: C.cuEntryMin, endMin: C.cuEntryMin, slotMin: 30,
-       direction: C.cuDir, exitMin: exitMin, daysOfWeek: daysOfWeek,
+       direction: C.cuDir, exitMin: exitMin, holdMin: holdMin, daysOfWeek: daysOfWeek,
        newsDays: buildNewsDays(C), seed: ST.seed}
     : {mode: 'reentry', slotsFromTable: true, sides: buildNewsSides(C),
        tableSkipReason: 'position open at next news release', direction: C.cuDir,
-       exitMin: exitMin, daysOfWeek: daysOfWeek,
+       exitMin: exitMin, holdMin: holdMin, daysOfWeek: daysOfWeek,
        /* kept on entry itself, outside .sides, so ensSig() -- which strips .sides
           from its staleness fingerprint -- still detects a settings or calendar change */
        cuNews: C.cuNews, cuNewsMode: C.cuNewsMode, cuNewsOffset: C.cuNewsOffset,
-       cuNewsOffsetCustom: C.cuNewsOffsetCustom, newsCalVersion: NEWSCAL.builtFrom,
-       seed: ST.seed};
+       cuNewsOffsetCustom: C.cuNewsOffsetCustom, cuNewsCustomAfter: C.cuNewsCustomAfter,
+       cuNewsQuality: C.cuNewsQuality, cuNewsOutside: C.cuNewsOutside,
+       newsCalVersion: NEWSCAL.builtFrom, seed: ST.seed};
   return {
     entry: entry,
     trade: C.riskMode === 'usd' ? {riskUSD: C.riskUSD, targetUSD: C.targetUSD}
@@ -4277,79 +4426,264 @@ function ensembleHTML(){
   return out;
 }
 
-/* rough thematic grouping for the ~50-category news checklist -- a first-pass judgment
-   call, trivially editable, not load-bearing (every category is still individually
-   checkable regardless of which group it lands in) */
+/* thematic grouping for the ~50-category news checklist -- a judgment call, trivially
+   editable, not load-bearing (every category is still individually checkable) */
 function newsCatGroup(name){
-  if (/CPI|PCE|PPI|Inflation/i.test(name)) return 'Inflation';
-  if (/Payroll|Employment|Unemployment|Jobless|Claims|JOLTS|Hourly Earnings/i.test(name)) return 'Employment';
-  if (/FOMC|Fed |Federal Funds/i.test(name)) return 'Fed';
-  if (/GDP|Retail Sales|ISM|PMI|Confidence|Sentiment|Housing|Home Sales|Durable Goods|HPI|Cost Index/i.test(name))
-    return 'Growth & Surveys';
-  return 'Other';
+  if (/decision day|Federal Funds|FOMC Statement|FOMC Press|FOMC Meeting|FOMC Economic|Fed Announcement/i.test(name))
+    return 'Fed decisions';
+  if (/Speaks|Testifies/i.test(name)) return 'Speeches';
+  if (/Inflation Expectations|CPI|PCE|PPI/i.test(name)) return 'Inflation';
+  if (/Payroll|Non-Farm|Employment|Unemployment|Claims|JOLTS|Hourly Earnings/i.test(name)) return 'Jobs';
+  if (/GDP|Retail Sales|Durable Goods/i.test(name)) return 'Growth & spending';
+  if (/ISM|PMI|Empire|Philly|Confidence|Sentiment/i.test(name)) return 'Surveys & PMIs';
+  if (/Housing|Home Sales|HPI/i.test(name)) return 'Housing';
+  return 'Auctions, politics & other';
 }
-const NEWS_GROUP_ORDER = ['Fed', 'Employment', 'Inflation', 'Growth & Surveys', 'Other'];
-function newsSourceLabel(cat){
-  if (cat.typicalEtMinute == null) return 'no reliable release time \u2014 day filter only';
-  const t = hhmm(cat.typicalEtMinute) + ' ET';
-  return t + (cat.note ? ' \u00b7 ' + cat.note : '');
+const NEWS_GROUP_ORDER = ['Fed decisions', 'Jobs', 'Inflation', 'Growth & spending',
+                          'Surveys & PMIs', 'Housing', 'Speeches', 'Auctions, politics & other'];
+/* one click replaces the selection; ids that are not in this calendar are dropped */
+const NEWS_PRESETS = [
+  ['big3', 'Big 3', 'The Fed rate decision, the jobs report and CPI',
+   ['federal_funds_rate', 'non_farm_employment_change', 'cpi_m_m']],
+  ['fed', 'Fed days', 'Rate decision, statement, press conference and minutes',
+   ['federal_funds_rate', 'fomc_statement', 'fomc_press_conference', 'fomc_meeting_minutes']],
+  ['jobs', 'Jobs', 'Payrolls, unemployment, earnings, ADP, claims, JOLTS',
+   ['non_farm_employment_change', 'unemployment_rate', 'average_hourly_earnings_m_m',
+    'adp_non_farm_employment_change', 'unemployment_claims', 'jolts_job_openings']],
+  ['infl', 'Inflation', 'CPI, core CPI, PPI, core PPI and core PCE',
+   ['cpi_m_m', 'cpi_y_y', 'core_cpi_m_m', 'ppi_m_m', 'core_ppi_m_m', 'core_pce_price_index_m_m']],
+  ['830', '08:30 data', 'Every release that usually lands at 08:30 ET', null],
+  ['top10', 'Top 10', 'The ten highest-priority releases', null]
+];
+function newsPresetIds(p){
+  if (p[0] === '830') return NEWSCAL.categories.filter(c => c.typicalEtMinute === 510).map(c => c.id);
+  if (p[0] === 'top10') return NEWSCAL.categories.slice().sort((a, b) => a.priorityRank - b.priorityRank)
+    .slice(0, 10).map(c => c.id);
+  const known = {}; NEWSCAL.categories.forEach(c => { known[c.id] = 1; });
+  return p[3].filter(id => known[id]);
+}
+/* UI-only state that is not worth saving: the search text and which groups are open */
+const NEWS_UI = {q: '', open: {}, lastOffset: 30};
+const NEWS_CAT = (() => { const m = {}; NEWSCAL.categories.forEach(c => { m[c.id] = c; }); return m; })();
+/* per category, over the run's span: releases, and releases with a time the chosen
+   Source quality accepts */
+function newsCounts(C){
+  const [lo, hi] = newsSpan(), ok = NEWS_QUALITY[C.cuNewsQuality] || NEWS_QUALITY.any;
+  const n = {}, timed = {};
+  for (const e of NEWSCAL.events){
+    if (e.scheduled || e.date < lo || e.date > hi) continue;
+    n[e.catId] = (n[e.catId] || 0) + 1;
+    if (e.etMinute != null && ok[e.status]) timed[e.catId] = (timed[e.catId] || 0) + 1;
+  }
+  return {n, timed};
+}
+function newsNames(ids){
+  const names = ids.map(id => (NEWS_CAT[id] || {name: id}).name);
+  return names.length <= 3 ? names.join(', ').replace(/, ([^,]*)$/, ' and $1')
+                           : names.slice(0, 2).join(', ') + ' and ' + (names.length - 2) + ' more';
+}
+const DOW_WORD = {mon: 'Mon', tue: 'Tue', wed: 'Wed', thu: 'Thu', fri: 'Fri'};
+function newsDaysWord(C){
+  const on = Object.keys(DOW_WORD).filter(k => (C.cuDow || {})[k]);
+  if (on.length === 5) return 'any weekday';
+  if (!on.length) return 'no weekday (tick at least one)';
+  return on.map(k => DOW_WORD[k]).join(', ');
+}
+/* the rule in one plain sentence, so what the settings add up to is never a guess */
+function newsRuleSentence(C){
+  const dir = {random: 'A coin picks long or short', long: 'Go long', short: 'Go short'}[C.cuDir];
+  const ids = Object.keys(C.cuNews || {}).filter(k => C.cuNews[k]);
+  const hold = C.cuHold ? 'hold ' + C.cuHold + ' min' : 'hold to the Flat by time (' + hhmm(ST.exitMin) + ')';
+  const mode = {important: 'the most important', first: 'the first', last: 'the last',
+                every: 'every one'}[C.cuNewsMode];
+  let what;
+  if (!ids.length) what = 'at ' + hhmm(C.cuEntryMin) + ' ET';
+  else if (newsAround(C)) what = offsetWords(newsOffsetMin(C)) + ' of ' + newsNames(ids) +
+    (ids.length > 1 ? ' (' + mode + ' of them on a day with several)' : '');
+  else what = 'at ' + hhmm(C.cuEntryMin) + ' ET, ' + (C.cuNewsSkip ? 'except' : 'only') +
+    ' on days with ' + newsNames(ids);
+  return dir + ' ' + what + ', on ' + newsDaysWord(C) + '; stop and target from Trade below; ' + hold + '.';
+}
+function newsUpcoming(C, n){
+  const ids = C.cuNews || {}, out = [];
+  for (const e of NEWSCAL.events) if (e.scheduled && ids[e.catId]) out.push(e);
+  out.sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : (a.etMinute || 0) - (b.etMinute || 0));
+  return out.slice(0, n);
+}
+const nwStat = (v, l) => '<div class="nwstat"><b>' + v + '</b><span>' + l + '</span></div>';
+/* the live preview under the news controls: the rule in words, what it adds up to over
+   the run's span, anything that will silently stop it trading, and what is coming up */
+function newsPreviewHTML(C){
+  const [lo, hi] = newsSpan();
+  const any = newsAny(C);
+  let out = '<div class="nwprev"><p class="nwrule">' + newsRuleSentence(C) + '</p>';
+  if (!any){
+    return out + '<p style="font-size:11px;color:var(--ink-faint);margin:0">Tick a release above ' +
+      'to trade only on release days, skip them, or time the entry to the release.</p></div>';
+  }
+  const sess = BASE.sessions.filter(S => S.day >= lo && S.day <= hi);
+  const first = sess.length ? BASE.mins[sess[0].a] : 0, last = sess.length ? BASE.mins[sess[0].b] : 0;
+  const hours = sess.length ? hhmm(first) + '–' + hhmm(last) : 'none';
+  const dowOk = d => (C.cuDow || {})[DOW_NAMES[Core.dowOf(d)]];
+  if (newsAround(C)){
+    const st = {anchors: 0, exact: 0, moved: 0, outside: 0, noSession: 0};
+    buildNewsSides(C, st);
+    const rel = newsReleaseDays(C);
+    const relDays = Object.keys(rel).filter(d => d >= lo && d <= hi && dowOk(d)).length;
+    const trade = st.exact + st.moved;
+    out += '<div class="nwstats">' + nwStat(relDays.toLocaleString(), 'release days in span') +
+      nwStat(st.anchors.toLocaleString(), 'entry times') +
+      nwStat(trade.toLocaleString(), 'can trade') +
+      nwStat((st.outside + st.noSession).toLocaleString(), 'no bar there') + '</div>';
+    const off = st.outside + st.noSession;
+    if (st.anchors && !trade)
+      out += '<div class="nwwarn bad"><span><b>Nothing can trade.</b> Every entry time (e.g. ' +
+        hhmm(st.outEx) + ') falls where the loaded bars have none: they run ' + hours +
+        ' ET. Move each entry to the next bar that day, or load a file with those hours and ' +
+        'turn RTH off in the Data bar.</span><button class="btn" data-cu-outside="next">' +
+        'Enter at the next bar</button></div>';
+    else if (off && C.cuNewsOutside !== 'next')
+      out += '<div class="nwwarn mid"><span>' + off.toLocaleString() + ' of ' + st.anchors.toLocaleString() +
+        ' entry times fall where the loaded bars (' + hours + ' ET) have none and are skipped.</span>' +
+        '<button class="btn" data-cu-outside="next">Enter at the next bar</button></div>';
+    if (st.moved)
+      out += '<div class="nwwarn ok"><span>' + st.moved.toLocaleString() + ' entries moved to the ' +
+        'next bar that day (e.g. ' + hhmm(st.moveEx[0]) + ' → ' + hhmm(st.moveEx[1]) +
+        '). That is a different trade from the release itself: price has already reacted.</span>' +
+        '<button class="btn" data-cu-outside="skip">Skip them instead</button></div>';
+    if (relDays > st.anchors && relDays)
+      out += '<p class="nwnote">' + (relDays - Math.min(relDays, st.anchors)).toLocaleString() +
+        ' release days have no time the chosen source quality (' +
+        NEWS_QUALITY_LABEL[C.cuNewsQuality] + ') accepts, and are left out.</p>';
+  } else {
+    const rel = newsReleaseDays(C);
+    const inSpan = sess.filter(S => dowOk(S.day));
+    const hit = inSpan.filter(S => rel[S.day]).length;
+    const trades = C.cuNewsSkip ? inSpan.length - hit : hit;
+    out += '<div class="nwstats">' + nwStat(inSpan.length.toLocaleString(), 'sessions in span') +
+      nwStat(hit.toLocaleString(), 'with a release') +
+      nwStat(trades.toLocaleString(), 'days it trades') +
+      nwStat(hhmm(C.cuEntryMin), 'entry, ET') + '</div>';
+    if (inSpan.length && !inSpan.some(S => anchorBar(S, C.cuEntryMin, 'skip') >= 0))
+      out += '<div class="nwwarn bad"><span><b>Nothing can trade.</b> The entry time ' + hhmm(C.cuEntryMin) +
+        ' is outside the loaded bars (' + hours + ' ET).</span></div>';
+  }
+  const up = newsUpcoming(C, 5);
+  if (up.length){
+    const offMin = newsAround(C) ? newsOffsetMin(C) : null;
+    out += '<div class="nwuphead">Coming up (published schedule)</div>' + up.map(e => {
+      const wd = DOW_WORD[DOW_NAMES[Core.dowOf(e.date)]] || '';
+      const t = e.etMinute == null ? 'time tba' : hhmm(e.etMinute);
+      const entry = offMin === null || e.etMinute == null ? '' :
+        ' <span style="color:var(--accent)">→ entry ' + hhmm(((e.etMinute - offMin) % 1440 + 1440) % 1440) +
+        (C.cuNewsOutside === 'next' ? ' (or the next bar)' : '') + '</span>';
+      return '<div class="nwup"><span>' + wd + ' ' + e.date + '</span><span>' + t + '</span><span>' +
+        e.eventName + entry + '</span></div>';
+    }).join('');
+  }
+  return out + '</div>';
 }
 function customEntryHTML(C){
   const dow = C.cuDow || {};
   const dowLabels = [['mon', 'Mon'], ['tue', 'Tue'], ['wed', 'Wed'], ['thu', 'Thu'], ['fri', 'Fri']];
   const checked = C.cuNews || {};
-  const anyChecked = Object.keys(checked).some(k => checked[k]);
+  const ids = Object.keys(checked).filter(k => checked[k]);
+  const any = ids.length > 0, around = newsAround(C);
+  const cnt = newsCounts(C);
   const cats = NEWSCAL.categories.slice().sort((a, b) => a.priorityRank - b.priorityRank);
   const grouped = {};
   cats.forEach(c => { const g = newsCatGroup(c.name); (grouped[g] || (grouped[g] = [])).push(c); });
+  const btn = (on, attr, label, title) => '<button class="btn' + (on ? ' on' : '') + '" ' + attr +
+    (title ? ' title="' + title + '"' : '') + '>' + label + '</button>';
+  const off = C.cuNewsOffset;
+  const hint = t => '<span class="nwhint">' + t + '</span>';
   let out = '<h3>Custom entry</h3>' +
-    '<div class="szbar"><span class="lbl">Days</span>' +
-    dowLabels.map(([k, l]) => '<button class="btn' + (dow[k] ? ' on' : '') +
-      '" data-cu-dow="' + k + '">' + l + '</button>').join('') + '</div>' +
-    '<div class="szbar"><span class="lbl">Direction</span>' +
-    ['random', 'long', 'short'].map(v => '<button class="btn' + (C.cuDir === v ? ' on' : '') +
-      '" data-cu-dir="' + v + '">' + (v === 'random' ? 'Coin' : v[0].toUpperCase() + v.slice(1)) +
-      '</button>').join('') + '</div>' +
-    (C.cuNewsOffset !== null ? '' :
+    '<div class="szbar"><span class="lbl">Days</span><span class="seg">' +
+    dowLabels.map(([k, l]) => btn(dow[k], 'data-cu-dow="' + k + '"', l)).join('') + '</span></div>' +
+    '<div class="szbar"><span class="lbl">Direction</span><span class="seg">' +
+    [['random', 'Coin'], ['long', 'Long'], ['short', 'Short']].map(([v, l]) =>
+      btn(C.cuDir === v, 'data-cu-dir="' + v + '"', l)).join('') + '</span></div>' +
+    (around ? '' :
       '<div class="szbar"><span class="lbl">Entry time</span>' +
       '<input type="time" id="cuEntryMin" value="' + hhmm(C.cuEntryMin) + '" step="60" style="width:92px">' +
-      '<span style="color:var(--ink-faint);font-size:9.5px">used when no news timing preset below is engaged</span></div>') +
-    '<h3>News filter (optional)</h3>' +
-    '<p style="color:var(--ink-dim);font-size:11px">Checking a category restricts entries to days it ' +
-    'fired (or, with a timing preset below, anchors the entry time to its release). Source: Forex Factory ' +
-    'reconciled against two Investing.com sources, ' + NEWSCAL.ffCoverage.join(' to ') + ' / ' +
-    NEWSCAL.investingCoverage.join(' to ') + '; cross-verifiable ' + NEWSCAL.crossVerifiedCoverage.join(' to ') + '.</p>' +
-    '<div style="max-height:220px;overflow-y:auto;border:1px solid var(--rule);border-radius:6px;padding:6px 10px;margin-bottom:8px">' +
-    NEWS_GROUP_ORDER.filter(g => grouped[g]).map(g =>
-      '<div style="font-size:9.5px;color:var(--ink-faint);text-transform:uppercase;margin:6px 0 2px">' + g + '</div>' +
-      grouped[g].map(c => '<label style="display:block;font-size:11px;padding:2px 0;cursor:pointer">' +
-        '<input type="checkbox" data-cu-news="' + c.id + '"' + (checked[c.id] ? ' checked' : '') + '> ' +
-        c.name + ' <span style="color:var(--ink-faint)">(' + newsSourceLabel(c) + ')</span></label>').join('')
-    ).join('') + '</div>' +
-    (!anyChecked ? '' :
-      '<div class="szbar"><span class="lbl">Same day</span>' +
-      '<select id="cuNewsMode" style="font-size:11px">' +
-      [['important', 'Most important release'], ['first', 'First release'], ['last', 'Last release'],
-       ['every', 'Every qualifying release']].map(([v, l]) =>
+      hint(any ? 'ET, on the days the news choice below allows' : 'ET, every chosen weekday') + '</div>') +
+    '<div class="szbar"><span class="lbl">Hold</span><span class="seg">' +
+    btn(C.cuHold === null, 'data-cu-hold=""', 'To Flat by') +
+    [5, 15, 30, 60].map(m => btn(C.cuHold === m, 'data-cu-hold="' + m + '"', m + 'm')).join('') + '</span>' +
+    '<input type="number" id="cuHoldMin" min="1" step="1" placeholder="min" value="' +
+    (C.cuHold && [5, 15, 30, 60].indexOf(C.cuHold) < 0 ? C.cuHold : '') + '" style="width:58px">' +
+    hint('each trade closes this long after its own entry, or at the stop, target or Flat by first') + '</div>' +
+    '<h3>News filter &amp; timing</h3><div class="nwbox">' +
+    '<div class="nwstep"><i>1</i>Which releases</div>' +
+    '<div class="szbar" style="margin-top:0"><span class="lbl">Quick pick</span>' +
+    NEWS_PRESETS.map(p => btn(false, 'data-cu-preset="' + p[0] + '"', p[1], p[2])).join('') +
+    (any ? btn(false, 'data-cu-preset="clear"', 'Clear') : '') + '</div>' +
+    (any ? '<div class="nwchips">' + ids.map(id => '<span class="nwchip">' + (NEWS_CAT[id] || {name: id}).name +
+      '<button data-cu-unpick="' + id + '" title="remove">×</button></span>').join('') + '</div>'
+         : '<p class="nwnote">No release picked: the entry above trades every chosen weekday.</p>') +
+    '<input type="search" id="cuNewsQ" class="nwsearch" placeholder="Search releases (CPI, claims, ISM…)" value="' +
+    NEWS_UI.q.replace(/"/g, '&quot;') + '">' +
+    '<div class="nwlist">' +
+    NEWS_GROUP_ORDER.filter(g => grouped[g]).map(g => {
+      const inG = grouped[g], picked = inG.filter(c => checked[c.id]).length;
+      const open = NEWS_UI.q || picked || NEWS_UI.open[g];
+      return '<details data-cu-group="' + g + '"' + (open ? ' open' : '') + '><summary><span>' + g +
+        '</span><span>' + (picked ? picked + ' of ' : '') + inG.length + '</span></summary>' +
+        inG.map(c => {
+          const n = cnt.n[c.id] || 0, t = cnt.timed[c.id] || 0;
+          const q = NEWS_UI.q && c.name.toLowerCase().indexOf(NEWS_UI.q.toLowerCase()) < 0;
+          return '<label class="nwrow' + (checked[c.id] ? ' on' : '') + '" data-cu-name="' +
+            c.name.toLowerCase().replace(/"/g, '') + '"' + (q ? ' style="display:none"' : '') +
+            ' title="' + (c.note ? c.note.replace(/"/g, '') : '') + '">' +
+            '<input type="checkbox" data-cu-news="' + c.id + '"' + (checked[c.id] ? ' checked' : '') + '>' +
+            '<span>' + c.name + (c.note ? ' <span style="color:var(--accent)" title="' +
+              c.note.replace(/"/g, '') + '">ⓘ</span>' : '') + '</span>' +
+            '<span class="t">' + (c.typicalEtMinute == null ? 'no time' : hhmm(c.typicalEtMinute)) + '</span>' +
+            '<span class="n" title="releases in the span; with a usable time">' + n +
+              (n && t < n ? ' · ' + t + ' timed' : '') + '</span></label>';
+        }).join('') + '</details>';
+    }).join('') + '</div>' +
+    '<div class="nwstep"><i>2</i>How to use them</div>' +
+    '<div class="szbar" style="margin-top:0"><span class="seg">' +
+    btn(any && !around && !C.cuNewsSkip, 'data-cu-use="only"' + (any ? '' : ' disabled'), 'Only release days') +
+    btn(any && !around && C.cuNewsSkip, 'data-cu-use="skip"' + (any ? '' : ' disabled'), 'Skip release days') +
+    btn(around, 'data-cu-use="around"' + (any ? '' : ' disabled'), 'Time the entry to the release') +
+    '</span></div>' +
+    (!around ? (any ? '<p class="nwnote">' + (C.cuNewsSkip ? 'Trades at the entry time on every ' +
+        'chosen weekday except the days one of these was released.' : 'Trades at the entry time, ' +
+        'only on days one of these was released (the day is enough; the time is not needed).') + '</p>' : '')
+     : '<div class="szbar"><span class="lbl nwlab">Enter before</span>' +
+      '<span class="seg">' + [60, 30, 15, 10, 5, 1].map(m => btn(off === m, 'data-cu-news-offset="' + m + '"', m + 'm')).join('') +
+      '</span>' + btn(off === 0, 'data-cu-news-offset="0"', 'At the release') + '</div>' +
+      '<div class="szbar"><span class="lbl nwlab">Enter after</span>' +
+      '<span class="seg">' + [1, 5, 15, 30].map(m => btn(off === -m, 'data-cu-news-offset="-' + m + '"', m + 'm')).join('') +
+      '</span>' + btn(off === 'custom', 'data-cu-news-offset="custom"', 'Custom\u2026') + '</div>' +
+      (off !== 'custom' ? '' :
+        '<div class="szbar"><span class="lbl nwlab">Custom</span><input type="number" id="cuNewsOffsetCustom" value="' +
+        C.cuNewsOffsetCustom + '" min="0" step="1" style="width:60px"><span class="lbl">min</span><span class="seg">' +
+        btn(!C.cuNewsCustomAfter, 'data-cu-custom-dir="before"', 'before') +
+        btn(C.cuNewsCustomAfter, 'data-cu-custom-dir="after"', 'after') + '</span></div>') +
+      '<div class="szbar"><span class="lbl nwlab">Several that day</span><select id="cuNewsMode" style="font-size:11px">' +
+      [['important', 'Most important one'], ['first', 'First one'], ['last', 'Last one'],
+       ['every', 'Every one (one trade each)']].map(([v, l]) =>
         '<option value="' + v + '"' + (C.cuNewsMode === v ? ' selected' : '') + '>' + l + '</option>').join('') +
-      '</select></div>' +
-      '<div class="szbar"><span class="lbl">Timing</span>' +
-      [[null, 'Off'], [60, '60 min before'], [30, '30 min before'], [10, '10 min before'],
-       [1, '1 min before'], ['custom', 'Custom']].map(([v, l]) =>
-        '<button class="btn' + (C.cuNewsOffset === v ? ' on' : '') + '" data-cu-news-offset="' +
-        (v === null ? '' : v) + '">' + l + '</button>').join('') +
-      (C.cuNewsOffset !== 'custom' ? '' :
-        '<input type="number" id="cuNewsOffsetCustom" value="' + C.cuNewsOffsetCustom +
-        '" min="1" step="1" style="width:60px">min') + '</div>' +
-      (C.cuNewsOffset === null ? '' :
-        '<p style="color:var(--ink-faint);font-size:9.5px">Anchors only on a day\u2019s CROSS_VERIFIED/' +
-        'SINGLE_SOURCE/OFFICIAL_VERIFIED occurrence for a checked category, or an OFFICIAL_STANDARD one ' +
-        '(the agency\u2019s fixed release time, filled in only where neither source gave a time; never ' +
-        'the FOMC family, whose time moved between eras); a day whose only checked ' +
-        'occurrence disagrees between sources, is ambiguous, or has no reliable time still gates the ' +
-        'plain day filter but contributes no timing anchor. A suppressed entry (position still open ' +
-        'at the next release) shows in the ledger as \u201cnot taken \u2014 position open at next news ' +
-        'release.\u201d</p>'));
+      '</select></div><div class="szbar"><span class="lbl nwlab">Source quality</span>' +
+      '<select id="cuNewsQuality" style="font-size:11px">' +
+      ['any', 'verified', 'cross'].map(v => '<option value="' + v + '"' + (C.cuNewsQuality === v ? ' selected' : '') +
+        '>' + NEWS_QUALITY_LABEL[v] + '</option>').join('') + '</select></div>' +
+      '<div class="szbar"><span class="lbl nwlab">No bar at that time</span><span class="seg">' +
+      btn(C.cuNewsOutside !== 'next', 'data-cu-outside="skip"', 'Skip the day') +
+      btn(C.cuNewsOutside === 'next', 'data-cu-outside="next"', 'Enter at the next bar') + '</span>' +
+      hint('e.g. 08:30 data on a 09:30–16:00 tape') + '</div>' +
+      '<p class="nwnote">Times are New York. Only an occurrence whose time the chosen source quality ' +
+      'accepts is used: “any source” takes one source’s time, “verified” needs ' +
+      'two sources to agree or the agency’s own schedule. A day whose sources disagree is never ' +
+      'timed. An entry skipped because the last trade is still open shows in the ledger as ' +
+      '“not taken — position open at next news release”. Calendar: ' +
+      NEWSCAL.ffCoverage.join(' to ') + ' (Forex Factory), Investing.com ' +
+      NEWSCAL.investingCoverage.join(' to ') + '; published schedule to ' +
+      ((NEWSCAL.ffLive || {}).scheduledTo || '—') + '.</p>') +
+    newsPreviewHTML(C) + '</div>';
   return out;
 }
 
@@ -4674,20 +5008,81 @@ function bindStrategy(){
   if (cuEntryMin) cuEntryMin.onchange = () => {
     const m = cuEntryMin.value.match(/^(\d{1,2}):(\d{2})$/);
     if (!m) return;
-    C.cuEntryMin = +m[1] * 60 + +m[2]; stLive();
+    C.cuEntryMin = +m[1] * 60 + +m[2]; STRES = null; redraw();
+  };
+  sh.querySelectorAll('button[data-cu-hold]').forEach(b => b.onclick = () => {
+    C.cuHold = b.dataset.cuHold === '' ? null : +b.dataset.cuHold; STRES = null; redraw();
+  });
+  const cuHoldMin = $('cuHoldMin');
+  if (cuHoldMin) cuHoldMin.onchange = () => {
+    const v = parseInt(cuHoldMin.value, 10);
+    C.cuHold = isFinite(v) && v >= 1 ? v : null; STRES = null; redraw();
   };
   sh.querySelectorAll('input[data-cu-news]').forEach(el => el.onchange = () => {
     if (el.checked) C.cuNews[el.dataset.cuNews] = true; else delete C.cuNews[el.dataset.cuNews];
     STRES = null; redraw();
   });
+  sh.querySelectorAll('button[data-cu-unpick]').forEach(b => b.onclick = () => {
+    delete C.cuNews[b.dataset.cuUnpick]; STRES = null; redraw();
+  });
+  sh.querySelectorAll('button[data-cu-preset]').forEach(b => b.onclick = () => {
+    const p = NEWS_PRESETS.filter(x => x[0] === b.dataset.cuPreset)[0];
+    C.cuNews = {};
+    if (p) newsPresetIds(p).forEach(id => { C.cuNews[id] = true; });
+    STRES = null; redraw();
+  });
+  /* the search filters the rows in place -- no redraw, so the box keeps its focus */
+  const cuNewsQ = $('cuNewsQ');
+  if (cuNewsQ) cuNewsQ.oninput = () => {
+    NEWS_UI.q = cuNewsQ.value.trim();
+    const q = NEWS_UI.q.toLowerCase();
+    sh.querySelectorAll('details[data-cu-group]').forEach(d => {
+      let shown = 0;
+      d.querySelectorAll('label[data-cu-name]').forEach(l => {
+        const hit = !q || l.dataset.cuName.indexOf(q) >= 0;
+        l.style.display = hit ? '' : 'none'; if (hit) shown++;
+      });
+      d.style.display = shown ? '' : 'none';
+      if (q) d.open = true;
+    });
+  };
+  /* remembered only on a real click (a toggle event also fires when a redraw opens a
+     group because it holds a pick or matches the search) */
+  sh.querySelectorAll('details[data-cu-group] > summary').forEach(sm => sm.onclick = () => {
+    const d = sm.parentNode; NEWS_UI.open[d.dataset.cuGroup] = !d.open;
+  });
+  sh.querySelectorAll('button[data-cu-use]').forEach(b => b.onclick = () => {
+    const u = b.dataset.cuUse;
+    if (u === 'around'){ if (C.cuNewsOffset === null) C.cuNewsOffset = NEWS_UI.lastOffset; }
+    else {
+      if (C.cuNewsOffset !== null) NEWS_UI.lastOffset = C.cuNewsOffset;
+      C.cuNewsOffset = null; C.cuNewsSkip = u === 'skip';
+    }
+    STRES = null; redraw();
+  });
   const cuNewsMode = $('cuNewsMode');
-  if (cuNewsMode) cuNewsMode.onchange = () => { C.cuNewsMode = cuNewsMode.value; stLive(); };
+  if (cuNewsMode) cuNewsMode.onchange = () => { C.cuNewsMode = cuNewsMode.value; STRES = null; redraw(); };
+  const cuNewsQuality = $('cuNewsQuality');
+  if (cuNewsQuality) cuNewsQuality.onchange = () => {
+    C.cuNewsQuality = NEWS_QUALITY[cuNewsQuality.value] ? cuNewsQuality.value : 'any'; STRES = null; redraw();
+  };
   sh.querySelectorAll('button[data-cu-news-offset]').forEach(b => b.onclick = () => {
     const v = b.dataset.cuNewsOffset;
     C.cuNewsOffset = v === '' ? null : (v === 'custom' ? 'custom' : +v);
     STRES = null; redraw();
   });
-  bindNum('cuNewsOffsetCustom', 'cuNewsOffsetCustom', 1, C);
+  sh.querySelectorAll('button[data-cu-custom-dir]').forEach(b => b.onclick = () => {
+    C.cuNewsCustomAfter = b.dataset.cuCustomDir === 'after'; STRES = null; redraw();
+  });
+  sh.querySelectorAll('button[data-cu-outside]').forEach(b => b.onclick = () => {
+    C.cuNewsOutside = b.dataset.cuOutside === 'next' ? 'next' : 'skip'; STRES = null; redraw();
+  });
+  const cuNewsOffsetCustom = $('cuNewsOffsetCustom');
+  if (cuNewsOffsetCustom) cuNewsOffsetCustom.onchange = () => {
+    const v = parseInt(cuNewsOffsetCustom.value, 10);
+    if (isFinite(v) && v >= 0 && v < 1440){ C.cuNewsOffsetCustom = v; STRES = null; redraw(); }
+    else cuNewsOffsetCustom.value = C.cuNewsOffsetCustom;
+  };
   const stPayS = $('stPayS');
   if (stPayS) stPayS.onchange = () => {
     const v = parseFloat(stPayS.value);

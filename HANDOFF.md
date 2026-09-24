@@ -161,6 +161,32 @@ payrolls Dec 16; Dec 18 y/y CPI only) and the 2026-09-16 FOMC day; 259 assertion
 `phase0_reconcile.py` now imports `lh5_tape` inside `main()` so its ALIAS table imports anywhere.
 The FOMC decision-day step is now plain Python (`add_fomc_decision_days`), same values; its times
 are written as 840 instead of pandas' 840.0.
+Gaps and schedule from newfac (2026-09-24, later): newfac now also fills the calendar back to
+2007 -- ONLY (date, category) pairs the Phase 0 ledger never had (the old FF file kept
+High-impact rows only, so medium-rated releases such as CPI m/m and jobless claims were missing
+whole years), and never one within a day of an existing row of that category (30 evening
+releases the old file dated to the next day are skipped as the same release). 1,536
+SINGLE_SOURCE_FF + 128 AMBIGUOUS/UNMATCHED rows added; claims now 52 a year every year. The
+published schedule to 2026-12-31 (130 rows) is in too, each marked `scheduled: true`; a scheduled
+row never anchors an entry and is replaced by the real one on the next `--extend-only`. Existing
+rows before 2025-04-05 still unchanged (the build asserts it). 11,536 events.
+
+Strategy -> Custom news redesign (2026-09-24): the panel now has quick picks (Big 3, Fed days,
+Jobs, Inflation, 08:30 data, Top 10), picked releases as removable chips, a search box, grouped
+collapsible lists with each release's usual time and its count in the run's span; three modes
+(Only release days / Skip release days -- new, the complement of the day filter / Time the
+entry to the release); entry before, at or AFTER the release (signed offset, custom minutes
+either way); Source quality (any / verified or official / two sources agree only); "No bar at
+that time": skip (old behaviour) or enter at the next bar that day (anchors record
+plannedMinute + moved; the ledger tooltip says so); Hold N minutes (`entry.holdMin`, both the
+timed and the fixed-time entry); and a live preview: the rule in one sentence, release days /
+entry times / can trade / no bar there over the span, a warning with a one-click fix when
+nothing (or part) can trade, and the next five scheduled releases with their entry times.
+Why the preview matters: on the shipped RTH tape (09:30-15:59) every 08:30 release timed
+"30 min before" lands at 08:00, where there is no bar, and the old panel silently showed 0
+trades. Also fixed: mergeState only copies keys the default already has, so cuNews ({}) and
+cuNewsOffset (null) were dropped on every reload -- `restoreCustom` restores them (known ids,
+true values only). No engine change; `viewer_core.js` untouched. `test_ui.py` 279.
 Still open: `FOMC Member Powell Speaks` (newfac's single label for Powell's speeches as governor,
 chair and ex-chair) and `Fed Chairman Warsh Speaks/Testifies` are not mapped to any category --
 the user decides. Forex Factory's own terms on automated collection have not been checked.

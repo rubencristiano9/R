@@ -816,7 +816,9 @@ def rel(day, name):
 def at(day, name, minute):
     return any(e["etMinute"] == minute for e in rel(day, name))
 nf = [e for e in EV if e.get("newfac")]
-check("newfac rows exist, all from 2025-04-05 on", len(nf) > 0 and min(e["date"] for e in nf) >= "2025-04-05",
+old_keys = set((e["date"], e["eventName"]) for e in EV if not e.get("newfac"))
+check("newfac rows before 2025-04-05 only fill gaps: never a date+release the Phase 0 ledger had",
+      len(nf) > 0 and not [e for e in nf if e["date"] < "2025-04-05" and (e["date"], e["eventName"]) in old_keys],
       "%d rows" % len(nf))
 check("every newfac-only row carries a Forex Factory time or a status with none",
       all(e["sourceTimes"]["ff"] == e["etMinute"] or e["etMinute"] is None for e in nf))
@@ -847,7 +849,97 @@ for d, want in [("2024-03-01", "2024-02-29"), ("2024-01-01", "2023-12-31"),
                 ("2021-03-01", "2021-02-28"), ("2024-02-29", "2024-02-28")]:
     got = interp.evaljs("prevIsoDay('%s')" % d)
     check("prevIsoDay(%s) = %s" % (d, want), got == want, "got %s" % got)
+
+# The calendar's gaps filled from newfac: before 2025-04-05 only (date, category) pairs the
+# Phase 0 ledger never had, and the published schedule after the build date, flagged.
+check("jobless claims: 52 releases in each of 2019, 2021 and 2022 (whole years were missing)",
+      all(len([e for e in EV if e["eventName"] == "Unemployment Claims" and e["date"][:4] == y]) == 52
+          for y in ("2019", "2021", "2022")))
+sched = [e for e in EV if e.get("scheduled")]
+built = interp.evaljs("NEWSCAL.ffLive.to")
+check("the published schedule is in, every row after the build date and marked newfac",
+      len(sched) > 0 and all(e["date"] > built and e.get("newfac") for e in sched), "%d rows" % len(sched))
+check("a scheduled release never becomes an entry",
+      interp.evaljs("newsEligibleForDay('%s', {'%s': true}).length" % (sched[0]["date"], sched[0]["catId"])) == 0)
+
+# Strategy -> Custom, the redesigned news controls. Each mode below is checked against a
+# brute-force count on the loaded tape, not against the panel's own preview.
+print("\n--- custom strategy: news modes, timing, hold ---")
+SESS = json.loads(interp.evaljs("JSON.stringify(BASE.sessions.map(function(S){ return S.day; }))"))
+BIG3 = json.loads(interp.evaljs("JSON.stringify(newsPresetIds(NEWS_PRESETS[0]))"))
+check("the Big 3 preset is the rate decision, payrolls and CPI",
+      sorted(BIG3) == sorted(["federal_funds_rate", "non_farm_employment_change", "cpi_m_m"]))
+rel_days = set(e["date"] for e in EV if e["catId"] in BIG3 and not e.get("scheduled"))
+def run_custom(js):
+    interp.evaljs("ST.key = 'custom'; ST.cuDow = {mon:true,tue:true,wed:true,thu:true,fri:true};"
+                  " ST.cuEntryMin = 600; ST.cuDir = 'long'; ST.cuHold = null; ST.cuNewsSkip = false;"
+                  " ST.cuNewsQuality = 'any'; ST.cuNewsOutside = 'skip'; ST.cuNewsMode = 'important';"
+                  " ST.cuNews = {}; ST.cuNewsOffset = null; " + js + " STRES = null;")
+    return json.loads(interp.evaljs(
+        "JSON.stringify(runStrat().trades.filter(function(t){return !t.skipped;}).map(function(t){"
+        " return {day: t.day, e: BASE.mins[t.entry_bar], x: BASE.mins[t.exit_bar]}; }))"))
+big3 = "ST.cuNews = {federal_funds_rate: true, non_farm_employment_change: true, cpi_m_m: true};"
+t = run_custom(big3)
+check("only release days: trades exactly the Big 3 release days in the tape",
+      set(x["day"] for x in t) == rel_days & set(SESS), "%d days" % len(t))
+t = run_custom(big3 + " ST.cuNewsSkip = true;")
+check("skip release days: trades every other session, none of the release days",
+      set(x["day"] for x in t) == set(SESS) - rel_days, "%d days" % len(t))
+t = run_custom(big3 + " ST.cuNewsOffset = 30;")
+check("30 min before on an RTH tape: only the 14:00 decision can trade (13:30), 08:30 data has no bar",
+      len(t) > 0 and set(x["e"] for x in t) == {810}, str(sorted(set(x["e"] for x in t))))
+prev = interp.evaljs("newsPreviewHTML(ST)")
+check("the preview says so, with the one-click fix", "no bar there" in prev and 'data-cu-outside="next"' in prev)
+t2 = run_custom(big3 + " ST.cuNewsOffset = 30; ST.cuNewsOutside = 'next';")
+check("'Enter at the next bar' moves the 08:00 entries to the 09:30 open",
+      len(t2) > len(t) and set(x["e"] for x in t2) == {570, 810}, str(sorted(set(x["e"] for x in t2))))
+moved = json.loads(interp.evaljs(
+    "JSON.stringify((function(){ var s = stratOpts().entry.sides, n = 0, bad = 0;"
+    " for (var d in s) for (var k in s[d]) s[d][k].anchors.forEach(function(a){"
+    "  if (a.moved){ n++; if (+k === a.plannedMinute) bad++; } }); return [n, bad]; })())"))
+check("each moved entry records its planned minute and sits on a different bar", moved[0] > 0 and moved[1] == 0,
+      str(moved))
+t = run_custom(big3 + " ST.cuNewsOffset = -5;")
+check("5 min after: the 14:00 decision is entered at 14:05", set(x["e"] for x in t) == {845},
+      str(sorted(set(x["e"] for x in t))))
+t = run_custom(big3 + " ST.cuNewsOffset = 'custom'; ST.cuNewsOffsetCustom = 45; ST.cuNewsCustomAfter = true;")
+check("a custom 45 min after lands at 14:45", set(x["e"] for x in t) == {885})
+t = run_custom(big3 + " ST.cuNewsOffset = -5; ST.cuHold = 15;")
+check("hold 15 min: every trade is out within 15 minutes of its entry",
+      len(t) > 0 and all(x["x"] - x["e"] <= 14 for x in t))
+t = run_custom("ST.cuHold = 30;")
+check("hold also applies to the plain fixed-time entry (10:00 -> out by 10:29)",
+      len(t) > 0 and all(x["e"] == 600 and x["x"] <= 629 for x in t))
+q_any = interp.evaljs("(function(){ ST.cuNews = {non_farm_employment_change: true}; ST.cuNewsOffset = 30;"
+                      " ST.cuNewsQuality = 'any'; var n = 0, s = buildNewsSides(ST); for (var d in s) n++; return n; })()")
+q_cross = json.loads(interp.evaljs(
+    "JSON.stringify((function(){ ST.cuNewsQuality = 'cross'; var st = [], s = buildNewsSides(ST);"
+    " for (var d in s) for (var k in s[d]) s[d][k].anchors.forEach(function(a){ st.push(a.status); }); return st; })())"))
+check("source quality 'two sources agree' keeps only cross-verified / officially verified times",
+      0 < len(q_cross) < q_any and set(q_cross) <= {"CROSS_VERIFIED", "OFFICIAL_VERIFIED"},
+      "%d of %d" % (len(q_cross), q_any))
+t = run_custom("ST.cuNews = {cpi_m_m: true};")
+check("with a release ticked but no timing, the entry stays the fixed 10:00",
+      len(t) > 0 and set(x["e"] for x in t) == {600})
+o = json.loads(interp.evaljs("ST.cuNews = {}; ST.cuNewsOffset = 30; JSON.stringify(stratOpts().entry)"))
+check("a timing preset with nothing ticked falls back to the plain fixed-time entry",
+      not o.get("slotsFromTable") and o["startMin"] == 600)
+sent = interp.evaljs("ST.cuNews = {cpi_m_m: true}; ST.cuNewsOffset = -5; ST.cuHold = 15; newsRuleSentence(ST)")
+check("the rule sentence says what the settings add up to",
+      "5 min after" in sent and "CPI m/m" in sent and "hold 15 min" in sent, sent)
+h = interp.evaljs("ST.cuNews = {cpi_m_m: true}; ST.cuNewsOffset = 30; customEntryHTML(ST)")
+check("the panel has presets, chips, search, the three modes and the preview",
+      all(k in h for k in ('data-cu-preset="big3"', 'data-cu-unpick="cpi_m_m"', 'id="cuNewsQ"',
+                           'data-cu-use="skip"', 'data-cu-use="around"', 'class="nwprev"', 'Coming up')))
+r = json.loads(interp.evaljs(
+    "JSON.stringify((function(){ var d = {cuNews: {}, cuNewsOffset: null, cuHold: null};"
+    " restoreCustom(d, {cuNews: {cpi_m_m: true, not_a_category: true, ppi_m_m: 'yes'}, cuNewsOffset: -5, cuHold: 15});"
+    " return d; })())"))
+check("a saved news selection, timing and hold survive a reload (only known ids, only true)",
+      r == {"cuNews": {"cpi_m_m": True}, "cuNewsOffset": -5, "cuHold": 15}, str(r))
 interp.evaljs("ST.key = 'reentry'; ST.exitMin = 960; ST.cuNews = {}; ST.cuNewsOffset = null;"
+              " ST.cuHold = null; ST.cuNewsSkip = false; ST.cuNewsQuality = 'any'; ST.cuNewsOutside = 'skip';"
+              " ST.cuDir = 'random';"
               " STRES = null; ENS.res = null;")
 
 # Picking Instrument never changed what data is loaded, only $/pt -- so a

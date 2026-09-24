@@ -189,6 +189,11 @@ def slugify(name):
 NEWFAC_URL = ('https://github.com/janickfarrell/newfac/releases/download/'
               'calendar-data/forexfactory_calendar.csv')
 NEWFAC_FROM = '2025-04-05'   # the day after the Phase 0 Forex Factory file ends
+# Before NEWFAC_FROM newfac only fills gaps: the Phase 0 FF file kept High-impact events only,
+# so e.g. medium-rated CPI m/m and jobless-claims releases were missing. A gap is a (date,
+# category) with no row at all AND none of that category the day before or after -- an
+# evening release the old file dated to the next day is the same release, not a new one.
+NEWFAC_HISTORY_FROM = '2007-01-01'
 # newfac relabels past events with Forex Factory's current names. Only a pure relabel of the
 # same release is mapped back; 'FOMC Member Powell Speaks' (his speeches as governor, chair
 # and ex-chair under one name) and 'Fed Chairman Warsh Speaks/Testifies' are left out until
@@ -243,20 +248,32 @@ def load_newfac(text, date_from, date_to):
     return rows, skipped
 
 
-def extend_with_newfac(events, ff_rows):
-    """Add newfac's rows to `events`, in place, with Phase 0's own status rules. A (date,
-    category) the calendar already has (an Investing.com row from 2025-04-05 to 2025-08-15)
-    is reconciled, not duplicated: SINGLE_SOURCE_INVESTING -> CROSS_VERIFIED within 1 minute,
-    DISAGREE otherwise; any other status keeps its status. The row's previous state is kept in
-    'preNewfac' and every added row carries 'newfac': True, so strip_newfac() can undo this
-    exactly. Returns a Counter of what happened."""
+def extend_with_newfac(events, ff_rows, today):
+    """Add newfac's rows to `events`, in place, with Phase 0's own status rules.
+    From NEWFAC_FROM on, a (date, category) the calendar already has (an Investing.com row
+    from 2025-04-05 to 2025-08-15) is reconciled, not duplicated: SINGLE_SOURCE_INVESTING ->
+    CROSS_VERIFIED within 1 minute, DISAGREE otherwise; any other status keeps its status.
+    Before NEWFAC_FROM, existing rows are never touched: only gaps are added (see
+    NEWFAC_HISTORY_FROM). Rows after `today` are the published schedule, marked 'scheduled'.
+    The previous state of a reconciled row is kept in 'preNewfac' and every added row carries
+    'newfac': True, so strip_newfac() can undo this exactly. Returns a Counter."""
     from collections import Counter
     done = Counter()
-    have = {}
+    have, old_keys = {}, set()
     for e in events:
-        if e['date'] >= NEWFAC_FROM and e['eventName'] != 'FOMC decision day':
+        if e['eventName'] == FOMC_CAT_NAME:
+            continue
+        old_keys.add((e['date'], e['eventName']))
+        if e['date'] >= NEWFAC_FROM:
             have.setdefault((e['date'], e['eventName']), []).append(e)
+    near = lambda d, n: (datetime.date.fromisoformat(d) + datetime.timedelta(days=n)).isoformat()
     for (date, name), etm in sorted(ff_rows.items()):
+        if date < NEWFAC_FROM:
+            if (date, name) in old_keys:
+                continue
+            if (near(date, -1), name) in old_keys or (near(date, 1), name) in old_keys:
+                done['history: same release a day off, skipped'] += 1
+                continue
         if (date, name) in have:
             for e in have[(date, name)]:
                 e['preNewfac'] = {'status': e['status'], 'etMinute': e['etMinute'],
@@ -278,10 +295,14 @@ def extend_with_newfac(events, ff_rows):
             status, et = 'SINGLE_SOURCE_FF', etm
         else:
             status, et = 'DAY_ONLY', None
-        events.append({'date': date, 'catId': slugify(name), 'eventName': name,
-                       'etMinute': et, 'status': status,
-                       'sourceTimes': {'ff': etm, 'investing': None}, 'newfac': True})
-        done['new ' + status] += 1
+        row = {'date': date, 'catId': slugify(name), 'eventName': name,
+               'etMinute': et, 'status': status,
+               'sourceTimes': {'ff': etm, 'investing': None}, 'newfac': True}
+        if date > today:
+            row['scheduled'] = True
+        events.append(row)
+        done[('history' if date < NEWFAC_FROM else 'scheduled' if date > today else 'new') +
+             ' ' + status] += 1
     return done
 
 
@@ -302,20 +323,23 @@ def add_fomc_decision_days(events, days):
     Federal Funds Rate / FOMC Statement time, reuse it (linked, not re-derived) with the status
     of the first such row that day; otherwise DAY_ONLY -- a blanket 14:00 is never asserted.
     (Plain-dict version of the pandas groupby().first() this replaced; same values.)"""
-    fomc_resolved, fomc_status = {}, {}
+    fomc_resolved, fomc_status, scheduled = {}, {}, set()
     for e in events:
         if e['eventName'] in ('Federal Funds Rate', 'FOMC Statement'):
             fomc_status.setdefault(e['date'], e['status'])
+            if e.get('scheduled'):
+                scheduled.add(e['date'])
             if e['etMinute'] is not None:
                 fomc_resolved.setdefault(e['date'], e['etMinute'])
     for d in sorted(days):
         et = fomc_resolved.get(d)
         status = fomc_status.get(d, 'DAY_ONLY') if et is not None else 'DAY_ONLY'
-        events.append({
-            'date': d, 'catId': FOMC_CAT_ID, 'eventName': FOMC_CAT_NAME,
-            'etMinute': et, 'status': status,
-            'sourceTimes': {'ff': None, 'investing': None},
-        })
+        row = {'date': d, 'catId': FOMC_CAT_ID, 'eventName': FOMC_CAT_NAME,
+               'etMinute': et, 'status': status,
+               'sourceTimes': {'ff': None, 'investing': None}}
+        if d in scheduled:
+            row['scheduled'] = True   # linked to a rate decision that has not happened yet
+        events.append(row)
 
 
 def et_minute(ts):
@@ -365,10 +389,11 @@ def main():
     # ---------------- Forex Factory from 2025-04-05 on (newfac, downloaded fresh) ----------------
     text, newfac_meta = fetch_newfac()
     today = datetime.date.today().isoformat()
-    ff_rows, skipped = load_newfac(text, NEWFAC_FROM, today)
-    print('newfac:', dict(extend_with_newfac(events, ff_rows)),
+    ff_rows, skipped = load_newfac(text, NEWFAC_HISTORY_FROM, '9999-12-31')
+    print('newfac:', dict(extend_with_newfac(events, ff_rows, today)),
           '-- skipped', len(skipped), 'reference-period rows (e.g. "Oct Data")')
-    newfac_meta.update({'from': NEWFAC_FROM, 'to': today})
+    newfac_meta.update({'from': NEWFAC_FROM, 'historyFrom': NEWFAC_HISTORY_FROM, 'to': today,
+                        'scheduledTo': max(d for d, _ in ff_rows)})
 
     # ---------------- OFFICIAL_STANDARD: fill the approved categories' DAY_ONLY rows ----------------
     # Before the FOMC supplement below, which reads Federal Funds Rate / FOMC Statement times --
@@ -408,7 +433,7 @@ def main():
         })
 
     ff_min, ff_max = result['ff_coverage']
-    ff_max = max([ff_max] + [d for d, _ in ff_rows])
+    ff_max = max([ff_max] + [d for d, _ in ff_rows if d <= today])
     inv_min, inv_max = result['investing_coverage']
     cross_min = max(ff_min, inv_min)
     cross_max = min(ff_max, inv_max)
@@ -448,24 +473,25 @@ def extend_only():
     def canon(e):
         m = e['etMinute']
         return json.dumps(dict(e, etMinute=int(m) if m is not None else None), sort_keys=True)
-    before = [canon(e) for e in events if e['date'] < NEWFAC_FROM]
+    before = [canon(e) for e in events if e['date'] < NEWFAC_FROM and not e.get('newfac')]
     strip_newfac(events)
     fomc_days = [e['date'] for e in events if e['eventName'] == FOMC_CAT_NAME]
     events[:] = [e for e in events if e['eventName'] != FOMC_CAT_NAME]
     text, meta = fetch_newfac()
     today = datetime.date.today().isoformat()
-    ff_rows, skipped = load_newfac(text, NEWFAC_FROM, today)
-    print('newfac:', dict(extend_with_newfac(events, ff_rows)),
+    ff_rows, skipped = load_newfac(text, NEWFAC_HISTORY_FROM, '9999-12-31')
+    print('newfac:', dict(extend_with_newfac(events, ff_rows, today)),
           '-- skipped', len(skipped), 'reference-period rows (e.g. "Oct Data")')
     print('OFFICIAL_STANDARD rows filled:', apply_official_standard(events))
     add_fomc_decision_days(events, fomc_days)
-    after = [canon(e) for e in events if e['date'] < NEWFAC_FROM]
+    after = [canon(e) for e in events if e['date'] < NEWFAC_FROM and not e.get('newfac')]
     assert sorted(before) == sorted(after), 'a row before %s changed; not written' % NEWFAC_FROM
     for c in cal['categories']:
         c['typicalEtMinute'] = typical_et_minute(events, c['id'])
-    meta.update({'from': NEWFAC_FROM, 'to': today})
+    meta.update({'from': NEWFAC_FROM, 'historyFrom': NEWFAC_HISTORY_FROM, 'to': today,
+                 'scheduledTo': max(d for d, _ in ff_rows)})
     cal['ffLive'] = meta
-    cal['ffCoverage'][1] = max([cal['ffCoverage'][1]] + [d for d, _ in ff_rows])
+    cal['ffCoverage'][1] = max([cal['ffCoverage'][1]] + [d for d, _ in ff_rows if d <= today])
     cal['crossVerifiedCoverage'] = [max(cal['ffCoverage'][0], cal['investingCoverage'][0]),
                                     min(cal['ffCoverage'][1], cal['investingCoverage'][1])]
     cal['builtFrom'] = cal['builtFrom'].split('; newfac')[0] + '; newfac Forex Factory ' + meta['downloadedAt']
