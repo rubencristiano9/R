@@ -211,6 +211,15 @@ reads phase0_internal_conflicts.csv). Two-source-confirmed share of timed releas
 The `--extend-only` guard is now reversibility: undoing the step must give back exactly the
 Phase 0 ledger (it caught a real bug while this was written). (3) The user checked Forex
 Factory's terms: automated collection is allowed.
+No-bar default (2026-09-24, user report "Core PCE only has 1 trade, only FOMC trades"): the shipped
+tape is RTH-only (09:30-15:59) and most big data is 08:30, so a timed entry (e.g. 30 min before =
+08:00) had no bar and the default 'skip' dropped the day -- Core PCE traded 4 of 36 release days,
+the Big 3 only on FOMC (14:00). The setting is now `cuNoBar`, default 'next' (the next bar that
+day, i.e. the 09:30 open), renamed from `cuNewsOutside` so a saved 'skip' does not return. The
+warning sits under the No-bar control (`newsNoBarHTML`); a release on a day with no session at
+all (e.g. Good Friday 2024-03-29) is named and offered no fix. Chart marks draw pre-open releases
+on the first bar, labelled 'before open'. Core PCE now 36/36, Big 3 98 (NFP 37, CPI 36, Fed 25).
+For entries at the release itself, load a 24-hour databento file with RTH off. test_ui 300.
 Still open: nothing from the user's list. Resolving the remaining DISAGREE rows of the
 OFFICIAL_STANDARD categories (7) by the official schedule would need the user's go-ahead: the
 approval covers DAY_ONLY gap-fills only.

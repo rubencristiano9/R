@@ -2962,9 +2962,9 @@ function drawTimeMarks(sc, a, b){
 
 /* The releases picked in Strategy -> Custom, as dotted lines on the bar each one
    landed in: only while that strategy is the one on the chart and 'Show on chart' is
-   on. A release outside the loaded hours (08:30 data on an RTH tape) has no bar and
-   is not drawn -- the Strategy panel's preview says how many. Cached like the time
-   marks: it depends only on the view, the timeframe and the picks. */
+   on. A release before the first loaded bar (08:30 data on the RTH tape) is drawn on
+   that first bar and labelled "before open"; one after the last bar is not drawn.
+   Cached like the time marks: it depends only on the view, the timeframe and the picks. */
 let NM_CACHE = {key: null, at: []};
 function newsMarks(a, b){
   const picked = ST.cuNews || {};
@@ -2976,9 +2976,14 @@ function newsMarks(a, b){
     if (sn.b < a || sn.a > b) return;
     (NEWSCAL_BY_DATE[sn.day] || []).forEach(e => {
       if (!picked[e.catId] || e.etMinute == null || e.scheduled) return;
+      const label = e.eventName + ' ' + hhmm(e.etMinute);
+      if (e.etMinute < V.mins[sn.a]){   /* released before the first loaded bar: mark the open */
+        if (sn.a >= a && sn.a <= b) at.push([sn.a, label + ' (before open)']);
+        return;
+      }
       for (let i = sn.a; i <= sn.b; i++)
         if (V.mins[i] <= e.etMinute && e.etMinute < V.mins[i] + S.tf){
-          if (i >= a && i <= b) at.push([i, e.eventName + ' ' + hhmm(e.etMinute)]);
+          if (i >= a && i <= b) at.push([i, label]);
           return;
         }
     });
@@ -5346,7 +5351,10 @@ const ST = {
   cuNewsCustomAfter: false,        /* the custom offset counts after the release, not before */
   cuNewsSkip: false,               /* day mode: true = trade every day EXCEPT release days */
   cuNewsQuality: 'any',            /* 'any' | 'verified' | 'cross': which timed rows may anchor */
-  cuNewsOutside: 'skip',           /* an entry time with no bar that day: 'skip' | 'next' bar */
+  /* an entry time with no bar that day (08:30 data on the 09:30-16:00 tape): 'next' enters at
+     the next bar that day, 'skip' skips the day. Was cuNoBar, default 'skip', which made
+     every pre-open release silently vanish; renamed so that saved default does not return. */
+  cuNoBar: 'next',
   cuHold: null,                    /* minutes each trade is held; null = until the Flat by time */
   cuShowMarks: true,               /* draw the evaluation's picked releases on the chart */
   /* what the FUNDED account trades, once it differs from the evaluation:
@@ -5359,7 +5367,7 @@ const ST = {
            cuDow: {mon: true, tue: true, wed: true, thu: true, fri: true}, cuEntryMin: 600,
            cuDir: 'random', cuNews: {}, cuNewsMode: 'important', cuNewsOffset: null,
            cuNewsOffsetCustom: 30, cuNewsCustomAfter: false, cuNewsSkip: false,
-           cuNewsQuality: 'any', cuNewsOutside: 'skip', cuHold: null},
+           cuNewsQuality: 'any', cuNoBar: 'next', cuHold: null},
   stageView: 'eval'                /* which stage the stage-specific inputs edit */
 };
 /* the object the stage-specific inputs read and write */
@@ -5370,7 +5378,7 @@ const STAGE_KEYS = ['key', 'contracts', 'pointValue', 'commission', 'riskMode',
                     'boFraction', 'boDxPeriod', 'boDxShift', 'boDxThreshold',
                     'cuDow', 'cuEntryMin', 'cuDir', 'cuNews', 'cuNewsMode',
                     'cuNewsOffset', 'cuNewsOffsetCustom', 'cuNewsCustomAfter', 'cuNewsSkip',
-                    'cuNewsQuality', 'cuNewsOutside', 'cuHold'];
+                    'cuNewsQuality', 'cuNoBar', 'cuHold'];
 try { mergeState(ST, JSON.parse(localStorage.getItem('tape.strat') || '{}')); } catch(e){}
 /* mergeState only copies keys the default already has, of the same type: cuNews ({})
    has no keys and cuNewsOffset / cuHold default to null, so a saved news selection,
@@ -5559,13 +5567,13 @@ function anchorBar(S, minute, outside){
    table's KEYS when direction isn't 'table' (verified, see the plan); the anchors
    array is inert to it and exists purely for the ledger's UI-layer lookup and the
    panel's preview. The key is the bar minute the entry will actually use: the planned
-   minute, or with cuNewsOutside 'next' the next bar that day (the anchor then records
+   minute, or with cuNoBar 'next' the next bar that day (the anchor then records
    plannedMinute and moved). `stats`, when given, counts what happened to each anchor
    inside the run's span, for the preview. */
 function buildNewsSides(C, stats){
   const checked = C.cuNews || {};
   if (!newsAny(C)) return {};
-  const offsetMin = newsOffsetMin(C), outside = C.cuNewsOutside || 'skip';
+  const offsetMin = newsOffsetMin(C), outside = C.cuNoBar || 'next';
   const sess = sessionByDay(), [lo, hi] = newsSpan();
   const sides = {};
   for (const date in NEWSCAL_BY_DATE){
@@ -5580,7 +5588,10 @@ function buildNewsSides(C, stats){
       const key = i >= 0 ? BASE.mins[i] : plan, moved = i >= 0 && key !== plan;
       if (stats && anchorDate >= lo && anchorDate <= hi){
         stats.anchors++; stats.timedDays[date] = 1;
-        if (!S || i < 0){ stats.none++; if (stats.outEx === undefined) stats.outEx = plan; }
+        if (!S || i < 0){
+          stats.none++; if (stats.outEx === undefined) stats.outEx = plan;
+          if (!S){ stats.noDay++; if (!stats.noDayEx) stats.noDayEx = anchorDate; }
+        }
         else {
           stats.slots[anchorDate + '|' + key] = 1;   /* two releases on one bar are one trade */
           if (moved){ stats.moved++; if (!stats.moveEx) stats.moveEx = [plan, key]; }
@@ -5634,7 +5645,7 @@ function customStageOpts(C){
           from its staleness fingerprint -- still detects a settings or calendar change */
        cuNews: C.cuNews, cuNewsMode: C.cuNewsMode, cuNewsOffset: C.cuNewsOffset,
        cuNewsOffsetCustom: C.cuNewsOffsetCustom, cuNewsCustomAfter: C.cuNewsCustomAfter,
-       cuNewsQuality: C.cuNewsQuality, cuNewsOutside: C.cuNewsOutside,
+       cuNewsQuality: C.cuNewsQuality, cuNoBar: C.cuNoBar,
        newsCalVersion: NEWSCAL.builtFrom, seed: ST.seed};
   return {
     entry: entry,
@@ -6236,6 +6247,44 @@ function newsUpcoming(C, n){
 const nwStat = (v, l) => '<div class="nwstat"><b>' + v + '</b><span>' + l + '</span></div>';
 /* the live preview under the news controls: the rule in words, what it adds up to over
    the run's span, anything that will silently stop it trading, and what is coming up */
+function newsStats(C){
+  const st = {anchors: 0, moved: 0, none: 0, noDay: 0, slots: {}, timedDays: {}};
+  buildNewsSides(C, st);
+  return st;
+}
+/* the loaded hours, from the longest session in the span (the first one may be a short day) */
+function newsHours(){
+  const [lo, hi] = newsSpan();
+  const full = BASE.sessions.filter(S => S.day >= lo && S.day <= hi)
+    .reduce((x, y) => (!x || y.b - y.a > x.b - x.a ? y : x), null);
+  return full ? hhmm(BASE.mins[full.a]) + '\u2013' + hhmm(BASE.mins[full.b]) : 'none';
+}
+/* what the No-bar choice did, right under it: the reason a release traded at the open, or
+   did not trade at all, is never left for the reader to find at the bottom of the panel */
+function newsNoBarHTML(C, st){
+  const hours = newsHours(), trade = Object.keys(st.slots).length, skipped = st.none - st.noDay;
+  /* a release on a day the tape has no session for (closed, or not in the file) has no
+     next bar either: said as such, never offered a fix that cannot help */
+  const noDay = !st.noDay ? '' : '<p class="nwnote">' + st.noDay.toLocaleString() +
+    ' release day' + (st.noDay > 1 ? 's have' : ' has') + ' no bars at all in the loaded tape (e.g. ' +
+    st.noDayEx + '), so ' + (st.noDay > 1 ? 'they do' : 'it does') + ' not trade.</p>';
+  if (skipped && !trade)
+    return '<div class="nwwarn bad"><span><b>Nothing can trade.</b> Every entry time (e.g. ' +
+      hhmm(st.outEx) + ') falls where the loaded bars have none: they run ' + hours +
+      ' ET. Enter at the next bar that day, or load a file with those hours and turn RTH ' +
+      'off in the Data bar.</span><button class="btn" data-cu-nobar="next">Enter at the next bar</button></div>' + noDay;
+  if (skipped)
+    return '<div class="nwwarn mid"><span>' + skipped.toLocaleString() + ' of ' + st.anchors.toLocaleString() +
+      ' entry times fall where the loaded bars (' + hours + ' ET) have none and are skipped.</span>' +
+      '<button class="btn" data-cu-nobar="next">Enter at the next bar</button></div>' + noDay;
+  if (st.moved)
+    return '<div class="nwwarn ok"><span>' + st.moved.toLocaleString() + ' of ' + st.anchors.toLocaleString() +
+      ' entries have no bar at their time (e.g. ' + hhmm(st.moveEx[0]) + ') and are taken at the next bar ' +
+      'that day (' + hhmm(st.moveEx[1]) + '): the loaded bars run ' + hours + ' ET, so price has already ' +
+      'reacted. For the release itself, load a file with those hours and turn RTH off.</span>' +
+      '<button class="btn" data-cu-nobar="skip">Skip them instead</button></div>' + noDay;
+  return noDay;
+}
 function newsPreviewHTML(C){
   const [lo, hi] = newsSpan();
   const any = newsAny(C);
@@ -6245,13 +6294,10 @@ function newsPreviewHTML(C){
       'to trade only on release days, skip them, or time the entry to the release.</p></div>';
   }
   const sess = BASE.sessions.filter(S => S.day >= lo && S.day <= hi);
-  /* the loaded hours, from the longest session (the first one may be a short day) */
-  const full = sess.reduce((x, y) => (!x || y.b - y.a > x.b - x.a ? y : x), null);
-  const hours = full ? hhmm(BASE.mins[full.a]) + '\u2013' + hhmm(BASE.mins[full.b]) : 'none';
+  const hours = newsHours();
   const dowOk = d => (C.cuDow || {})[DOW_NAMES[Core.dowOf(d)]];
   if (newsAround(C)){
-    const st = {anchors: 0, moved: 0, none: 0, slots: {}, timedDays: {}};
-    buildNewsSides(C, st);
+    const st = newsStats(C);
     const rel = newsReleaseDays(C);
     const relDays = Object.keys(rel).filter(d => d >= lo && d <= hi && dowOk(d));
     const trade = Object.keys(st.slots).length, off = st.none;
@@ -6260,21 +6306,6 @@ function newsPreviewHTML(C){
       nwStat(st.anchors.toLocaleString(), 'entry times') +
       nwStat(trade.toLocaleString(), 'can trade') +
       nwStat(off.toLocaleString(), 'no bar there') + '</div>';
-    if (st.anchors && !trade)
-      out += '<div class="nwwarn bad"><span><b>Nothing can trade.</b> Every entry time (e.g. ' +
-        hhmm(st.outEx) + ') falls where the loaded bars have none: they run ' + hours +
-        ' ET. Move each entry to the next bar that day, or load a file with those hours and ' +
-        'turn RTH off in the Data bar.</span><button class="btn" data-cu-outside="next">' +
-        'Enter at the next bar</button></div>';
-    else if (off && C.cuNewsOutside !== 'next')
-      out += '<div class="nwwarn mid"><span>' + off.toLocaleString() + ' of ' + st.anchors.toLocaleString() +
-        ' entry times fall where the loaded bars (' + hours + ' ET) have none and are skipped.</span>' +
-        '<button class="btn" data-cu-outside="next">Enter at the next bar</button></div>';
-    if (st.moved)
-      out += '<div class="nwwarn ok"><span>' + st.moved.toLocaleString() + ' entries moved to the ' +
-        'next bar that day (e.g. ' + hhmm(st.moveEx[0]) + ' \u2192 ' + hhmm(st.moveEx[1]) +
-        '). That is a different trade from the release itself: price has already reacted.</span>' +
-        '<button class="btn" data-cu-outside="skip">Skip them instead</button></div>';
     if (untimed)
       out += '<p class="nwnote">' + untimed.toLocaleString() +
         ' release days have no time the chosen source quality (' +
@@ -6304,7 +6335,7 @@ function newsPreviewHTML(C){
       const t = e.etMinute == null ? 'time tba' : hhmm(e.etMinute);
       const entry = offMin === null || e.etMinute == null ? '' :
         ' <span style="color:var(--accent)">\u2192 entry ' + hhmm(((e.etMinute - offMin) % 1440 + 1440) % 1440) +
-        (C.cuNewsOutside === 'next' ? ' (or the next bar)' : '') + '</span>';
+        (C.cuNoBar === 'next' ? ' (or the next bar)' : '') + '</span>';
       return '<div class="nwup"><span>' + wd + ' ' + e.date + '</span><span>' + t + '</span><span>' +
         e.eventName + entry + '</span></div>';
     }).join('');
@@ -6401,9 +6432,9 @@ function customEntryHTML(C){
       ['any', 'verified', 'cross'].map(v => '<option value="' + v + '"' + (C.cuNewsQuality === v ? ' selected' : '') +
         '>' + NEWS_QUALITY_LABEL[v] + '</option>').join('') + '</select></div>' +
       '<div class="szbar"><span class="lbl nwlab">No bar at that time</span><span class="seg">' +
-      btn(C.cuNewsOutside !== 'next', 'data-cu-outside="skip"', 'Skip the day') +
-      btn(C.cuNewsOutside === 'next', 'data-cu-outside="next"', 'Enter at the next bar') + '</span>' +
-      hint('e.g. 08:30 data on a 09:30\u201316:00 tape') + '</div>' +
+      btn(C.cuNoBar !== 'next', 'data-cu-nobar="skip"', 'Skip the day') +
+      btn(C.cuNoBar === 'next', 'data-cu-nobar="next"', 'Enter at the next bar') + '</span>' +
+      hint('e.g. 08:30 data on a 09:30\u201316:00 tape') + '</div>' + newsNoBarHTML(C, newsStats(C)) +
       '<p class="nwnote">Times are New York. Only an occurrence whose time the chosen source quality ' +
       'accepts is used: \u201cany source\u201d takes one source\u2019s time, \u201cverified\u201d needs ' +
       'two sources to agree or the agency\u2019s own schedule. A day whose sources disagree is never ' +
@@ -6806,8 +6837,8 @@ function bindStrategy(){
   sh.querySelectorAll('button[data-cu-marks]').forEach(b => b.onclick = () => {
     ST.cuShowMarks = !ST.cuShowMarks; redraw(); render();
   });
-  sh.querySelectorAll('button[data-cu-outside]').forEach(b => b.onclick = () => {
-    C.cuNewsOutside = b.dataset.cuOutside === 'next' ? 'next' : 'skip'; STRES = null; redraw();
+  sh.querySelectorAll('button[data-cu-nobar]').forEach(b => b.onclick = () => {
+    C.cuNoBar = b.dataset.cuNobar === 'next' ? 'next' : 'skip'; STRES = null; redraw();
   });
   const cuNewsOffsetCustom = $('cuNewsOffsetCustom');
   if (cuNewsOffsetCustom) cuNewsOffsetCustom.onchange = () => {

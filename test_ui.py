@@ -876,7 +876,7 @@ rel_days = set(e["date"] for e in EV if e["catId"] in BIG3 and not e.get("schedu
 def run_custom(js):
     interp.evaljs("ST.key = 'custom'; ST.cuDow = {mon:true,tue:true,wed:true,thu:true,fri:true};"
                   " ST.cuEntryMin = 600; ST.cuDir = 'long'; ST.cuHold = null; ST.cuNewsSkip = false;"
-                  " ST.cuNewsQuality = 'any'; ST.cuNewsOutside = 'skip'; ST.cuNewsMode = 'important';"
+                  " ST.cuNewsQuality = 'any'; ST.cuNoBar = 'skip'; ST.cuNewsMode = 'important';"
                   " ST.cuNews = {}; ST.cuNewsOffset = null; " + js + " STRES = null;")
     return json.loads(interp.evaljs(
         "JSON.stringify(runStrat().trades.filter(function(t){return !t.skipped;}).map(function(t){"
@@ -892,8 +892,11 @@ t = run_custom(big3 + " ST.cuNewsOffset = 30;")
 check("30 min before on an RTH tape: only the 14:00 decision can trade (13:30), 08:30 data has no bar",
       len(t) > 0 and set(x["e"] for x in t) == {810}, str(sorted(set(x["e"] for x in t))))
 prev = interp.evaljs("newsPreviewHTML(ST)")
-check("the preview says so, with the one-click fix", "no bar there" in prev and 'data-cu-outside="next"' in prev)
-t2 = run_custom(big3 + " ST.cuNewsOffset = 30; ST.cuNewsOutside = 'next';")
+panel = interp.evaljs("customEntryHTML(ST)")
+check("the preview counts it, and the warning with its one-click fix sits under the No-bar control",
+      "no bar there" in prev and 'data-cu-nobar="next"' in panel and "are skipped" in panel
+      and "are skipped" not in prev)
+t2 = run_custom(big3 + " ST.cuNewsOffset = 30; ST.cuNoBar = 'next';")
 check("'Enter at the next bar' moves the 08:00 entries to the 09:30 open",
       len(t2) > len(t) and set(x["e"] for x in t2) == {570, 810}, str(sorted(set(x["e"] for x in t2))))
 moved = json.loads(interp.evaljs(
@@ -992,7 +995,7 @@ check("'most important' ranks by the calendar's own priority: FOMC decision day 
       pick == "FOMC decision day", pick)
 st = json.loads(interp.evaljs(
     "JSON.stringify((function(){ ST.cuNews = {cpi_m_m: true, unemployment_claims: true, core_cpi_m_m: true};"
-    " ST.cuNewsOffset = 30; ST.cuNewsOutside = 'next'; ST.cuNewsMode = 'every'; ST.cuNewsQuality = 'any';"
+    " ST.cuNewsOffset = 30; ST.cuNoBar = 'next'; ST.cuNewsMode = 'every'; ST.cuNewsQuality = 'any';"
     " var s = {anchors: 0, moved: 0, none: 0, slots: {}, timedDays: {}}, t = buildNewsSides(ST, s), n = 0;"
     " for (var d in t) for (var k in t[d]) n++;"
     " return {anchors: s.anchors, slots: Object.keys(s.slots).length, keys: n}; })())"))
@@ -1011,14 +1014,35 @@ ffr_days = set(e["date"] for e in EV if e["catId"] == "federal_funds_rate" and e
                and not e.get("scheduled")) & set(SESS)
 check("the chart marks every Fed decision in the tape, on its 14:00 bar",
       len(marks) == len(ffr_days) and all(m[1].endswith("14:00") for m in marks), "%d of %d" % (len(marks), len(ffr_days)))
-none = interp.evaljs("ST.cuNews = {cpi_m_m: true}; NM_CACHE = {key: null, at: []}; newsMarks(0, V.c.length - 1).length")
-check("an 08:30 release has no bar on the RTH tape and is not marked", none == 0, str(none))
+pre = json.loads(interp.evaljs("ST.cuNews = {cpi_m_m: true}; NM_CACHE = {key: null, at: []};"
+                               " JSON.stringify(newsMarks(0, V.c.length - 1))"))
+cpi_days = set(e["date"] for e in EV if e["catId"] == "cpi_m_m" and e["etMinute"] is not None
+               and not e.get("scheduled")) & set(SESS)
+opens = set(json.loads(interp.evaljs("JSON.stringify(V.sessions.map(function(s){ return s.a; }))")))
+check("an 08:30 release is marked on the 09:30 open, labelled 'before open' (not left out)",
+      len(pre) == len(cpi_days) and all(m[0] in opens and m[1].endswith("(before open)") for m in pre),
+      "%d of %d" % (len(pre), len(cpi_days)))
+# the reported bug: Core PCE (08:30) timed to the release traded 4 times on the RTH tape, because
+# the entry time had no bar and the default skipped the day. The default is now the next bar.
+fresh = interp.evaljs("mergeState({cuNoBar: 'next'}, {cuNewsOutside: 'skip'}).cuNoBar")
+check("a saved 'skip' from the old setting does not come back: the default is the next bar", fresh == "next")
+pce = "ST.cuNews = {core_pce_price_index_m_m: true};"
+days_only = run_custom(pce)
+timed = run_custom(pce + " ST.cuNewsOffset = 30; ST.cuNoBar = 'next';")
+check("Core PCE timed 30 min before trades on every release day the day filter trades (at the open)",
+      len(timed) == len(days_only) > 30 and set(x["day"] for x in timed) == set(x["day"] for x in days_only),
+      "%d vs %d" % (len(timed), len(days_only)))
+h = interp.evaljs("customEntryHTML(ST)")
+check("with 'next' on, a release on a closed day (Good Friday 2024-03-29) is named, and no fix is offered",
+      "no bars at all in the loaded tape (e.g. 2024-03-29)" in h and 'nwwarn bad' not in h
+      and 'nwwarn mid' not in h and "are skipped" not in h)
+interp.evaljs("ST.cuNews = {federal_funds_rate: true};")
 off = interp.evaljs("ST.cuNews = {federal_funds_rate: true}; ST.cuShowMarks = false; NM_CACHE = {key: null, at: []};"
                     " newsMarks(0, V.c.length - 1).length")
 check("'Show releases on the chart' off draws none", off == 0)
 interp.evaljs("ST.cuShowMarks = true; ST.cuNewsMode = 'important';")
 interp.evaljs("ST.key = 'reentry'; ST.exitMin = 960; ST.cuNews = {}; ST.cuNewsOffset = null;"
-              " ST.cuHold = null; ST.cuNewsSkip = false; ST.cuNewsQuality = 'any'; ST.cuNewsOutside = 'skip';"
+              " ST.cuHold = null; ST.cuNewsSkip = false; ST.cuNewsQuality = 'any'; ST.cuNoBar = 'skip';"
               " ST.cuDir = 'random';"
               " STRES = null; ENS.res = null;")
 
