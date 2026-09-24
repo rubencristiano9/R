@@ -1,0 +1,16 @@
+7m NQ+ES XGB depth 2
+====================
+
+Training: 2020-2024
+Calibration: 2025
+Signal grid: every 15 minutes
+Prediction horizon: 7 minutes
+Features: 118 NQ+ES features
+
+BUY if p_up >= 0.56042236; SELL if p_up <= 0.43957764; otherwise NO TRADE.
+BUY if p_up >= 0.57509003; SELL if p_up <= 0.42490997; otherwise NO TRADE.
+
+The 5% and 1% rules use the SAME fitted XGB model.
+Only their confidence cutoffs differ.
+
+Separate March-Sep 2026 unseen CSV: NOT READ.

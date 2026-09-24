@@ -1,0 +1,12 @@
+7m NQ-only Ranger
+=================
+
+Training: 2020-2024
+Calibration: 2025
+Signal grid: every 15 minutes
+Prediction horizon: 7 minutes
+Features: 64 NQ-only features
+
+BUY if p_up >= 0.57004634; SELL if p_up <= 0.42995366; otherwise NO TRADE.
+
+Separate March-Sep 2026 unseen CSV: NOT READ.
