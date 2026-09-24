@@ -17,6 +17,7 @@ from newfac's nightly full-history CSV instead, downloaded fresh on every run --
 extend_with_newfac(). `python build_news_calendar.py --extend-only` redoes just that step
 on the checked-in news_calendar.json, for a machine without the Phase 0 source files.
 """
+import copy
 import datetime
 import hashlib
 import json
@@ -139,7 +140,7 @@ NEWS_PRIORITY = [
     'Unemployment Rate', 'Average Hourly Earnings m/m',
     'CB Consumer Confidence', 'Prelim UoM Consumer Sentiment', 'Revised UoM Consumer Sentiment',
     'Housing Starts', 'New Home Sales', 'Pending Home Sales m/m', 'Durable Goods Orders m/m',
-    'Fed Chair Powell Speaks', 'Fed Chair Powell Testifies',
+    'Fed Chair Speaks', 'Fed Chair Testifies',
     'FOMC Member Bullard Speaks', 'FOMC Member Waller Speaks', 'FOMC Member Williams Speaks',
     'FOMC Economic Projections',
     # everything else: whatever order ALIAS enumerates them in
@@ -194,12 +195,42 @@ NEWFAC_FROM = '2025-04-05'   # the day after the Phase 0 Forex Factory file ends
 # category) with no row at all AND none of that category the day before or after -- an
 # evening release the old file dated to the next day is the same release, not a new one.
 NEWFAC_HISTORY_FROM = '2007-01-01'
-# newfac relabels past events with Forex Factory's current names. Only a pure relabel of the
-# same release is mapped back; 'FOMC Member Powell Speaks' (his speeches as governor, chair
-# and ex-chair under one name) and 'Fed Chairman Warsh Speaks/Testifies' are left out until
-# the user decides what they should count as.
-NEWFAC_RENAME = {'Fed Chairman Powell Testifies': 'Fed Chair Powell Testifies'}
+# One pair of Fed Chair categories for whoever holds the chair (the user's call, 2026-09-24);
+# the Phase 0 names were Powell's own. newfac files a person under one label for their whole
+# career -- Powell's speeches as chair are now 'FOMC Member Powell Speaks', Warsh's 2007-2010
+# speeches as a governor are 'Fed Chairman Warsh Speaks' -- so a label only counts while that
+# person held the chair: Powell sworn in 2018-02-05, term ended 2026-05-15; Warsh from
+# 2026-05-16 (confirmed 2026-05-13, the calendar's own 'Fed Chair Nomination Vote'). No
+# release falls between those two dates. Confirmation hearings before taking office (Powell
+# 2017-11-28, Warsh 2026-04-21) are therefore not chair events.
+FED_CHAIR = {'Fed Chair Powell Speaks': 'Fed Chair Speaks',
+             'Fed Chair Powell Testifies': 'Fed Chair Testifies'}
+CHAIR_TERMS = {'Powell': ('2018-02-05', '2026-05-15'), 'Warsh': ('2026-05-16', '9999-12-31')}
+NEWFAC_CHAIR = {'FOMC Member Powell Speaks': ('Powell', 'Fed Chair Speaks'),
+                'Fed Chairman Powell Testifies': ('Powell', 'Fed Chair Testifies'),
+                'Fed Chairman Warsh Speaks': ('Warsh', 'Fed Chair Speaks'),
+                'Fed Chairman Warsh Testifies': ('Warsh', 'Fed Chair Testifies')}
+ALIAS = {FED_CHAIR.get(k, k): v for k, v in P0.ALIAS.items()}   # the categories, by name
 NEWFAC_UNTIMED = ('All Day', 'Tentative')   # a real release day with no clock time
+
+
+def newfac_name(event, date):
+    """newfac's label on a New York date -> this calendar's category name, or None"""
+    if event in NEWFAC_CHAIR:
+        who, cat = NEWFAC_CHAIR[event]
+        lo, hi = CHAIR_TERMS[who]
+        return cat if lo <= date <= hi else None
+    return event if event in ALIAS else None
+
+
+def merge_fed_chair(events, categories=()):
+    """Rename the Powell-named Phase 0 rows and categories to the chair-neutral ones, in
+    place. Idempotent."""
+    for e in list(events) + list(categories):
+        key = 'eventName' if 'eventName' in e else 'name'
+        if e[key] in FED_CHAIR:
+            e[key] = FED_CHAIR[e[key]]
+            e['catId' if key == 'eventName' else 'id'] = slugify(e[key])
 
 
 def fetch_newfac():
@@ -225,8 +256,8 @@ def fetch_newfac():
 
 
 def load_newfac(text, date_from, date_to):
-    """USD rows whose (relabel-mapped) name is a Phase 0 category, with a New York date in
-    [date_from, date_to]. Returns ({(date, name): etMinute or None}, skipped rows).
+    """USD rows whose name is one of this calendar's categories (see newfac_name), with a
+    New York date in [date_from, date_to]. Returns ({(date, name): etMinute or None}, skipped).
     A row whose time field names a reference period instead of a clock time ('Oct Data',
     'Sep 27th' -- the 2025 shutdown's catch-up figures, published alongside a real release)
     is not a release of its own and is skipped; a (date, name) with a timed row keeps it."""
@@ -234,8 +265,7 @@ def load_newfac(text, date_from, date_to):
     rows, skipped = {}, []
     lo = (datetime.date.fromisoformat(date_from) - datetime.timedelta(days=1)).isoformat()
     for r in csv.DictReader(io.StringIO(text)):
-        name = NEWFAC_RENAME.get(r['event'], r['event'])
-        if r['currency'] != 'USD' or name not in P0.ALIAS:
+        if r['currency'] != 'USD' or (r['event'] not in ALIAS and r['event'] not in NEWFAC_CHAIR):
             continue
         day = datetime.datetime.strptime(r['date'], '%a %b %d %Y').date()
         if not lo <= day.isoformat() <= date_to:   # a day of margin: GMT -> NY can go back one
@@ -248,10 +278,11 @@ def load_newfac(text, date_from, date_to):
         elif r['time'] in NEWFAC_UNTIMED:
             etm = None
         else:
-            skipped.append((day.isoformat(), name, r['time']))
+            skipped.append((day.isoformat(), r['event'], r['time']))
             continue
+        name = newfac_name(r['event'], day.isoformat())
         key = (day.isoformat(), name)
-        if not date_from <= key[0] <= date_to:
+        if name is None or not date_from <= key[0] <= date_to:
             continue
         if key not in rows or (rows[key] is None and etm is not None) or \
                 (etm is not None and etm < rows[key]):
@@ -261,44 +292,43 @@ def load_newfac(text, date_from, date_to):
 
 def extend_with_newfac(events, ff_rows, today):
     """Add newfac's rows to `events`, in place, with Phase 0's own status rules.
-    From NEWFAC_FROM on, a (date, category) the calendar already has (an Investing.com row
-    from 2025-04-05 to 2025-08-15) is reconciled, not duplicated: SINGLE_SOURCE_INVESTING ->
-    CROSS_VERIFIED within 1 minute, DISAGREE otherwise; any other status keeps its status.
-    Before NEWFAC_FROM, existing rows are never touched: only gaps are added (see
+    A (date, category) the calendar already has is checked, not duplicated -- on any date,
+    wherever Forex Factory has not already given that row a time (the Phase 0 FF file kept
+    High-impact rows only): SINGLE_SOURCE_INVESTING -> CROSS_VERIFIED within 1 minute, DISAGREE
+    otherwise; DAY_ONLY -> SINGLE_SOURCE_FF; any other status keeps its status and only
+    records the FF time. Otherwise the row is added -- before NEWFAC_FROM only as a gap (see
     NEWFAC_HISTORY_FROM). Rows after `today` are the published schedule, marked 'scheduled'.
-    The previous state of a reconciled row is kept in 'preNewfac' and every added row carries
-    'newfac': True, so strip_newfac() can undo this exactly. Returns a Counter."""
+    A checked row keeps its previous state in 'preNewfac' and every added row carries
+    'newfac': True, so strip_newfac() undoes this exactly. Returns a Counter."""
     from collections import Counter
     done = Counter()
-    have, old_keys = {}, set()
+    have = {}
     for e in events:
-        if e['eventName'] == FOMC_CAT_NAME:
-            continue
-        old_keys.add((e['date'], e['eventName']))
-        if e['date'] >= NEWFAC_FROM:
+        if e['eventName'] != FOMC_CAT_NAME:
             have.setdefault((e['date'], e['eventName']), []).append(e)
     near = lambda d, n: (datetime.date.fromisoformat(d) + datetime.timedelta(days=n)).isoformat()
     for (date, name), etm in sorted(ff_rows.items()):
-        if date < NEWFAC_FROM:
-            if (date, name) in old_keys:
-                continue
-            if (near(date, -1), name) in old_keys or (near(date, 1), name) in old_keys:
-                done['history: same release a day off, skipped'] += 1
-                continue
         if (date, name) in have:
             for e in have[(date, name)]:
-                e['preNewfac'] = {'status': e['status'], 'etMinute': e['etMinute'],
-                                  'ff': e['sourceTimes']['ff']}
+                if e['sourceTimes']['ff'] is not None:
+                    continue   # Forex Factory already timed this row: nothing to add
+                e['preNewfac'] = {'status': e['status'], 'etMinute': e['etMinute'], 'ff': None}
                 e['sourceTimes']['ff'] = etm
-                if e['status'] == 'SINGLE_SOURCE_INVESTING' and etm is not None:
-                    inv = e['sourceTimes']['investing']
-                    if abs(etm - inv) <= 1:
+                if etm is not None and e['status'] == 'SINGLE_SOURCE_INVESTING':
+                    if abs(etm - e['sourceTimes']['investing']) <= 1:
                         e['status'] = 'CROSS_VERIFIED'
+                    elif verified_time(date, name) is not None:
+                        e['status'], e['etMinute'] = 'OFFICIAL_VERIFIED', verified_time(date, name)
                     else:
                         e['status'], e['etMinute'] = 'DISAGREE', None
-                done['overlap -> ' + e['status']] += 1
+                elif etm is not None and e['status'] == 'DAY_ONLY':
+                    e['status'], e['etMinute'] = 'SINGLE_SOURCE_FF', etm
+                done['checked -> ' + e['status']] += 1
             continue
-        if P0.ALIAS[name] is None:
+        if date < NEWFAC_FROM and ((near(date, -1), name) in have or (near(date, 1), name) in have):
+            done['history: same release a day off, skipped'] += 1
+            continue
+        if ALIAS[name] is None:
             status, et = 'UNMATCHED', None
         elif name in P0.AMBIGUOUS_FF_CATEGORIES:
             status, et = 'AMBIGUOUS', None
@@ -317,6 +347,55 @@ def extend_with_newfac(events, ff_rows, today):
     return done
 
 
+FOMC_ANNOUNCEMENT = ('Federal Funds Rate', 'FOMC Statement')   # one release, two names
+
+
+def verified_time(date, name):
+    """the manually verified time for this release (DISAGREE_VERIFIED); the rate decision and
+    the statement are the same announcement, so either name's entry covers both"""
+    names = FOMC_ANNOUNCEMENT if name in FOMC_ANNOUNCEMENT else (name,)
+    for n in names:
+        if (date, n) in DISAGREE_VERIFIED:
+            return DISAGREE_VERIFIED[(date, n)]
+    return None
+
+
+def load_conflicts():
+    """Phase 0's INVESTING_INTERNAL_CONFLICT pairs: {(date, Investing name): (minute A, minute B)}"""
+    import csv
+    for path in (os.path.join(P0.WORK, 'phase0_internal_conflicts.csv'),
+                 os.path.join(HERE, 'phase0_internal_conflicts.csv')):
+        if os.path.exists(path):
+            m = lambda t: int(t[11:13]) * 60 + int(t[14:16])   # '2018-02-15 09:30:00-05:00'
+            return {(r['date'], r['event']): (m(r['timeA']), m(r['timeB']))
+                    for r in csv.DictReader(open(path))}
+    raise FileNotFoundError('phase0_internal_conflicts.csv')
+
+
+def resolve_conflicts(events, conflicts):
+    """Forex Factory as the tiebreaker: an INVESTING_INTERNAL_CONFLICT row (the two Investing
+    sources more than a minute apart) whose FF time matches exactly one of them within a
+    minute is two sources agreeing -- CROSS_VERIFIED at that Investing time, as Phase 0 marks
+    FF + Investing agreement. FF matching neither, or no FF time, stays a conflict. The
+    previous state goes in 'preNewfac' (if the newfac check has not already put it there),
+    so strip_newfac() undoes this too. Returns the number resolved."""
+    n = 0
+    for e in events:
+        ff = e['sourceTimes']['ff']
+        if e['status'] != 'INVESTING_INTERNAL_CONFLICT' or ff is None:
+            continue
+        pairs = [conflicts[(e['date'], inv)] for inv in (ALIAS.get(e['eventName']) or [])
+                 if (e['date'], inv) in conflicts]
+        hits = [t for t in (pairs[0] if pairs else ()) if abs(t - ff) <= 1]
+        if len(hits) != 1:
+            continue
+        pre = e.setdefault('preNewfac', {'status': e['status'], 'etMinute': e['etMinute'], 'ff': ff})
+        pre.setdefault('investing', e['sourceTimes']['investing'])
+        e['status'], e['etMinute'], e['sourceTimes']['investing'] = 'CROSS_VERIFIED', hits[0], hits[0]
+        n += 1
+    return n
+
+
 def strip_newfac(events):
     """Undo extend_with_newfac() (and any OFFICIAL_STANDARD fill of its rows), in place."""
     events[:] = [e for e in events if not e.get('newfac')]
@@ -324,6 +403,8 @@ def strip_newfac(events):
         pre = e.pop('preNewfac', None)
         if pre:
             e['status'], e['etMinute'], e['sourceTimes']['ff'] = pre['status'], pre['etMinute'], pre['ff']
+            if 'investing' in pre:
+                e['sourceTimes']['investing'] = pre['investing']
 
 
 FOMC_CAT_ID, FOMC_CAT_NAME = 'fomc_decision_day', 'FOMC decision day'
@@ -365,7 +446,7 @@ def main():
     rec = result['rec']
 
     priority_rank = {name: i for i, name in enumerate(NEWS_PRIORITY)}
-    all_cats = sorted(P0.ALIAS.keys())
+    all_cats = sorted(ALIAS.keys())
     for name in all_cats:
         if name not in priority_rank:
             priority_rank[name] = len(NEWS_PRIORITY) + all_cats.index(name)
@@ -397,12 +478,15 @@ def main():
             },
         })
 
+    merge_fed_chair(events)
+
     # ---------------- Forex Factory from 2025-04-05 on (newfac, downloaded fresh) ----------------
     text, newfac_meta = fetch_newfac()
     today = datetime.date.today().isoformat()
     ff_rows, skipped = load_newfac(text, NEWFAC_HISTORY_FROM, '9999-12-31')
     print('newfac:', dict(extend_with_newfac(events, ff_rows, today)),
           '-- skipped', len(skipped), 'reference-period rows (e.g. "Oct Data")')
+    print('Investing conflicts resolved by Forex Factory:', resolve_conflicts(events, load_conflicts()))
     newfac_meta.update({'from': NEWFAC_FROM, 'historyFrom': NEWFAC_HISTORY_FROM, 'to': today,
                         'scheduledTo': max(d for d, _ in ff_rows)})
 
@@ -473,30 +557,34 @@ def main():
 def extend_only():
     """Redo only the newfac step on the checked-in news_calendar.json: undo the previous
     extension, download newfac again, extend, refill OFFICIAL_STANDARD, relink the FOMC
-    decision days. Needs no Phase 0 source files. Refuses to write if any row before
-    NEWFAC_FROM would change."""
+    decision days. Needs no Phase 0 source files. Refuses to write unless undoing the step
+    gives back exactly the ledger it started from, so every change is recorded."""
     path = os.path.join(HERE, 'news_calendar.json')
     with open(path) as f:
         cal = json.load(f)
     events = cal['events']
+    merge_fed_chair(events, cal['categories'])
+    cal['newsPriority'] = [FED_CHAIR.get(n, n) for n in cal['newsPriority']]
     # compared by value: the old pandas FOMC step wrote 840.0 where this writes 840 (the
     # page reads both as 840), so a text comparison would flag a non-change
     def canon(e):
         m = e['etMinute']
         return json.dumps(dict(e, etMinute=int(m) if m is not None else None), sort_keys=True)
-    before = [canon(e) for e in events if e['date'] < NEWFAC_FROM and not e.get('newfac')]
     strip_newfac(events)
     fomc_days = [e['date'] for e in events if e['eventName'] == FOMC_CAT_NAME]
     events[:] = [e for e in events if e['eventName'] != FOMC_CAT_NAME]
+    base = sorted(canon(e) for e in events)   # the Phase 0 ledger this step starts from
     text, meta = fetch_newfac()
     today = datetime.date.today().isoformat()
     ff_rows, skipped = load_newfac(text, NEWFAC_HISTORY_FROM, '9999-12-31')
     print('newfac:', dict(extend_with_newfac(events, ff_rows, today)),
           '-- skipped', len(skipped), 'reference-period rows (e.g. "Oct Data")')
+    print('Investing conflicts resolved by Forex Factory:', resolve_conflicts(events, load_conflicts()))
     print('OFFICIAL_STANDARD rows filled:', apply_official_standard(events))
     add_fomc_decision_days(events, fomc_days)
-    after = [canon(e) for e in events if e['date'] < NEWFAC_FROM and not e.get('newfac')]
-    assert sorted(before) == sorted(after), 'a row before %s changed; not written' % NEWFAC_FROM
+    undone = copy.deepcopy([e for e in events if e['eventName'] != FOMC_CAT_NAME])
+    strip_newfac(undone)
+    assert sorted(canon(e) for e in undone) == base, 'a change is not recorded; not written'
     for c in cal['categories']:
         c['typicalEtMinute'] = typical_et_minute(events, c['id'])
     meta.update({'from': NEWFAC_FROM, 'historyFrom': NEWFAC_HISTORY_FROM, 'to': today,
@@ -508,7 +596,7 @@ def extend_only():
     cal['builtFrom'] = cal['builtFrom'].split('; newfac')[0] + '; newfac Forex Factory ' + meta['downloadedAt']
     with open(path, 'w') as f:
         json.dump(cal, f, separators=(',', ':'))
-    print('Wrote', path, '--', len(events), 'events; rows before', NEWFAC_FROM, 'unchanged')
+    print('Wrote', path, '--', len(events), 'events; every change recorded and reversible')
 
 
 if __name__ == '__main__':

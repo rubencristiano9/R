@@ -196,7 +196,25 @@ too; saved offsets are clamped under a day; the loaded hours come from the longe
 'Show releases on the chart' (`ST.cuShowMarks`, default on) draws the evaluation's picked
 releases as dotted lines on the bar each landed in (`newsMarks`/`drawNewsMarks`, cached per
 view). The new panel code is ASCII-only again (\uXXXX escapes). `test_ui.py` 286.
-Still open: `FOMC Member Powell Speaks` (newfac's single label for Powell's speeches as governor,
+Fed Chair + cross-verification (2026-09-24, user's calls): (1) the two Powell-named categories
+are now chair-neutral `Fed Chair Speaks` / `Fed Chair Testifies` (`FED_CHAIR`, `merge_fed_chair`);
+newfac's person labels count only inside that person's term (`CHAIR_TERMS`: Powell 2018-02-05 to
+2026-05-15, Warsh from 2026-05-16), so Warsh's 2007-10 governor speeches and both confirmation
+hearings are out; a saved `fed_chair_powell_*` pick is mapped to the new id. (2) "Cross-verify
+as much as we can": newfac now checks EVERY existing row Forex Factory had not timed, on any
+date -- SINGLE_SOURCE_INVESTING -> CROSS_VERIFIED (FF and Investing within a minute) or
+DISAGREE; DAY_ONLY -> SINGLE_SOURCE_FF; an FOMC announcement that disagrees keeps its manually
+verified time (`verified_time`: DISAGREE_VERIFIED covers the rate decision and the statement
+alike) as OFFICIAL_VERIFIED; and `resolve_conflicts` uses FF as the tiebreaker on
+INVESTING_INTERNAL_CONFLICT rows (FF matching exactly one Investing time -> CROSS_VERIFIED at it;
+reads phase0_internal_conflicts.csv). Two-source-confirmed share of timed releases: 16.7% -> 57%.
+The `--extend-only` guard is now reversibility: undoing the step must give back exactly the
+Phase 0 ledger (it caught a real bug while this was written). (3) The user checked Forex
+Factory's terms: automated collection is allowed.
+Still open: nothing from the user's list. Resolving the remaining DISAGREE rows of the
+OFFICIAL_STANDARD categories (7) by the official schedule would need the user's go-ahead: the
+approval covers DAY_ONLY gap-fills only.
+Superseded: `FOMC Member Powell Speaks` (newfac's single label for Powell's speeches as governor,
 chair and ex-chair) and `Fed Chairman Warsh Speaks/Testifies` are not mapped to any category --
 the user decides. Forex Factory's own terms on automated collection have not been checked.
 

@@ -3706,7 +3706,12 @@ function restoreCustom(dst, src){
   if (src.cuNews && typeof src.cuNews === 'object'){
     const known = {}; NEWSCAL.categories.forEach(c => { known[c.id] = 1; });
     dst.cuNews = {};
-    Object.keys(src.cuNews).forEach(k => { if (src.cuNews[k] === true && known[k]) dst.cuNews[k] = true; });
+    /* the two Powell-named categories became the chair-neutral Fed Chair ones */
+    const renamed = {fed_chair_powell_speaks: 'fed_chair_speaks', fed_chair_powell_testifies: 'fed_chair_testifies'};
+    Object.keys(src.cuNews).forEach(k => {
+      const id = renamed[k] || k;
+      if (src.cuNews[k] === true && known[id]) dst.cuNews[id] = true;
+    });
   }
   const off = src.cuNewsOffset;
   if (off === null || off === 'custom' || (typeof off === 'number' && Math.abs(off) < 1440)) dst.cuNewsOffset = off;

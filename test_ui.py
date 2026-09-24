@@ -793,8 +793,11 @@ check("every OFFICIAL_STANDARD row has a time and says where it came from",
       all(e["etMinute"] is not None and e.get("standardSource") for e in std))
 check("no FOMC-family row is ever filled from a standard time",
       not any(e["eventName"].startswith(("FOMC", "Federal Funds")) for e in std))
-check("a standard time is only ever a gap-fill: neither source had a time for it",
-      all(e["sourceTimes"]["ff"] is None and e["sourceTimes"]["investing"] is None for e in std))
+check("a standard time is only ever a gap-fill: neither Phase 0 source had a time for it",
+      all(e["sourceTimes"]["investing"] is None and (e.get("preNewfac") or {"ff": e["sourceTimes"]["ff"]})["ff"] is None
+          for e in std))
+check("and Forex Factory's time, where newfac has one, agrees with the official one on every row",
+      all(e["sourceTimes"]["ff"] in (None, e["etMinute"]) for e in std))
 cpi = [e for e in std if e["catId"] == "cpi_y_y"]
 check("CPI y/y has OFFICIAL_STANDARD days to anchor on", len(cpi) > 0)
 if cpi:
@@ -941,6 +944,46 @@ r = json.loads(interp.evaljs(
     "JSON.stringify((function(){ var d = {cuNews: {}, cuNewsOffset: null, cuHold: null};"
     " restoreCustom(d, {cuNewsOffset: 5000}); return d.cuNewsOffset; })())"))
 check("a saved offset of a day or more is not restored", r is None, str(r))
+r = json.loads(interp.evaljs(
+    "JSON.stringify((function(){ var d = {cuNews: {}, cuNewsOffset: null, cuHold: null};"
+    " restoreCustom(d, {cuNews: {fed_chair_powell_speaks: true}}); return d.cuNews; })())"))
+check("a saved Powell-named pick comes back as the merged Fed Chair category", r == {"fed_chair_speaks": True}, str(r))
+
+# One Fed Chair for whoever holds the chair; newfac's labels count only inside a chair's term
+cats = json.loads(interp.evaljs("JSON.stringify(NEWSCAL.categories.map(function(c){ return c.name; }))"))
+check("the Fed Chair categories are chair-neutral: nothing named after Powell or Warsh",
+      "Fed Chair Speaks" in cats and "Fed Chair Testifies" in cats and not [c for c in cats if "Powell" in c or "Warsh" in c])
+chair_nf = [e for e in EV if e.get("newfac") and e["eventName"] in ("Fed Chair Speaks", "Fed Chair Testifies")]
+check("every Fed Chair row newfac added falls inside a chair's term (Powell 2018-02-05 on)",
+      len(chair_nf) > 0 and all(e["date"] >= "2018-02-05" for e in chair_nf), "%d rows" % len(chair_nf))
+check("Warsh's first releases as chair are in (2026-07-01 speech, 2026-07-14 testimony)",
+      rel("2026-07-01", "Fed Chair Speaks") and rel("2026-07-14", "Fed Chair Testifies"))
+check("his 2007-2010 governor speeches and his 2026-04-21 confirmation hearing are not",
+      not [e for e in EV if e["eventName"] == "Fed Chair Speaks" and e["date"] < "2018-01-01"]
+      and not rel("2026-04-21", "Fed Chair Testifies"))
+
+# Cross-verification: every existing row Forex Factory had not timed was checked against newfac
+chk = [e for e in EV if e.get("preNewfac")]
+cv = [e for e in chk if e["status"] == "CROSS_VERIFIED"]
+check("a row checked to CROSS_VERIFIED has Forex Factory and Investing within a minute, at that time",
+      len(cv) > 3000 and all(abs(e["sourceTimes"]["ff"] - e["sourceTimes"]["investing"]) <= 1
+                             and e["etMinute"] == e["sourceTimes"]["investing"] for e in cv), "%d rows" % len(cv))
+dis = [e for e in chk if e["status"] == "DISAGREE"]
+check("a row checked to DISAGREE has the two more than a minute apart and no time",
+      len(dis) > 0 and all(e["etMinute"] is None and abs(e["sourceTimes"]["ff"] - e["sourceTimes"]["investing"]) > 1
+                           for e in dis), "%d rows" % len(dis))
+ov = [e for e in chk if e["status"] == "OFFICIAL_VERIFIED"]
+check("a checked FOMC announcement that disagrees keeps its manually verified time",
+      len(ov) > 0 and all(e["eventName"] in ("Federal Funds Rate", "FOMC Statement") and e["etMinute"] in (750, 855)
+                          for e in ov), str([(e["date"], e["etMinute"]) for e in ov]))
+res = [e for e in chk if e["preNewfac"]["status"] == "INVESTING_INTERNAL_CONFLICT"
+       and e["status"] == "CROSS_VERIFIED"]
+check("an Investing-vs-Investing conflict is resolved only where Forex Factory matches one side",
+      len(res) > 0 and all(abs(e["sourceTimes"]["ff"] - e["etMinute"]) <= 1 for e in res), "%d rows" % len(res))
+timed = [e for e in EV if e["etMinute"] is not None]
+two = [e for e in timed if e["status"] in ("CROSS_VERIFIED", "OFFICIAL_VERIFIED")]
+check("over half of all timed releases are now confirmed by two sources", len(two) * 2 > len(timed),
+      "%d of %d" % (len(two), len(timed)))
 # review fixes
 pick = interp.evaljs(
     "reduceNewsEvents([{eventName: 'Federal Funds Rate', etMinute: 840},"
