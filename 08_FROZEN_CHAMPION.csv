@@ -1,0 +1,2 @@
+horizon,feature_set,model_id,xgb_depth,target_coverage,confidence_cutoff,selected_n,coverage,wins,win_rate,ci95_lower,ci95_upper,flat_rate,baseline_wr,edge,active_weeks,validation_ci_above_50
+60,NQ_ONLY,logit,,0.005,0.097677170094431,101,0.00503891438834564,69,0.683168316831683,0.583080378531479,0.772186789535728,0,0.643564356435644,0.0396039603960396,22,TRUE
