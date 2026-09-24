@@ -220,6 +220,15 @@ warning sits under the No-bar control (`newsNoBarHTML`); a release on a day with
 all (e.g. Good Friday 2024-03-29) is named and offered no fix. Chart marks draw pre-open releases
 on the first bar, labelled 'before open'. Core PCE now 36/36, Big 3 98 (NFP 37, CPI 36, Fed 25).
 For entries at the release itself, load a 24-hour databento file with RTH off. test_ui 300.
+ETH (2026-09-24): the shipped tape is RTH only; ETH works by turning RTH off in the Data bar and
+loading a 24-hour databento file with Bars (barsFromCSV already converts UTC to New York and
+sessions by NY calendar day). Fixed on such a tape: 'Flat by 16:00' meant the session's last bar,
+23:59, so a trade was held into the night -- `flatBy()` now reads 16:00 as 16:00 when the loaded
+tape has ETH bars (`tapeHasEth`), keeps null (the session close) on the RTH tape, and lets a
+strategy's own exit (15:49) or a Flat-by time win. Verified end to end on a synthetic 24-hour
+databento-format file: 08:29 entries taken, exits at 16:00. A built-in ETH tape needs the NQ
+1-min file (not in any repo): ~3.5x the RTH bars, ~14 MB page for full hours, and the shipped
+4,670-trade list is indexed to RTH bars. test_ui 305.
 Still open: nothing from the user's list. Resolving the remaining DISAGREE rows of the
 OFFICIAL_STANDARD categories (7) by the official schedule would need the user's go-ahead: the
 approval covers DAY_ONLY gap-fills only.

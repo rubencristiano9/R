@@ -3954,10 +3954,19 @@ function newsSpan(){
   const [a, b] = tapeEnds();
   return [ST.from && ST.from > a ? ST.from : a, ST.to && ST.to < b ? ST.to : b];
 }
+/* "Flat by 16:00" is the close. On the RTH tape that is the session's last bar (null, as
+   every strategy has always read it); on a loaded 24-hour tape the session runs to 23:59
+   New York, so 16:00 has to be said as 16:00 or a trade is held into the night. */
+function tapeHasEth(){ return !!(BASE.clock && BASE.clock.intraday && !BASE.clock.rth); }
+function flatBy(own){
+  if (ST.exitMin < 960) return ST.exitMin;
+  if (own !== undefined && own !== null) return own;
+  return tapeHasEth() ? 960 : null;
+}
 function customStageOpts(C){
   const dow = C.cuDow || {};
   const daysOfWeek = [0, 1, 2, 3, 4, 5, 6].filter(n => dow[DOW_NAMES[n]]);
-  const exitMin = ST.exitMin < 960 ? ST.exitMin : null;
+  const exitMin = flatBy();
   const holdMin = C.cuHold === null || C.cuHold === undefined ? null : C.cuHold;
   const entry = !newsAround(C)
     ? {mode: 'reentry', startMin: C.cuEntryMin, endMin: C.cuEntryMin, slotMin: 30,
@@ -3987,7 +3996,7 @@ function stageOpts(C){
   const d = STRATS[C.key];
   /* "Flat by" set in the panel overrides the strategy's own exit minute; 16:00
      (null) is the session close, which every earlier strategy had */
-  const exitMin = ST.exitMin < 960 ? ST.exitMin : (d.exitMin === undefined ? null : d.exitMin);
+  const exitMin = flatBy(d.exitMin);
   return {
     entry: {mode: d.mode, startMin: d.startMin || 600, endMin: d.endMin,
             slotMin: d.slotMin || 30, orbBars: 26,
@@ -4602,8 +4611,8 @@ function newsNoBarHTML(C, st){
   if (skipped && !trade)
     return '<div class="nwwarn bad"><span><b>Nothing can trade.</b> Every entry time (e.g. ' +
       hhmm(st.outEx) + ') falls where the loaded bars have none: they run ' + hours +
-      ' ET. Enter at the next bar that day, or load a file with those hours and turn RTH ' +
-      'off in the Data bar.</span><button class="btn" data-cu-nobar="next">Enter at the next bar</button></div>' + noDay;
+      ' ET. Enter at the next bar that day, or turn RTH off in the Data bar and load a 24-hour file ' +
+      'with Bars.</span><button class="btn" data-cu-nobar="next">Enter at the next bar</button></div>' + noDay;
   if (skipped)
     return '<div class="nwwarn mid"><span>' + skipped.toLocaleString() + ' of ' + st.anchors.toLocaleString() +
       ' entry times fall where the loaded bars (' + hours + ' ET) have none and are skipped.</span>' +
@@ -4612,7 +4621,7 @@ function newsNoBarHTML(C, st){
     return '<div class="nwwarn ok"><span>' + st.moved.toLocaleString() + ' of ' + st.anchors.toLocaleString() +
       ' entries have no bar at their time (e.g. ' + hhmm(st.moveEx[0]) + ') and are taken at the next bar ' +
       'that day (' + hhmm(st.moveEx[1]) + '): the loaded bars run ' + hours + ' ET, so price has already ' +
-      'reacted. For the release itself, load a file with those hours and turn RTH off.</span>' +
+      'reacted. For the release itself, turn RTH off in the Data bar and load a 24-hour file with Bars.</span>' +
       '<button class="btn" data-cu-nobar="skip">Skip them instead</button></div>' + noDay;
   return noDay;
 }

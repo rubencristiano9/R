@@ -1062,6 +1062,17 @@ off = interp.evaljs("ST.cuNews = {federal_funds_rate: true}; ST.cuShowMarks = fa
                     " newsMarks(0, V.c.length - 1).length")
 check("'Show releases on the chart' off draws none", off == 0)
 interp.evaljs("ST.cuShowMarks = true; ST.cuNewsMode = 'important';")
+# "Flat by 16:00" is the close. On a loaded 24-hour tape the session runs to 23:59, so 16:00
+# must be said as 16:00 or a trade is held into the night (it was, before this).
+fb = json.loads(interp.evaljs(
+    "JSON.stringify((function(){ var keep = BASE, x = ST.exitMin; ST.exitMin = 960;"
+    " var rth = [flatBy(), flatBy(949)];"
+    " BASE = Object.assign({}, BASE, {clock: {intraday: true, rth: false, converted: true}});"
+    " var eth = [flatBy(), flatBy(949)]; ST.exitMin = 900; var set = flatBy(); BASE = keep; ST.exitMin = x;"
+    " return {rth: rth, eth: eth, set: set}; })())"))
+check("Flat by 16:00: the RTH tape keeps the session close, a 24-hour tape closes at 16:00; "
+      "a strategy's own exit and a time set in the box still win",
+      fb == {"rth": [None, 949], "eth": [960, 949], "set": 900}, str(fb))
 interp.evaljs("ST.key = 'reentry'; ST.exitMin = 960; ST.cuNews = {}; ST.cuNewsOffset = null;"
               " ST.cuHold = null; ST.cuNewsSkip = false; ST.cuNewsQuality = 'any'; ST.cuNoBar = 'skip';"
               " ST.cuDir = 'random';"
