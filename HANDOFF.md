@@ -187,6 +187,15 @@ Why the preview matters: on the shipped RTH tape (09:30-15:59) every 08:30 relea
 trades. Also fixed: mergeState only copies keys the default already has, so cuNews ({}) and
 cuNewsOffset (null) were dropped on every reload -- `restoreCustom` restores them (known ids,
 true values only). No engine change; `viewer_core.js` untouched. `test_ui.py` 279.
+Review pass (same day): 'most important' now ranks by the categories' own priorityRank (the
+newsPriority name list lacked 'FOMC decision day', which therefore always lost); the preview's
+'can trade' counts distinct entry bars (two releases moved onto 09:30 are one trade) and the
+no-usable-time note counts days, not anchors; a search hides non-matching groups on a redraw
+too; saved offsets are clamped under a day; the loaded hours come from the longest session;
+`fetch_newfac` falls back to the cached CSV when offline (metadata says '(cached)'). New:
+'Show releases on the chart' (`ST.cuShowMarks`, default on) draws the evaluation's picked
+releases as dotted lines on the bar each landed in (`newsMarks`/`drawNewsMarks`, cached per
+view). The new panel code is ASCII-only again (\uXXXX escapes). `test_ui.py` 286.
 Still open: `FOMC Member Powell Speaks` (newfac's single label for Powell's speeches as governor,
 chair and ex-chair) and `Fed Chairman Warsh Speaks/Testifies` are not mapped to any category --
 the user decides. Forex Factory's own terms on automated collection have not been checked.

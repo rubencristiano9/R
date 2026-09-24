@@ -203,13 +203,24 @@ NEWFAC_UNTIMED = ('All Day', 'Tentative')   # a real release day with no clock t
 
 
 def fetch_newfac():
-    """Download newfac's CSV (kept in newscal_work/ for the record). Returns (text, meta)."""
-    raw = urllib.request.urlopen(NEWFAC_URL, timeout=120).read()
-    os.makedirs(P0.WORK, exist_ok=True)
-    with open(os.path.join(P0.WORK, 'newfac_forexfactory_calendar.csv'), 'wb') as f:
-        f.write(raw)
-    meta = {'source': NEWFAC_URL, 'sha256': hashlib.sha256(raw).hexdigest(),
-            'downloadedAt': datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%MZ')}
+    """Download newfac's CSV (kept in newscal_work/ for the record). Offline, fall back to
+    the copy from the last run, and say so in the metadata. Returns (text, meta)."""
+    path = os.path.join(P0.WORK, 'newfac_forexfactory_calendar.csv')
+    try:
+        raw = urllib.request.urlopen(NEWFAC_URL, timeout=120).read()
+        os.makedirs(P0.WORK, exist_ok=True)
+        with open(path, 'wb') as f:
+            f.write(raw)
+        when = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%MZ')
+    except OSError as err:
+        if not os.path.exists(path):
+            raise
+        print('newfac download failed (%s); using the cached copy' % err)
+        with open(path, 'rb') as f:
+            raw = f.read()
+        when = datetime.datetime.fromtimestamp(os.path.getmtime(path), datetime.timezone.utc) \
+            .strftime('%Y-%m-%dT%H:%MZ') + ' (cached)'
+    meta = {'source': NEWFAC_URL, 'sha256': hashlib.sha256(raw).hexdigest(), 'downloadedAt': when}
     return raw.decode('utf-8-sig'), meta
 
 

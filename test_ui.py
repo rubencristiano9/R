@@ -937,6 +937,43 @@ r = json.loads(interp.evaljs(
     " return d; })())"))
 check("a saved news selection, timing and hold survive a reload (only known ids, only true)",
       r == {"cuNews": {"cpi_m_m": True}, "cuNewsOffset": -5, "cuHold": 15}, str(r))
+r = json.loads(interp.evaljs(
+    "JSON.stringify((function(){ var d = {cuNews: {}, cuNewsOffset: null, cuHold: null};"
+    " restoreCustom(d, {cuNewsOffset: 5000}); return d.cuNewsOffset; })())"))
+check("a saved offset of a day or more is not restored", r is None, str(r))
+# review fixes
+pick = interp.evaljs(
+    "reduceNewsEvents([{eventName: 'Federal Funds Rate', etMinute: 840},"
+    " {eventName: 'FOMC decision day', etMinute: 840}], 'important')[0].eventName")
+check("'most important' ranks by the calendar's own priority: FOMC decision day beats the rate",
+      pick == "FOMC decision day", pick)
+st = json.loads(interp.evaljs(
+    "JSON.stringify((function(){ ST.cuNews = {cpi_m_m: true, unemployment_claims: true, core_cpi_m_m: true};"
+    " ST.cuNewsOffset = 30; ST.cuNewsOutside = 'next'; ST.cuNewsMode = 'every'; ST.cuNewsQuality = 'any';"
+    " var s = {anchors: 0, moved: 0, none: 0, slots: {}, timedDays: {}}, t = buildNewsSides(ST, s), n = 0;"
+    " for (var d in t) for (var k in t[d]) n++;"
+    " return {anchors: s.anchors, slots: Object.keys(s.slots).length, keys: n}; })())"))
+check("'can trade' counts entries, not releases: several releases moved onto one bar are one",
+      st["slots"] < st["anchors"] and st["slots"] <= st["keys"], str(st))
+interp.evaljs("NEWS_UI.q = 'claims';")
+h = interp.evaljs("customEntryHTML(ST)")
+interp.evaljs("NEWS_UI.q = '';")
+shown = re.findall(r'<details data-cu-group="([^"]+)"(?: open)?>', h)
+check("a search hides every group without a match on a redraw, not only while typing",
+      shown == ["Jobs"], str(shown))
+marks = json.loads(interp.evaljs(
+    "ST.key = 'custom'; ST.cuShowMarks = true; ST.cuNews = {federal_funds_rate: true};"
+    " NM_CACHE = {key: null, at: []}; JSON.stringify(newsMarks(0, V.c.length - 1))"))
+ffr_days = set(e["date"] for e in EV if e["catId"] == "federal_funds_rate" and e["etMinute"] is not None
+               and not e.get("scheduled")) & set(SESS)
+check("the chart marks every Fed decision in the tape, on its 14:00 bar",
+      len(marks) == len(ffr_days) and all(m[1].endswith("14:00") for m in marks), "%d of %d" % (len(marks), len(ffr_days)))
+none = interp.evaljs("ST.cuNews = {cpi_m_m: true}; NM_CACHE = {key: null, at: []}; newsMarks(0, V.c.length - 1).length")
+check("an 08:30 release has no bar on the RTH tape and is not marked", none == 0, str(none))
+off = interp.evaljs("ST.cuNews = {federal_funds_rate: true}; ST.cuShowMarks = false; NM_CACHE = {key: null, at: []};"
+                    " newsMarks(0, V.c.length - 1).length")
+check("'Show releases on the chart' off draws none", off == 0)
+interp.evaljs("ST.cuShowMarks = true; ST.cuNewsMode = 'important';")
 interp.evaljs("ST.key = 'reentry'; ST.exitMin = 960; ST.cuNews = {}; ST.cuNewsOffset = null;"
               " ST.cuHold = null; ST.cuNewsSkip = false; ST.cuNewsQuality = 'any'; ST.cuNewsOutside = 'skip';"
               " ST.cuDir = 'random';"
