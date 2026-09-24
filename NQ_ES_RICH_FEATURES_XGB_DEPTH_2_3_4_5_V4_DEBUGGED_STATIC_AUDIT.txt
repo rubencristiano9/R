@@ -1,0 +1,23 @@
+{
+  "status": "PASS",
+  "script": "/mnt/data/NQ_ES_RICH_FEATURES_XGB_DEPTH_2_3_4_5_V4_DEBUGGED.R",
+  "lines": 1897,
+  "fixes": [
+    "Explicit == TRUE in data.table logical row filters",
+    "First-30 relative-volume rolling mean uses data.table frollmean to avoid non-leading-NA TTR issues",
+    "Opening gap requires actual 09:30 RTH bar; first-30 requires exactly 30 common bars",
+    "Most-recent completed RTH return/range attached by availability time via findInterval",
+    "All model features sanitized for non-finite values before complete-case filtering",
+    "Signal table slimmed before per-horizon copies",
+    "Only the current best fitted model is retained in memory",
+    "Bootstrap guards against zero finite replicates",
+    "Longer pre-2019 warm-up for daily 20-session features",
+    "Package versions written to output"
+  ],
+  "limitations_not_runtime_tested": [
+    "No R interpreter available in container; syntax/API execution not runtime validated here",
+    "Asia/London are time-window flags only; no holiday calendar",
+    "Unadjusted continuous-contract roll jumps remain an audit issue"
+  ],
+  "problems": []
+}

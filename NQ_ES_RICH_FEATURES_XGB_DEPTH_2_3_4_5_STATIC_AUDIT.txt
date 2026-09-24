@@ -1,0 +1,33 @@
+{
+  "status": "PASS",
+  "script": "/mnt/data/NQ_ES_RICH_FEATURES_XGB_DEPTH_2_3_4_5.R",
+  "lines": 1775,
+  "new_information_families": [
+    "TTR RSI14",
+    "TTR MACD 12/26/9",
+    "TTR Bollinger Bands 20/2",
+    "TTR rolling VWAP20 distance",
+    "TTR EMA20/EMA60 state",
+    "TTR ADX14 / DI spread",
+    "TTR Donchian 20 breakout/location",
+    "TTR relative volume",
+    "Tokyo/Asia cash-session flag",
+    "London cash-session flag",
+    "US RTH flag and last-60/last-30 flags",
+    "RTH opening gap",
+    "first 30-minute return/direction/range/relative volume",
+    "previous-close-to-10:00 Gao-style return",
+    "prior RTH return/range",
+    "session-to-date return/VWAP/range position",
+    "NQ-ES opening-gap and opening-30 divergence"
+  ],
+  "holdout_design": {
+    "train": "2019-2023",
+    "selection": "2024",
+    "confirmation": "2025",
+    "recent": "2026 YTD",
+    "refit_after_2024": false,
+    "recalibrate_cutoff_after_2024": false
+  },
+  "problems": []
+}

@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "script": "/mnt/data/V5_PROP_FIRM_DIAGNOSTIC_PLOTS_V2.R",
+  "lines": 826,
+  "fixes": [
+    "Preserve names on paths using setNames(file.path(...), names(files)); avoids fread(NA).",
+    "Remove pre-existing strategy column from FOLDS; avoids strategy.x/strategy.y after rank-map merges in plots 3 and 8."
+  ],
+  "runtime_status": "Static audit only; R is not installed in the execution environment.",
+  "problems": []
+}
