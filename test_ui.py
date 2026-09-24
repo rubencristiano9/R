@@ -784,6 +784,29 @@ check("the news-anchored table has at least one scheduled day", n_side_days > 0,
 r = interp.evaljs("STRES = null; var r = runStrat(); r ? r.trades.length : -1")
 check("the news-anchored custom strategy runs without throwing", r >= 0)
 
+# OFFICIAL_STANDARD (build_news_calendar.apply_official_standard): a DAY_ONLY row of an
+# approved fixed-schedule category gets that schedule's time; the FOMC family never does
+std = json.loads(interp.evaljs(
+    "JSON.stringify(NEWSCAL.events.filter(function(e){return e.status === 'OFFICIAL_STANDARD';}))"))
+check("the calendar carries OFFICIAL_STANDARD rows", len(std) > 0, "%d rows" % len(std))
+check("every OFFICIAL_STANDARD row has a time and says where it came from",
+      all(e["etMinute"] is not None and e.get("standardSource") for e in std))
+check("no FOMC-family row is ever filled from a standard time",
+      not any(e["eventName"].startswith(("FOMC", "Federal Funds")) for e in std))
+check("a standard time is only ever a gap-fill: neither source had a time for it",
+      all(e["sourceTimes"]["ff"] is None and e["sourceTimes"]["investing"] is None for e in std))
+cpi = [e for e in std if e["catId"] == "cpi_y_y"]
+check("CPI y/y has OFFICIAL_STANDARD days to anchor on", len(cpi) > 0)
+if cpi:
+    d0 = cpi[0]["date"]
+    interp.evaljs("ST.cuDow = {mon:true,tue:true,wed:true,thu:true,fri:true}; ST.cuNews = {cpi_y_y: true};"
+                  " ST.cuNewsMode = 'important'; ST.cuNewsOffset = 30; STRES = null;")
+    slot = json.loads(interp.evaljs(
+        "JSON.stringify((stratOpts().entry.sides['%s'] || {})['480'] || null)" % d0))
+    check("an OFFICIAL_STANDARD CPI day anchors 30 min before 08:30 (08:00)",
+          slot is not None and any(a["status"] == "OFFICIAL_STANDARD" and a["releaseMinute"] == 510
+                                   for a in slot["anchors"]), "%s: %s" % (d0, slot))
+
 # midnight-crossing: the previous-day helper must be pure calendar arithmetic, not
 # dependent on whichever machine's local timezone the browser happens to run in --
 # checked across a month boundary, a year boundary and a leap day, where a naive

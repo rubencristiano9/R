@@ -4342,8 +4342,10 @@ function customEntryHTML(C){
         '<input type="number" id="cuNewsOffsetCustom" value="' + C.cuNewsOffsetCustom +
         '" min="1" step="1" style="width:60px">min') + '</div>' +
       (C.cuNewsOffset === null ? '' :
-        '<p style="color:var(--ink-faint);font-size:9.5px">Anchors only on a day\u2019s OBSERVED/' +
-        'SINGLE_SOURCE/OFFICIAL_VERIFIED occurrence for a checked category; a day whose only checked ' +
+        '<p style="color:var(--ink-faint);font-size:9.5px">Anchors only on a day\u2019s CROSS_VERIFIED/' +
+        'SINGLE_SOURCE/OFFICIAL_VERIFIED occurrence for a checked category, or an OFFICIAL_STANDARD one ' +
+        '(the agency\u2019s fixed release time, filled in only where neither source gave a time; never ' +
+        'the FOMC family, whose time moved between eras); a day whose only checked ' +
         'occurrence disagrees between sources, is ambiguous, or has no reliable time still gates the ' +
         'plain day filter but contributes no timing anchor. A suppressed entry (position still open ' +
         'at the next release) shows in the ledger as \u201cnot taken \u2014 position open at next news ' +

@@ -123,12 +123,25 @@ either), `entry.tableSkipReason` (a narrowly-scoped opt-in -- only `custom` sets
 `slotsFromTable` mechanism (verified, not assumed, that its values are never read when
 `direction` isn't `'table'`) rather than a parallel field. Build order:
 `python3 build_news_calendar.py` before the usual `build_viewer3.py && lint_viewer.py &&
-test_core.py`; `test_ui.py` also gates this (243 assertions, up from 228). The Phase 0
+test_core.py`; `test_ui.py` also gates this (249 assertions, up from 228). The Phase 0
 report's own status enum (CROSS_VERIFIED / SINGLE_SOURCE_FF / SINGLE_SOURCE_INVESTING /
 OFFICIAL_VERIFIED / OFFICIAL_STANDARD / DISAGREE / INVESTING_INTERNAL_CONFLICT / UNMATCHED /
-AMBIGUOUS / DAY_ONLY) ships unchanged into `news_calendar.json`; `OFFICIAL_STANDARD` is
-defined but never populated -- it requires the user's explicit per-category go-ahead and
-none has been given yet, so every category without a verified occurrence stays `DAY_ONLY`.
+AMBIGUOUS / DAY_ONLY) ships unchanged into `news_calendar.json`.
+
+OFFICIAL_STANDARD, applied (2026-09-24): the user approved the per-category table in
+`build_news_calendar.py` (`OFFICIAL_STANDARD`, 24 categories: BLS / DOL / Census / BEA 08:30,
+ADP 08:15, ISM / Conference Board / UMich / NAR / JOLTS 10:00, Flash Services PMI 09:45) on
+2026-09-21, but `main()` never applied it, so the shipped calendar had none. Now
+`apply_official_standard(events)` fills only `DAY_ONLY` rows of those categories (never a row
+with a real time, never a conflicting one, never the FOMC family) and tags each with
+`standardSource`. 660 rows filled (633 in 2007-2014, 27 in 2021-2025); 87 stay `DAY_ONLY`
+(FOMC family, New Home Sales, Philly Fed, speeches, Flash Manufacturing PMI, one Durable
+Goods). No category's typical time moved. The raw FF / Investing files were not reachable
+from the cloud session that did this, so the function was run on the checked-in
+`news_calendar.json` rather than via a full `main()`; a full re-run gives the same rows.
+`typical_et_minute` replaced the pandas `mode()` call (same value on all 52 categories).
+Still open: the calendar ends 2025-04-04 (FF) / 2025-08-15 (Investing), plus FOMC decision
+days to 2026. Data after that needs a new source.
 
 Restore points: `golden_2026-09-18/` holds build_viewer3.py, viewer_core.js, tape_reader.html
 and the test files as they were before the 2026-09-18 pass-line fix (after the presets and

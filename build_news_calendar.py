@@ -139,6 +139,36 @@ NEWS_PRIORITY = [
 ]
 
 
+def apply_official_standard(events):
+    """Fill each DAY_ONLY occurrence of an OFFICIAL_STANDARD category with that
+    category's fixed schedule time, in place. Only DAY_ONLY rows are touched: an
+    occurrence with an observed / cross-verified / verified time keeps it, and one whose
+    sources conflict (DISAGREE, INVESTING_INTERNAL_CONFLICT, AMBIGUOUS, UNMATCHED) stays
+    untradable -- a standard time fills a gap, it never overrides or arbitrates. Plain
+    dicts, no pandas, so it can also be run on an already-built news_calendar.json.
+    Returns the number of rows filled."""
+    n = 0
+    for e in events:
+        std = OFFICIAL_STANDARD.get(e['eventName'])
+        if e['status'] != 'DAY_ONLY' or std is None:
+            continue
+        e['etMinute'], e['status'], e['standardSource'] = std[0], 'OFFICIAL_STANDARD', std[1]
+        n += 1
+    return n
+
+
+def typical_et_minute(events, cid):
+    """Display-only 'typical' time: the most common resolved etMinute of the category,
+    lowest minute on a tie (what pandas' Series.mode().iloc[0] gives). Never an anchor."""
+    counts = {}
+    for e in events:
+        if e['catId'] == cid and e['etMinute'] is not None:
+            counts[e['etMinute']] = counts.get(e['etMinute'], 0) + 1
+    if not counts:
+        return None
+    return int(min(counts, key=lambda m: (-counts[m], m)))
+
+
 def slugify(name):
     return re.sub(r'_+', '_', re.sub(r'[^a-z0-9]+', '_', name.lower())).strip('_')
 
@@ -187,6 +217,11 @@ def main():
             },
         })
 
+    # ---------------- OFFICIAL_STANDARD: fill the approved categories' DAY_ONLY rows ----------------
+    # Before the FOMC supplement below, which reads Federal Funds Rate / FOMC Statement times --
+    # neither is in OFFICIAL_STANDARD, so the order cannot change what it links to.
+    print('OFFICIAL_STANDARD rows filled:', apply_official_standard(events))
+
     # ---------------- FOMC decision day supplement (rf2_tape.fomc_days(), 2016-2026) ----------------
     # Fills gaps in Forex Factory's own Federal Funds Rate/FOMC Statement coverage (2012-2013,
     # parts of 2020-2021) and extends past its 2025-04-04 end. Where a decision date already has
@@ -227,9 +262,7 @@ def main():
     categories = []
     for name in all_cats:
         cid = slugify(name)
-        cat_ev = events_df[events_df.catId == cid]
-        resolved = cat_ev[cat_ev.etMinute.notna()]
-        typical = int(resolved.etMinute.mode().iloc[0]) if len(resolved) else None
+        typical = typical_et_minute(events, cid)
         categories.append({
             'id': cid, 'name': name, 'note': NOTES.get(name),
             'priorityRank': priority_rank[name],
