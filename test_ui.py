@@ -784,6 +784,66 @@ check("the news-anchored table has at least one scheduled day", n_side_days > 0,
 r = interp.evaljs("STRES = null; var r = runStrat(); r ? r.trades.length : -1")
 check("the news-anchored custom strategy runs without throwing", r >= 0)
 
+# OFFICIAL_STANDARD (build_news_calendar.apply_official_standard): a DAY_ONLY row of an
+# approved fixed-schedule category gets that schedule's time; the FOMC family never does
+std = json.loads(interp.evaljs(
+    "JSON.stringify(NEWSCAL.events.filter(function(e){return e.status === 'OFFICIAL_STANDARD';}))"))
+check("the calendar carries OFFICIAL_STANDARD rows", len(std) > 0, "%d rows" % len(std))
+check("every OFFICIAL_STANDARD row has a time and says where it came from",
+      all(e["etMinute"] is not None and e.get("standardSource") for e in std))
+check("no FOMC-family row is ever filled from a standard time",
+      not any(e["eventName"].startswith(("FOMC", "Federal Funds")) for e in std))
+check("a standard time is only ever a gap-fill: neither Phase 0 source had a time for it",
+      all(e["sourceTimes"]["investing"] is None and (e.get("preNewfac") or {"ff": e["sourceTimes"]["ff"]})["ff"] is None
+          for e in std))
+check("and Forex Factory's time, where newfac has one, agrees with the official one on every row",
+      all(e["sourceTimes"]["ff"] in (None, e["etMinute"]) for e in std))
+cpi = [e for e in std if e["catId"] == "cpi_y_y"]
+check("CPI y/y has OFFICIAL_STANDARD days to anchor on", len(cpi) > 0)
+if cpi:
+    d0 = cpi[0]["date"]
+    interp.evaljs("ST.cuDow = {mon:true,tue:true,wed:true,thu:true,fri:true}; ST.cuNews = {cpi_y_y: true};"
+                  " ST.cuNewsMode = 'important'; ST.cuNewsOffset = 30; STRES = null;")
+    slot = json.loads(interp.evaljs(
+        "JSON.stringify((stratOpts().entry.sides['%s'] || {})['480'] || null)" % d0))
+    check("an OFFICIAL_STANDARD CPI day anchors 30 min before 08:30 (08:00)",
+          slot is not None and any(a["status"] == "OFFICIAL_STANDARD" and a["releaseMinute"] == 510
+                                   for a in slot["anchors"]), "%s: %s" % (d0, slot))
+
+# Forex Factory from 2025-04-05 on comes from newfac (build_news_calendar.extend_with_newfac).
+# The 2025 US government shutdown (Oct 1 - Nov 12) cancelled or moved BLS releases; the
+# calendar must say what actually happened, not the pre-shutdown schedule.
+EV = json.loads(interp.evaljs("JSON.stringify(NEWSCAL.events)"))
+def rel(day, name):
+    return [e for e in EV if e["date"] == day and e["eventName"] == name]
+def at(day, name, minute):
+    return any(e["etMinute"] == minute for e in rel(day, name))
+nf = [e for e in EV if e.get("newfac")]
+old_keys = set((e["date"], e["eventName"]) for e in EV if not e.get("newfac"))
+check("newfac rows before 2025-04-05 only fill gaps: never a date+release the Phase 0 ledger had",
+      len(nf) > 0 and not [e for e in nf if e["date"] < "2025-04-05" and (e["date"], e["eventName"]) in old_keys],
+      "%d rows" % len(nf))
+check("every newfac-only row carries a Forex Factory time or a status with none",
+      all(e["sourceTimes"]["ff"] == e["etMinute"] or e["etMinute"] is None for e in nf))
+cpi_names = ("CPI m/m", "CPI y/y", "Core CPI m/m")
+check("no October 2025 CPI: nothing between the Oct 24 and Dec 18 releases",
+      not [e for e in EV if e["eventName"] in cpi_names and "2025-10-25" <= e["date"] <= "2025-12-17"])
+check("September 2025 CPI released Oct 24, 08:30",
+      at("2025-10-24", "CPI m/m", 510) and at("2025-10-24", "CPI y/y", 510))
+check("no jobs report on its scheduled Oct 3 or Nov 7 2025",
+      not rel("2025-10-03", "Non-Farm Employment Change") and not rel("2025-11-07", "Non-Farm Employment Change"))
+check("September 2025 jobs report released Nov 20, 08:30", at("2025-11-20", "Non-Farm Employment Change", 510))
+check("October + November payrolls released together Dec 16, 08:30, one row",
+      len(rel("2025-12-16", "Non-Farm Employment Change")) == 1 and at("2025-12-16", "Non-Farm Employment Change", 510)
+      and at("2025-12-16", "Unemployment Rate", 510))
+check("Dec 18 2025: only the y/y CPI figures (no m/m for November)",
+      at("2025-12-18", "CPI y/y", 510) and not rel("2025-12-18", "CPI m/m") and not rel("2025-12-18", "Core CPI m/m"))
+check("Sep 16 2026 FOMC day matches the calendar: 14:00 decision, 14:30 press conference",
+      at("2026-09-16", "Federal Funds Rate", 840) and at("2026-09-16", "FOMC Press Conference", 870)
+      and at("2026-09-16", "Retail Sales m/m", 510))
+fd = [e for e in EV if e["eventName"] == "FOMC decision day" and e["date"] == "2026-09-16"]
+check("the FOMC decision day row links to that 14:00", len(fd) == 1 and fd[0]["etMinute"] == 840, str(fd))
+
 # midnight-crossing: the previous-day helper must be pure calendar arithmetic, not
 # dependent on whichever machine's local timezone the browser happens to run in --
 # checked across a month boundary, a year boundary and a leap day, where a naive
@@ -792,7 +852,242 @@ for d, want in [("2024-03-01", "2024-02-29"), ("2024-01-01", "2023-12-31"),
                 ("2021-03-01", "2021-02-28"), ("2024-02-29", "2024-02-28")]:
     got = interp.evaljs("prevIsoDay('%s')" % d)
     check("prevIsoDay(%s) = %s" % (d, want), got == want, "got %s" % got)
+
+# The calendar's gaps filled from newfac: before 2025-04-05 only (date, category) pairs the
+# Phase 0 ledger never had, and the published schedule after the build date, flagged.
+check("jobless claims: 52 releases in each of 2019, 2021 and 2022 (whole years were missing)",
+      all(len([e for e in EV if e["eventName"] == "Unemployment Claims" and e["date"][:4] == y]) == 52
+          for y in ("2019", "2021", "2022")))
+sched = [e for e in EV if e.get("scheduled")]
+built = interp.evaljs("NEWSCAL.ffLive.to")
+check("the published schedule is in, every row after the build date and marked newfac",
+      len(sched) > 0 and all(e["date"] > built and e.get("newfac") for e in sched), "%d rows" % len(sched))
+check("a scheduled release never becomes an entry",
+      interp.evaljs("newsEligibleForDay('%s', {'%s': true}).length" % (sched[0]["date"], sched[0]["catId"])) == 0)
+
+# Strategy -> Custom, the redesigned news controls. Each mode below is checked against a
+# brute-force count on the loaded tape, not against the panel's own preview.
+print("\n--- custom strategy: news modes, timing, hold ---")
+SESS = json.loads(interp.evaljs("JSON.stringify(BASE.sessions.map(function(S){ return S.day; }))"))
+BIG3 = json.loads(interp.evaljs("JSON.stringify(newsPresetIds(NEWS_PRESETS[0]))"))
+check("the Big 3 preset is the rate decision, payrolls and CPI",
+      sorted(BIG3) == sorted(["federal_funds_rate", "non_farm_employment_change", "cpi_m_m"]))
+rel_days = set(e["date"] for e in EV if e["catId"] in BIG3 and not e.get("scheduled"))
+def run_custom(js):
+    interp.evaljs("ST.key = 'custom'; ST.cuDow = {mon:true,tue:true,wed:true,thu:true,fri:true};"
+                  " ST.cuEntryMin = 600; ST.cuDir = 'long'; ST.cuHold = null; ST.cuNewsSkip = false;"
+                  " ST.cuNewsQuality = 'any'; ST.cuNoBar = 'skip'; ST.cuNewsMode = 'important';"
+                  " ST.cuNews = {}; ST.cuNewsOffset = null; " + js + " STRES = null;")
+    return json.loads(interp.evaljs(
+        "JSON.stringify(runStrat().trades.filter(function(t){return !t.skipped;}).map(function(t){"
+        " return {day: t.day, e: BASE.mins[t.entry_bar], x: BASE.mins[t.exit_bar]}; }))"))
+big3 = "ST.cuNews = {federal_funds_rate: true, non_farm_employment_change: true, cpi_m_m: true};"
+t = run_custom(big3)
+check("only release days: trades exactly the Big 3 release days in the tape",
+      set(x["day"] for x in t) == rel_days & set(SESS), "%d days" % len(t))
+t = run_custom(big3 + " ST.cuNewsSkip = true;")
+check("skip release days: trades every other session, none of the release days",
+      set(x["day"] for x in t) == set(SESS) - rel_days, "%d days" % len(t))
+t = run_custom(big3 + " ST.cuNewsOffset = 30;")
+check("30 min before on an RTH tape: only the 14:00 decision can trade (13:30), 08:30 data has no bar",
+      len(t) > 0 and set(x["e"] for x in t) == {810}, str(sorted(set(x["e"] for x in t))))
+prev = interp.evaljs("newsPreviewHTML(ST)")
+panel = interp.evaljs("customEntryHTML(ST)")
+check("the preview counts it, and the warning with its one-click fix sits under the No-bar control",
+      "no bar there" in prev and 'data-cu-nobar="next"' in panel and "are skipped" in panel
+      and "are skipped" not in prev)
+t2 = run_custom(big3 + " ST.cuNewsOffset = 30; ST.cuNoBar = 'next';")
+check("'Enter at the next bar' moves the 08:00 entries to the 09:30 open",
+      len(t2) > len(t) and set(x["e"] for x in t2) == {570, 810}, str(sorted(set(x["e"] for x in t2))))
+moved = json.loads(interp.evaljs(
+    "JSON.stringify((function(){ var s = stratOpts().entry.sides, n = 0, bad = 0;"
+    " for (var d in s) for (var k in s[d]) s[d][k].anchors.forEach(function(a){"
+    "  if (a.moved){ n++; if (+k === a.plannedMinute) bad++; } }); return [n, bad]; })())"))
+check("each moved entry records its planned minute and sits on a different bar", moved[0] > 0 and moved[1] == 0,
+      str(moved))
+t = run_custom(big3 + " ST.cuNewsOffset = -5;")
+check("5 min after: the 14:00 decision is entered at 14:05", set(x["e"] for x in t) == {845},
+      str(sorted(set(x["e"] for x in t))))
+t = run_custom(big3 + " ST.cuNewsOffset = 'custom'; ST.cuNewsOffsetCustom = 45; ST.cuNewsCustomAfter = true;")
+check("a custom 45 min after lands at 14:45", set(x["e"] for x in t) == {885})
+t = run_custom(big3 + " ST.cuNewsOffset = -5; ST.cuHold = 15;")
+check("hold 15 min: every trade is out within 15 minutes of its entry",
+      len(t) > 0 and all(x["x"] - x["e"] <= 14 for x in t))
+t = run_custom("ST.cuHold = 30;")
+check("hold also applies to the plain fixed-time entry (10:00 -> out by 10:29)",
+      len(t) > 0 and all(x["e"] == 600 and x["x"] <= 629 for x in t))
+q_any = interp.evaljs("(function(){ ST.cuNews = {non_farm_employment_change: true}; ST.cuNewsOffset = 30;"
+                      " ST.cuNewsQuality = 'any'; var n = 0, s = buildNewsSides(ST); for (var d in s) n++; return n; })()")
+q_cross = json.loads(interp.evaljs(
+    "JSON.stringify((function(){ ST.cuNewsQuality = 'cross'; var st = [], s = buildNewsSides(ST);"
+    " for (var d in s) for (var k in s[d]) s[d][k].anchors.forEach(function(a){ st.push(a.status); }); return st; })())"))
+check("source quality 'two sources agree' keeps only cross-verified / officially verified times",
+      0 < len(q_cross) < q_any and set(q_cross) <= {"CROSS_VERIFIED", "OFFICIAL_VERIFIED"},
+      "%d of %d" % (len(q_cross), q_any))
+t = run_custom("ST.cuNews = {cpi_m_m: true};")
+check("with a release ticked but no timing, the entry stays the fixed 10:00",
+      len(t) > 0 and set(x["e"] for x in t) == {600})
+o = json.loads(interp.evaljs("ST.cuNews = {}; ST.cuNewsOffset = 30; JSON.stringify(stratOpts().entry)"))
+check("a timing preset with nothing ticked falls back to the plain fixed-time entry",
+      not o.get("slotsFromTable") and o["startMin"] == 600)
+sent = interp.evaljs("ST.cuNews = {cpi_m_m: true}; ST.cuNewsOffset = -5; ST.cuHold = 15; newsRuleSentence(ST)")
+check("the rule sentence says what the settings add up to",
+      "5 min after CPI m/m" in sent and " of CPI" not in sent and "hold 15 min" in sent, sent)
+# the reported screen: 1 min before the Fed-day and 08:30 releases, every one, verified, skip.
+# Its tiles must add up: timed = with a bar + no bar there, and entries <= with a bar.
+st = json.loads(interp.evaljs(
+    "ST.cuNews = {fomc_decision_day: true, federal_funds_rate: true, fomc_statement: true,"
+    " non_farm_employment_change: true, cpi_m_m: true, core_pce_price_index_m_m: true};"
+    " ST.cuNewsOffset = 1; ST.cuNewsMode = 'every'; ST.cuNewsQuality = 'verified'; ST.cuNoBar = 'skip';"
+    " JSON.stringify((function(){ var s = newsStats(ST); return {a: s.anchors, none: s.none, day: s.noDay,"
+    " e: Object.keys(s.slots).length}; })())"))
+prev = interp.evaljs("newsPreviewHTML(ST)")
+nums = [int(x.replace(",", "")) for x in re.findall(r'<div class="nwstat"><b>([\d,]+)</b>', prev)]
+check("the preview's tiles add up: timed releases = with a bar + no bar there, entries <= with a bar",
+      len(nums) == 5 and nums[1] == nums[2] + nums[3] and nums[4] <= nums[2]
+      and nums[1] == st["a"] and nums[3] == st["none"], "%s %s" % (nums, st))
+check("and say why entries are fewer: releases at the same minute share one",
+      "share one" in prev and st["e"] < st["a"] - st["none"])
+check("the coming-up list flags an 08:29 entry the RTH tape has no bar for",
+      "08:29, no bar on this tape: skipped" in prev)
+interp.evaljs("ST.cuNoBar = 'next';")
+check("... or says it is taken at the next bar, with that choice on",
+      "08:29, at the next bar on this tape" in interp.evaljs("newsPreviewHTML(ST)"))
+interp.evaljs("ST.cuNewsMode = 'important'; ST.cuNewsQuality = 'any';")
+h = interp.evaljs("ST.cuNews = {cpi_m_m: true}; ST.cuNewsOffset = 30; customEntryHTML(ST)")
+check("the panel has presets, chips, search, the three modes and the preview",
+      all(k in h for k in ('data-cu-preset="big3"', 'data-cu-unpick="cpi_m_m"', 'id="cuNewsQ"',
+                           'data-cu-use="skip"', 'data-cu-use="around"', 'class="nwprev"', 'Coming up')))
+r = json.loads(interp.evaljs(
+    "JSON.stringify((function(){ var d = {cuNews: {}, cuNewsOffset: null, cuHold: null};"
+    " restoreCustom(d, {cuNews: {cpi_m_m: true, not_a_category: true, ppi_m_m: 'yes'}, cuNewsOffset: -5, cuHold: 15});"
+    " return d; })())"))
+check("a saved news selection, timing and hold survive a reload (only known ids, only true)",
+      r == {"cuNews": {"cpi_m_m": True}, "cuNewsOffset": -5, "cuHold": 15}, str(r))
+r = json.loads(interp.evaljs(
+    "JSON.stringify((function(){ var d = {cuNews: {}, cuNewsOffset: null, cuHold: null};"
+    " restoreCustom(d, {cuNewsOffset: 5000}); return d.cuNewsOffset; })())"))
+check("a saved offset of a day or more is not restored", r is None, str(r))
+r = json.loads(interp.evaljs(
+    "JSON.stringify((function(){ var d = {cuNews: {}, cuNewsOffset: null, cuHold: null};"
+    " restoreCustom(d, {cuNews: {fed_chair_powell_speaks: true}}); return d.cuNews; })())"))
+check("a saved Powell-named pick comes back as the merged Fed Chair category", r == {"fed_chair_speaks": True}, str(r))
+
+# One Fed Chair for whoever holds the chair; newfac's labels count only inside a chair's term
+cats = json.loads(interp.evaljs("JSON.stringify(NEWSCAL.categories.map(function(c){ return c.name; }))"))
+check("the Fed Chair categories are chair-neutral: nothing named after Powell or Warsh",
+      "Fed Chair Speaks" in cats and "Fed Chair Testifies" in cats and not [c for c in cats if "Powell" in c or "Warsh" in c])
+chair_nf = [e for e in EV if e.get("newfac") and e["eventName"] in ("Fed Chair Speaks", "Fed Chair Testifies")]
+check("every Fed Chair row newfac added falls inside a chair's term (Powell 2018-02-05 on)",
+      len(chair_nf) > 0 and all(e["date"] >= "2018-02-05" for e in chair_nf), "%d rows" % len(chair_nf))
+check("Warsh's first releases as chair are in (2026-07-01 speech, 2026-07-14 testimony)",
+      rel("2026-07-01", "Fed Chair Speaks") and rel("2026-07-14", "Fed Chair Testifies"))
+check("his 2007-2010 governor speeches and his 2026-04-21 confirmation hearing are not",
+      not [e for e in EV if e["eventName"] == "Fed Chair Speaks" and e["date"] < "2018-01-01"]
+      and not rel("2026-04-21", "Fed Chair Testifies"))
+
+# Cross-verification: every existing row Forex Factory had not timed was checked against newfac
+chk = [e for e in EV if e.get("preNewfac")]
+cv = [e for e in chk if e["status"] == "CROSS_VERIFIED"]
+check("a row checked to CROSS_VERIFIED has Forex Factory and Investing within a minute, at that time",
+      len(cv) > 3000 and all(abs(e["sourceTimes"]["ff"] - e["sourceTimes"]["investing"]) <= 1
+                             and e["etMinute"] == e["sourceTimes"]["investing"] for e in cv), "%d rows" % len(cv))
+dis = [e for e in chk if e["status"] == "DISAGREE"]
+check("a row checked to DISAGREE has the two more than a minute apart and no time",
+      len(dis) > 0 and all(e["etMinute"] is None and abs(e["sourceTimes"]["ff"] - e["sourceTimes"]["investing"]) > 1
+                           for e in dis), "%d rows" % len(dis))
+ov = [e for e in chk if e["status"] == "OFFICIAL_VERIFIED"]
+check("a checked FOMC announcement that disagrees keeps its manually verified time",
+      len(ov) > 0 and all(e["eventName"] in ("Federal Funds Rate", "FOMC Statement") and e["etMinute"] in (750, 855)
+                          for e in ov), str([(e["date"], e["etMinute"]) for e in ov]))
+res = [e for e in chk if e["preNewfac"]["status"] == "INVESTING_INTERNAL_CONFLICT"
+       and e["status"] == "CROSS_VERIFIED"]
+check("an Investing-vs-Investing conflict is resolved only where Forex Factory matches one side",
+      len(res) > 0 and all(abs(e["sourceTimes"]["ff"] - e["etMinute"]) <= 1 for e in res), "%d rows" % len(res))
+timed = [e for e in EV if e["etMinute"] is not None]
+two = [e for e in timed if e["status"] in ("CROSS_VERIFIED", "OFFICIAL_VERIFIED")]
+check("over half of all timed releases are now confirmed by two sources", len(two) * 2 > len(timed),
+      "%d of %d" % (len(two), len(timed)))
+# review fixes
+pick = interp.evaljs(
+    "reduceNewsEvents([{eventName: 'Federal Funds Rate', etMinute: 840},"
+    " {eventName: 'FOMC decision day', etMinute: 840}], 'important')[0].eventName")
+check("'most important' ranks by the calendar's own priority: FOMC decision day beats the rate",
+      pick == "FOMC decision day", pick)
+st = json.loads(interp.evaljs(
+    "JSON.stringify((function(){ ST.cuNews = {cpi_m_m: true, unemployment_claims: true, core_cpi_m_m: true};"
+    " ST.cuNewsOffset = 30; ST.cuNoBar = 'next'; ST.cuNewsMode = 'every'; ST.cuNewsQuality = 'any';"
+    " var s = {anchors: 0, moved: 0, none: 0, slots: {}, timedDays: {}}, t = buildNewsSides(ST, s), n = 0;"
+    " for (var d in t) for (var k in t[d]) n++;"
+    " return {anchors: s.anchors, slots: Object.keys(s.slots).length, keys: n}; })())"))
+check("'can trade' counts entries, not releases: several releases moved onto one bar are one",
+      st["slots"] < st["anchors"] and st["slots"] <= st["keys"], str(st))
+interp.evaljs("NEWS_UI.q = 'claims';")
+h = interp.evaljs("customEntryHTML(ST)")
+interp.evaljs("NEWS_UI.q = '';")
+shown = re.findall(r'<details data-cu-group="([^"]+)"(?: open)?>', h)
+check("a search hides every group without a match on a redraw, not only while typing",
+      shown == ["Jobs"], str(shown))
+marks = json.loads(interp.evaljs(
+    "ST.key = 'custom'; ST.cuShowMarks = true; ST.cuNews = {federal_funds_rate: true};"
+    " NM_CACHE = {key: null, at: []}; JSON.stringify(newsMarks(0, V.c.length - 1))"))
+ffr_days = set(e["date"] for e in EV if e["catId"] == "federal_funds_rate" and e["etMinute"] is not None
+               and not e.get("scheduled")) & set(SESS)
+check("the chart marks every Fed decision in the tape, on its 14:00 bar",
+      len(marks) == len(ffr_days) and all(m[1].endswith("14:00") for m in marks), "%d of %d" % (len(marks), len(ffr_days)))
+pre = json.loads(interp.evaljs("ST.cuNews = {cpi_m_m: true}; NM_CACHE = {key: null, at: []};"
+                               " JSON.stringify(newsMarks(0, V.c.length - 1))"))
+cpi_days = set(e["date"] for e in EV if e["catId"] == "cpi_m_m" and e["etMinute"] is not None
+               and not e.get("scheduled")) & set(SESS)
+opens = set(json.loads(interp.evaljs("JSON.stringify(V.sessions.map(function(s){ return s.a; }))")))
+check("an 08:30 release is marked on the 09:30 open, labelled 'before open' (not left out)",
+      len(pre) == len(cpi_days) and all(m[0] in opens and m[1].endswith("(before open)") for m in pre),
+      "%d of %d" % (len(pre), len(cpi_days)))
+# the reported bug: Core PCE (08:30) timed to the release traded 4 times on the RTH tape, because
+# the entry time had no bar and the default skipped the day. The default is now the next bar.
+fresh = interp.evaljs("mergeState({cuNoBar: 'next'}, {cuNewsOutside: 'skip'}).cuNoBar")
+check("a saved 'skip' from the old setting does not come back: the default is the next bar", fresh == "next")
+pce = "ST.cuNews = {core_pce_price_index_m_m: true};"
+days_only = run_custom(pce)
+timed = run_custom(pce + " ST.cuNewsOffset = 30; ST.cuNoBar = 'next';")
+check("Core PCE timed 30 min before trades on every release day the day filter trades (at the open)",
+      len(timed) == len(days_only) > 30 and set(x["day"] for x in timed) == set(x["day"] for x in days_only),
+      "%d vs %d" % (len(timed), len(days_only)))
+h = interp.evaljs("customEntryHTML(ST)")
+check("with 'next' on, a release on a closed day (Good Friday 2024-03-29) is named, and no fix is offered",
+      "no bars at all in the loaded tape (e.g. 2024-03-29)" in h and 'nwwarn bad' not in h
+      and 'nwwarn mid' not in h and "are skipped" not in h)
+interp.evaljs("ST.cuNews = {federal_funds_rate: true};")
+off = interp.evaljs("ST.cuNews = {federal_funds_rate: true}; ST.cuShowMarks = false; NM_CACHE = {key: null, at: []};"
+                    " newsMarks(0, V.c.length - 1).length")
+check("'Show releases on the chart' off draws none", off == 0)
+interp.evaljs("ST.cuShowMarks = true; ST.cuNewsMode = 'important';")
+# "Flat by 16:00" is the close. On a loaded 24-hour tape the session runs to 23:59, so 16:00
+# must be said as 16:00 or a trade is held into the night (it was, before this).
+fb = json.loads(interp.evaljs(
+    "JSON.stringify((function(){ var keep = BASE, x = ST.exitMin; ST.exitMin = 960;"
+    " var rth = [flatBy(), flatBy(949)];"
+    " BASE = Object.assign({}, BASE, {clock: {intraday: true, rth: false, converted: true}});"
+    " var eth = [flatBy(), flatBy(949)]; ST.exitMin = 900; var set = flatBy(); BASE = keep; ST.exitMin = x;"
+    " return {rth: rth, eth: eth, set: set}; })())"))
+check("Flat by 16:00: the RTH tape keeps the session close, a 24-hour tape closes at 16:00; "
+      "a strategy's own exit and a time set in the box still win",
+      fb == {"rth": [None, 949], "eth": [960, 949], "set": 900}, str(fb))
+# Hours: one RTH/ETH switch in the Data bar (the chart-only time filter is 'Filter' now), and
+# the news warning names it: a 24-hour file loaded with RTH on was silently cut to 09:30-15:59
+top = page[:page.index("<script>")]
+check("the Data bar has one Hours switch (RTH | ETH); the chart filter is no longer also called RTH",
+      'data-hours="rth"' in top and 'data-hours="eth"' in top and '>Filter</button>' in top
+      and 'id="brth"' not in top)
+hint = interp.evaljs("LAST_BARS_FILE = null; newsEthHint()")
+check("on the built-in tape the news warning says how to get pre-market bars (Hours ETH + Bars)",
+      "Hours to" in hint and "ETH" in hint and "Bars" in hint, hint)
+hint = interp.evaljs("LAST_BARS_FILE = {name: 'NQ_1m.csv'}; S.rthOnly = true; var h = newsEthHint(); LAST_BARS_FILE = null; h")
+check("with a file loaded under RTH it offers to reload that file with every hour",
+      'data-cu-eth' in hint and "NQ_1m.csv" in hint, hint)
 interp.evaljs("ST.key = 'reentry'; ST.exitMin = 960; ST.cuNews = {}; ST.cuNewsOffset = null;"
+              " ST.cuHold = null; ST.cuNewsSkip = false; ST.cuNewsQuality = 'any'; ST.cuNoBar = 'skip';"
+              " ST.cuDir = 'random';"
               " STRES = null; ENS.res = null;")
 
 # Picking Instrument never changed what data is loaded, only $/pt -- so a

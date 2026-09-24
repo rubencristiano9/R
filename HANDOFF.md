@@ -123,12 +123,125 @@ either), `entry.tableSkipReason` (a narrowly-scoped opt-in -- only `custom` sets
 `slotsFromTable` mechanism (verified, not assumed, that its values are never read when
 `direction` isn't `'table'`) rather than a parallel field. Build order:
 `python3 build_news_calendar.py` before the usual `build_viewer3.py && lint_viewer.py &&
-test_core.py`; `test_ui.py` also gates this (243 assertions, up from 228). The Phase 0
+test_core.py`; `test_ui.py` also gates this (249 assertions, up from 228). The Phase 0
 report's own status enum (CROSS_VERIFIED / SINGLE_SOURCE_FF / SINGLE_SOURCE_INVESTING /
 OFFICIAL_VERIFIED / OFFICIAL_STANDARD / DISAGREE / INVESTING_INTERNAL_CONFLICT / UNMATCHED /
-AMBIGUOUS / DAY_ONLY) ships unchanged into `news_calendar.json`; `OFFICIAL_STANDARD` is
-defined but never populated -- it requires the user's explicit per-category go-ahead and
-none has been given yet, so every category without a verified occurrence stays `DAY_ONLY`.
+AMBIGUOUS / DAY_ONLY) ships unchanged into `news_calendar.json`.
+
+OFFICIAL_STANDARD, applied (2026-09-24): the user approved the per-category table in
+`build_news_calendar.py` (`OFFICIAL_STANDARD`, 24 categories: BLS / DOL / Census / BEA 08:30,
+ADP 08:15, ISM / Conference Board / UMich / NAR / JOLTS 10:00, Flash Services PMI 09:45) on
+2026-09-21, but `main()` never applied it, so the shipped calendar had none. Now
+`apply_official_standard(events)` fills only `DAY_ONLY` rows of those categories (never a row
+with a real time, never a conflicting one, never the FOMC family) and tags each with
+`standardSource`. 660 rows filled (633 in 2007-2014, 27 in 2021-2025); 87 stay `DAY_ONLY`
+(FOMC family, New Home Sales, Philly Fed, speeches, Flash Manufacturing PMI, one Durable
+Goods). No category's typical time moved. The raw FF / Investing files were not reachable
+from the cloud session that did this, so the function was run on the checked-in
+`news_calendar.json` rather than via a full `main()`; a full re-run gives the same rows.
+`typical_et_minute` replaced the pandas `mode()` call (same value on all 52 categories).
+Forex Factory to today via newfac (2026-09-24): from 2025-04-05 (the day after the Phase 0 FF
+file ends) Forex Factory comes from newfac's nightly full-history CSV
+(github.com/janickfarrell/newfac, release `calendar-data`, GMT times), downloaded fresh on every
+`build_news_calendar.py` run; `--extend-only` redoes just that step on the checked-in JSON (no
+Phase 0 source files needed; it refuses to write if any row before 2025-04-05 would change, and
+a re-run is identical apart from the download stamp). Checked first against the Phase 0 ledger:
+same date and time on 92.6% of CROSS_VERIFIED rows and 100% of OFFICIAL_STANDARD ones; it
+repeats the old FF file's own odd times, so it is the same source continued. Rules are Phase 0's:
+USD only, event names matched to the existing categories (plus one relabel, `Fed Chairman Powell
+Testifies`); a (date, category) the calendar already had -- Investing rows to 2025-08-15 -- is
+reconciled, not duplicated (within 1 min -> CROSS_VERIFIED, else DISAGREE; 182 and 6, the six all
+speeches or an auction). New rows are SINGLE_SOURCE_FF (620), or UNMATCHED / AMBIGUOUS for those
+categories. Rows whose FF "time" is a reference period ("Oct Data", "Sep 27th": the shutdown's
+catch-up figures, 18) are skipped. Every added row carries `newfac: true`, every reconciled one
+`preNewfac` (its state before), so the step is exactly reversible (`strip_newfac`). Result:
+9,106 -> 9,742 events, 7,632 -> 8,255 with a usable time, coverage to 2026-09-24. `test_ui.py`
+pins the 2025 shutdown (no October CPI; September CPI Oct 24; September payrolls Nov 20; Oct+Nov
+payrolls Dec 16; Dec 18 y/y CPI only) and the 2026-09-16 FOMC day; 259 assertions.
+`phase0_reconcile.py` now imports `lh5_tape` inside `main()` so its ALIAS table imports anywhere.
+The FOMC decision-day step is now plain Python (`add_fomc_decision_days`), same values; its times
+are written as 840 instead of pandas' 840.0.
+Gaps and schedule from newfac (2026-09-24, later): newfac now also fills the calendar back to
+2007 -- ONLY (date, category) pairs the Phase 0 ledger never had (the old FF file kept
+High-impact rows only, so medium-rated releases such as CPI m/m and jobless claims were missing
+whole years), and never one within a day of an existing row of that category (30 evening
+releases the old file dated to the next day are skipped as the same release). 1,536
+SINGLE_SOURCE_FF + 128 AMBIGUOUS/UNMATCHED rows added; claims now 52 a year every year. The
+published schedule to 2026-12-31 (130 rows) is in too, each marked `scheduled: true`; a scheduled
+row never anchors an entry and is replaced by the real one on the next `--extend-only`. Existing
+rows before 2025-04-05 still unchanged (the build asserts it). 11,536 events.
+
+Strategy -> Custom news redesign (2026-09-24): the panel now has quick picks (Big 3, Fed days,
+Jobs, Inflation, 08:30 data, Top 10), picked releases as removable chips, a search box, grouped
+collapsible lists with each release's usual time and its count in the run's span; three modes
+(Only release days / Skip release days -- new, the complement of the day filter / Time the
+entry to the release); entry before, at or AFTER the release (signed offset, custom minutes
+either way); Source quality (any / verified or official / two sources agree only); "No bar at
+that time": skip (old behaviour) or enter at the next bar that day (anchors record
+plannedMinute + moved; the ledger tooltip says so); Hold N minutes (`entry.holdMin`, both the
+timed and the fixed-time entry); and a live preview: the rule in one sentence, release days /
+entry times / can trade / no bar there over the span, a warning with a one-click fix when
+nothing (or part) can trade, and the next five scheduled releases with their entry times.
+Why the preview matters: on the shipped RTH tape (09:30-15:59) every 08:30 release timed
+"30 min before" lands at 08:00, where there is no bar, and the old panel silently showed 0
+trades. Also fixed: mergeState only copies keys the default already has, so cuNews ({}) and
+cuNewsOffset (null) were dropped on every reload -- `restoreCustom` restores them (known ids,
+true values only). No engine change; `viewer_core.js` untouched. `test_ui.py` 279.
+Review pass (same day): 'most important' now ranks by the categories' own priorityRank (the
+newsPriority name list lacked 'FOMC decision day', which therefore always lost); the preview's
+'can trade' counts distinct entry bars (two releases moved onto 09:30 are one trade) and the
+no-usable-time note counts days, not anchors; a search hides non-matching groups on a redraw
+too; saved offsets are clamped under a day; the loaded hours come from the longest session;
+`fetch_newfac` falls back to the cached CSV when offline (metadata says '(cached)'). New:
+'Show releases on the chart' (`ST.cuShowMarks`, default on) draws the evaluation's picked
+releases as dotted lines on the bar each landed in (`newsMarks`/`drawNewsMarks`, cached per
+view). The new panel code is ASCII-only again (\uXXXX escapes). `test_ui.py` 286.
+Fed Chair + cross-verification (2026-09-24, user's calls): (1) the two Powell-named categories
+are now chair-neutral `Fed Chair Speaks` / `Fed Chair Testifies` (`FED_CHAIR`, `merge_fed_chair`);
+newfac's person labels count only inside that person's term (`CHAIR_TERMS`: Powell 2018-02-05 to
+2026-05-15, Warsh from 2026-05-16), so Warsh's 2007-10 governor speeches and both confirmation
+hearings are out; a saved `fed_chair_powell_*` pick is mapped to the new id. (2) "Cross-verify
+as much as we can": newfac now checks EVERY existing row Forex Factory had not timed, on any
+date -- SINGLE_SOURCE_INVESTING -> CROSS_VERIFIED (FF and Investing within a minute) or
+DISAGREE; DAY_ONLY -> SINGLE_SOURCE_FF; an FOMC announcement that disagrees keeps its manually
+verified time (`verified_time`: DISAGREE_VERIFIED covers the rate decision and the statement
+alike) as OFFICIAL_VERIFIED; and `resolve_conflicts` uses FF as the tiebreaker on
+INVESTING_INTERNAL_CONFLICT rows (FF matching exactly one Investing time -> CROSS_VERIFIED at it;
+reads phase0_internal_conflicts.csv). Two-source-confirmed share of timed releases: 16.7% -> 57%.
+The `--extend-only` guard is now reversibility: undoing the step must give back exactly the
+Phase 0 ledger (it caught a real bug while this was written). (3) The user checked Forex
+Factory's terms: automated collection is allowed.
+No-bar default (2026-09-24, user report "Core PCE only has 1 trade, only FOMC trades"): the shipped
+tape is RTH-only (09:30-15:59) and most big data is 08:30, so a timed entry (e.g. 30 min before =
+08:00) had no bar and the default 'skip' dropped the day -- Core PCE traded 4 of 36 release days,
+the Big 3 only on FOMC (14:00). The setting is now `cuNoBar`, default 'next' (the next bar that
+day, i.e. the 09:30 open), renamed from `cuNewsOutside` so a saved 'skip' does not return. The
+warning sits under the No-bar control (`newsNoBarHTML`); a release on a day with no session at
+all (e.g. Good Friday 2024-03-29) is named and offered no fix. Chart marks draw pre-open releases
+on the first bar, labelled 'before open'. Core PCE now 36/36, Big 3 98 (NFP 37, CPI 36, Fed 25).
+For entries at the release itself, load a 24-hour databento file with RTH off. test_ui 300.
+ETH (2026-09-24): the shipped tape is RTH only; ETH works by turning RTH off in the Data bar and
+loading a 24-hour databento file with Bars (barsFromCSV already converts UTC to New York and
+sessions by NY calendar day). Fixed on such a tape: 'Flat by 16:00' meant the session's last bar,
+23:59, so a trade was held into the night -- `flatBy()` now reads 16:00 as 16:00 when the loaded
+tape has ETH bars (`tapeHasEth`), keeps null (the session close) on the RTH tape, and lets a
+strategy's own exit (15:49) or a Flat-by time win. Verified end to end on a synthetic 24-hour
+databento-format file: 08:29 entries taken, exits at 16:00. A built-in ETH tape needs the NQ
+1-min file (not in any repo): ~3.5x the RTH bars, ~14 MB page for full hours, and the shipped
+4,670-trade list is indexed to RTH bars. test_ui 305.
+Hours switch (2026-09-24, user report "loaded the csv but it still only enters during RTH"): the
+Data-bar 'RTH' toggle only applied to the NEXT load and shared its label with the chart-only time
+filter, so a 24-hour file loaded with it on (the default) was cut to 09:30-15:59 and switching it
+off afterwards did nothing. Now: Data bar 'Hours: RTH | ETH' (`data-hours`, `setHours`), and a
+change re-reads the loaded file (`LAST_BARS_FILE`); the Tools button is 'Filter'. The Custom news
+warning offers 'Reload <file> with every hour (ETH)' (`newsEthHint`), or says how on the built-in
+tape. A reload under the open Strategy panel refreshes it. test_ui 308.
+Still open: nothing from the user's list. Resolving the remaining DISAGREE rows of the
+OFFICIAL_STANDARD categories (7) by the official schedule would need the user's go-ahead: the
+approval covers DAY_ONLY gap-fills only.
+Superseded: `FOMC Member Powell Speaks` (newfac's single label for Powell's speeches as governor,
+chair and ex-chair) and `Fed Chairman Warsh Speaks/Testifies` are not mapped to any category --
+the user decides. Forex Factory's own terms on automated collection have not been checked.
 
 Restore points: `golden_2026-09-18/` holds build_viewer3.py, viewer_core.js, tape_reader.html
 and the test files as they were before the 2026-09-18 pass-line fix (after the presets and

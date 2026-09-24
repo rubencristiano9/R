@@ -33,7 +33,6 @@ import datetime as dt
 import pandas as pd
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import lh5_tape as L
 
 WORK = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'newscal_work')
 INVESTING_A_ZIP = r'C:\Users\ruben\Downloads\Economic calendar Investing.com - 2011 to 2019.zip'
@@ -159,6 +158,9 @@ def to_et(naive_series, fixed_utc_offset_hours):
 
 
 def main():
+    # imported here, not at module level, so ALIAS can be imported on a machine that
+    # does not have lh5_tape's source files (build_news_calendar.py --extend-only)
+    import lh5_tape as L
     print('Loading Forex Factory...')
     # lh5_tape.ff_events() truncates to 2022-01-01 onward (built for the LH5 study's
     # own window); the Tape Reader's tape goes back to 2010, so read the same file
