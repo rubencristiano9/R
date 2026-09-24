@@ -683,7 +683,7 @@ check("the forest note names the first out-of-sample month and the replay",
       "2024-01" in interp.evaljs("STRATS.lh5rf.note") and "does not run here" in interp.evaljs("STRATS.lh5rf.note"))
 check("the stored tables cover every tape day", interp.evaljs(
       "Object.keys(LH5.rf.sides.f50).length === BASE.sessions.length && Object.keys(LH5.rf.sides.dir).length === BASE.sessions.length ? 1 : 0") == 1)
-interp.evaljs("ST.key = 'lh5'; ST.exitMin = 960; STRES = null; ENS.res = null; openStrategy();")
+interp.evaljs("ST.key = 'lh5'; ST.exitMin = 1440; STRES = null; ENS.res = null; openStrategy();")
 o = json.loads(interp.evaljs("JSON.stringify(stratOpts().entry)"))
 check("the LH5 entry carries the window, the direction and the 15:49 exit",
       o["mode"] == "window" and o["direction"] == "window" and o["winMin"] == 900 and o["winBars"] == 5 and o["exitMin"] == 949)
@@ -692,10 +692,18 @@ check("the rule trades at most once a session (%d trades)" % r["nTrades"], 0 < r
 exits = interp.evaljs("(STRES || runStrat()).trades.filter(function(t){return !t.skipped;}).map(function(t){return BASE.mins[t.exit_bar];})")
 check("every LH5 trade is out by 15:49", all(m <= 949 for m in exits))
 check("the Flat by input is on the panel", interp.evaljs("document.getElementById('stFlat') ? 1 : 0") == 1)
+# Flat by is the firm's clock time to be flat BY (Lucid 16:45): out at the close
+# of the minute before it, so 15:30 is the 15:29 bar's close (15:30:00). The
+# earlier of it and the strategy's own exit wins.
 interp.evaljs("var f = document.getElementById('stFlat'); f.value = '15:30'; f.onchange();")
-check("Flat by 15:30 overrides the strategy's own exit", interp.evaljs("stratOpts().entry.exitMin") == 930)
+check("Flat by 15:30 overrides the strategy's own exit (out at 15:30:00, the 15:29 close)",
+      interp.evaljs("stratOpts().entry.exitMin") == 929)
 interp.evaljs("var f = document.getElementById('stFlat'); f.value = '16:00'; f.onchange();")
-check("Flat by 16:00 hands the exit back to the strategy", interp.evaljs("stratOpts().entry.exitMin") == 949)
+check("Flat by 16:00 is later than the rule's own 15:49 exit, which stands",
+      interp.evaljs("stratOpts().entry.exitMin") == 949)
+interp.evaljs("var f = document.getElementById('stFlat'); f.value = ''; f.onchange();")
+check("an empty Flat by (no firm cut-off) hands the exit back to the strategy",
+      interp.evaljs("stratOpts().entry.exitMin") == 949 and interp.evaljs("ST.exitMin") == 1440)
 interp.evaljs("ENS.res = null; STRES = null;")
 h = interp.evaljs("ensembleHTML()")
 check("a fixed rule's ensemble panel says there is no coin to multiply",
@@ -709,7 +717,7 @@ check("the forest entry replays a stored table", o["d"] == "table" and o["n"] ==
 sk = interp.evaljs("(STRES || runStrat()).trades.filter(function(t){return t.skipped && t.reason === 'model abstained';}).length")
 check("days before 2024 and days the forest declined show as stand-aside rows (%d)" % sk, sk > 200)
 check("no violation from a missing decision", interp.evaljs("(STRES || runStrat()).violations.length") == 0)
-interp.evaljs("ST.key = 'reentry'; ST.exitMin = 960; STRES = null; ENS.res = null;")
+interp.evaljs("ST.key = 'reentry'; ST.exitMin = 1440; STRES = null; ENS.res = null;")
 
 # The 30-minute forest (RF2): two entries, a per-entry hold, a stored decision per slot.
 print("\n--- the 30-minute forest ---")
@@ -721,7 +729,7 @@ check("the stored slot table covers every tape day", interp.evaljs(
       "Object.keys(RF2.sides).length === BASE.sessions.length ? 1 : 0") == 1)
 check("a full day carries twelve slot decisions", interp.evaljs(
       "Object.keys(RF2.sides[BASE.sessions[5].day]).length") == 12)
-interp.evaljs("ST.key = 'coin30'; ST.exitMin = 960; STRES = null; ENS.res = null; openStrategy();")
+interp.evaljs("ST.key = 'coin30'; ST.exitMin = 1440; STRES = null; ENS.res = null; openStrategy();")
 o = json.loads(interp.evaljs("JSON.stringify(stratOpts().entry)"))
 check("the 30-minute coin carries holdMin 30 and no stored table",
       o["direction"] == "random" and o["holdMin"] == 30 and o.get("sides") is None)
@@ -743,7 +751,7 @@ check("every forest trade took the stored side for its slot", rf["wrong"] == 0, 
 check("no forest trade runs past its 30 minutes and no decision is missing", rf["late"] == 0 and rf["viol"] == 0)
 h = interp.evaljs("STRES = null; ensembleHTML()")
 check("the forest's stored-table replay has no coin to multiply either", "takes no random decision" in h)
-interp.evaljs("ST.key = 'reentry'; ST.exitMin = 960; STRES = null; ENS.res = null;")
+interp.evaljs("ST.key = 'reentry'; ST.exitMin = 1440; STRES = null; ENS.res = null;")
 
 # The 'custom' strategy: day-of-week, a fixed entry time or a news-release offset,
 # direction, and the news calendar built by build_news_calendar.py.
@@ -792,7 +800,7 @@ for d, want in [("2024-03-01", "2024-02-29"), ("2024-01-01", "2023-12-31"),
                 ("2021-03-01", "2021-02-28"), ("2024-02-29", "2024-02-28")]:
     got = interp.evaljs("prevIsoDay('%s')" % d)
     check("prevIsoDay(%s) = %s" % (d, want), got == want, "got %s" % got)
-interp.evaljs("ST.key = 'reentry'; ST.exitMin = 960; ST.cuNews = {}; ST.cuNewsOffset = null;"
+interp.evaljs("ST.key = 'reentry'; ST.exitMin = 1440; ST.cuNews = {}; ST.cuNewsOffset = null;"
               " STRES = null; ENS.res = null;")
 
 # Picking Instrument never changed what data is loaded, only $/pt -- so a

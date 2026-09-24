@@ -175,6 +175,24 @@ on a tape that never reached it; `STRATS[].noTarget` sends rr 1e9 / targetUSD 1e
 panel shows "none". The Ensemble keeps a table schedule and only draws the side. Gates:
 `test_core.py` (316), `test_engine_js.py` (217), `test_ui.py` (196), `lint_viewer.py` (75).
 
+V5 frozen models in the Strategy panel (2026-09-24, `V5_README.md`): four rules from
+`NQ_ES_ROLLSAFE_WALKFORWARD_V5.R` (7m XGB NQ+ES 1% / 5%, 7m ranger NQ 2%, 1m XGB NQ 10%)
+replayed from R's trade lists; the models never run in the page. `V5_EXPORT_TRADES.R` runs V5
+sections 0-11 (output folder renamed; re-joins the split `[[`/`]]` of the uploaded copy, which
+does not parse as uploaded) plus section 15 per rule, and writes `v5_trades/` only if every
+year matches `08_walkforward_fold_results.csv`. `v5_pack.py` re-checks each list against 08 at
+build time (7m/1% falls back to V5's file 16 until the export exists). `signal_et` is UTC and the
+END of the feature bar = the entry minute. Second built-in tape: `build_full_tape.py` reads the
+databento NQ file next to the build into CME days 18:00->16:59 (evening minutes stored at
+m - 1440; a minutes channel because overnight has gaps), self-checked against the RTH tape.
+Engine seams: `Core.tableFromTrades`, `Core.nyClock` (Date-free), `exitEnd` falls back to the last
+bar before a missing flat-by minute. Flat by is now the firm's clock time to be flat BY
+(`LUCID_PRESETS[].flatBy`, Lucid 16:45 -> engine exit minute 16:44), earlier-of with a rule's own
+exit; old saves migrate (`ST.flatClock`). D timeframe = one candle per session (1440).
+Gates: `test_v5.py` (28), `test_full_tape.py` (23), `test_v5_export.R` (13),
+`test_v5_browser.py` (36 with the full tape; section 1 = every existing strategy identical
+before/after), `test_ui.py` (244).
+
 Publishing (2026-09-17): the public site is the folder
 `OneDrive - University of Cambridge\Desktop\Website`; `tape-reader\index.html` is a
 byte copy of `tape_reader.html`. After a rebuild, copy it there and re-upload the

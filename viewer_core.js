@@ -405,7 +405,10 @@ var Core = (function () {
     var days = B.days ? [] : null;
     for (i = 0; i < n; i++) {
       var m = B.mins[i];
-      if (m < from || m > to) { fwd[i] = -1; continue; }
+      /* an 18:00 trading-day tape carries its evening bars at minute - 1440;
+         the filter is by clock time, so compare the wall-clock minute */
+      var wm = ((m % 1440) + 1440) % 1440;
+      if (wm < from || wm > to) { fwd[i] = -1; continue; }
       fwd[i] = back.length;
       back.push(i);
       o.push(B.o[i]); h.push(B.h[i]); l.push(B.l[i]); c.push(B.c[i]);
@@ -1299,7 +1302,16 @@ var Core = (function () {
     function exitEnd(p, S) {
       if (p.exitMin === null) return S.b;
       var x = barAt(S, p.exitMin);
-      return x < 0 ? S.b : x;
+      if (x >= 0) return x;
+      /* no bar AT that minute (a minute with no trade, which a full-session
+         tape has overnight and now and then at the close): the last bar
+         before it, so a firm's 16:45 flat-by still holds on a day with no
+         16:44 print. A minute past the day's last bar, or before its first,
+         leaves the day's end as it always was. */
+      for (var j = S.b; j >= S.a; j--) {
+        if (B.mins[j] < p.exitMin) return B.mins[S.b] < p.exitMin ? S.b : j;
+      }
+      return S.b;
     }
     /* the last bar a trade entered at i0 may run to: within holdMin minutes of its
        own entry (a 10:00 entry held 30 exits at the 10:29 close), never past xEnd */
@@ -1654,6 +1666,91 @@ var Core = (function () {
     };
   }
 
+  /* ================= STORED TRADES (model replays) =================
+     A model fitted offline (the V5 XGBoost / ranger models in R, for one)
+     never runs here. Its trades arrive as a list -- UTC minute, side -- and
+     tableFromTrades below turns that into the per-day, per-minute table
+     runStrategy already reads (direction 'table', slotsFromTable), the seam
+     the Breakout and forest replays use, so runStrategy itself is untouched.
+
+     The minute is the one whose OPEN the trade enters at. In V5's own files
+     that is `signal_et`, which despite the name is UTC and marks the END of
+     the bar the model read: a 14:45Z row is a 09:45 New York trade entered at
+     the 09:45 open, made from the 09:44 bar. New York time is computed here
+     without a Date object, like dowOf above, so the answer cannot depend on
+     the host's timezone.
+     ================================================================== */
+
+  /* days since 1970-01-01 -> [y, m, d] and back (Hinnant's civil algorithms) */
+  function civilOf(z) {
+    z += 719468;
+    var era = Math.floor(z / 146097), doe = z - era * 146097;
+    var yoe = Math.floor((doe - Math.floor(doe / 1460) + Math.floor(doe / 36524) -
+                          Math.floor(doe / 146096)) / 365);
+    var doy = doe - (365 * yoe + Math.floor(yoe / 4) - Math.floor(yoe / 100));
+    var mp = Math.floor((5 * doy + 2) / 153);
+    var d = doy - Math.floor((153 * mp + 2) / 5) + 1, m = mp < 10 ? mp + 3 : mp - 9;
+    return [yoe + era * 400 + (m <= 2 ? 1 : 0), m, d];
+  }
+  function daysOfCivil(y, m, d) {
+    y -= m <= 2 ? 1 : 0;
+    var era = Math.floor(y / 400), yoe = y - era * 400;
+    var doy = Math.floor((153 * (m > 2 ? m - 3 : m + 9) + 2) / 5) + d - 1;
+    var doe = yoe * 365 + Math.floor(yoe / 4) - Math.floor(yoe / 100) + doy;
+    return era * 146097 + doe - 719468;
+  }
+  function pad2(v) { return (v < 10 ? '0' : '') + v; }
+  function isoOfDays(z) { var c = civilOf(z); return c[0] + '-' + pad2(c[1]) + '-' + pad2(c[2]); }
+  function nextIsoDay(day) {
+    return isoOfDays(daysOfCivil(+day.slice(0, 4), +day.slice(5, 7), +day.slice(8, 10)) + 1);
+  }
+  /* New York's offset from UTC, in minutes, at a UTC epoch minute: EDT from the
+     second Sunday of March 07:00 UTC to the first Sunday of November 06:00 UTC
+     (the rule since 2007), EST otherwise -- the same rule as the page's loader */
+  var NYDST = {};
+  function nyOffset(tMin) {
+    var y = civilOf(Math.floor(tMin / 1440))[0], r = NYDST[y];
+    if (!r) {
+      var mar = daysOfCivil(y, 3, 1), nov = daysOfCivil(y, 11, 1);
+      /* day 0 (1970-01-01) was a Thursday: ((z % 7) + 11) % 7 is the weekday, 0 = Sunday */
+      var sunM = mar + (7 - ((mar % 7 + 11) % 7)) % 7;   /* first Sunday of March */
+      var sunN = nov + (7 - ((nov % 7 + 11) % 7)) % 7;   /* first Sunday of November */
+      r = NYDST[y] = [(sunM + 7) * 1440 + 420, sunN * 1440 + 360];
+    }
+    return tMin >= r[0] && tMin < r[1] ? -240 : -300;
+  }
+  /* a UTC epoch minute as New York wall clock: ISO day, minute of day, weekday 0=Sun */
+  function nyClock(tMin) {
+    var local = tMin + nyOffset(tMin), dn = Math.floor(local / 1440);
+    return { day: isoOfDays(dn), min: local - dn * 1440, dow: ((dn % 7) + 11) % 7 };
+  }
+
+  /* Stored trades -> the per-day, per-minute side table runStrategy reads
+     with slotsFromTable (the same table shape the Breakout replays ship).
+       t       UTC epoch minutes: the minute whose OPEN each trade enters at
+       s       sides, 1 buy | -1 sell
+       cmeDay  the tape's days run 18:00 -> 16:59 New York (the CME trading
+               day), its evening bars stored on the NEXT day at minute - 1440;
+               false = calendar days, as every other tape is built
+     A trade whose minute is not on the loaded tape is simply never scheduled
+     (runStrategy skips table minutes with no bar); the panel counts those.
+     dup counts two trades on one minute -- a valid trade list never has one,
+     and the later would silently replace the earlier, so it is reported.
+     at['day minute'] is each trade's index in the list, so a ledger row can
+     be traced back to the row of the file it came from. */
+  function tableFromTrades(t, s, cmeDay) {
+    var sides = {}, at = {}, dup = 0;
+    for (var i = 0; i < t.length; i++) {
+      var c = nyClock(t[i]), day = c.day, m = c.min;
+      if (cmeDay && m >= 1080) { day = nextIsoDay(day); m -= 1440; }
+      var d = sides[day] || (sides[day] = {}), k = String(m);
+      if (d[k] !== undefined) dup++;
+      d[k] = s[i];
+      at[day + ' ' + k] = i;
+    }
+    return { sides: sides, at: at, n: t.length, dup: dup };
+  }
+
   /* ---------- wealth after every session of a run ----------
      Payouts banked minus tickets bought, cumulative, one value per session
      of the tape. Rebuilt from the run's events rather than by a second walk,
@@ -1689,7 +1786,7 @@ var Core = (function () {
     timeFilter: timeFilter, timeMarks: timeMarks,
     buildBuckets: buildBuckets, priceRangeFast: priceRangeFast,
     runStrategy: runStrategy, liveBreakoutSides: liveBreakoutSides, lcg: lcg, wealthCurve: wealthCurve,
-    dowOf: dowOf,
+    dowOf: dowOf, nyClock: nyClock, nextIsoDay: nextIsoDay, tableFromTrades: tableFromTrades,
     simulateAccount: simulateAccount, simulateSeries: simulateSeries,
     candleStyle: candleStyle, makeScale: makeScale, measure: measure,
     buildSessions: buildSessions, replayToView: replayToView, viewToReplay: viewToReplay,

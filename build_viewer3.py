@@ -20,6 +20,13 @@ BO = bo_pack.viewer_payload()
 # Investing.com sources per-occurrence, built by build_news_calendar.py. Checked in like
 # the packs above, not regenerated here.
 NEWSCAL = json.load(io.open(r'C:\Users\ruben\nq-backtest\news_calendar.json'))
+# The V5 frozen models' trades (v5_pack.py: R's trade lists, each checked against
+# V5's own per-year results before it is used) and the full-session NQ tape most of
+# those trades need (build_full_tape.py: CME days 18:00 -> 16:59, from the databento
+# file next to this build; None when that file is absent, and the page says so).
+import v5_pack, build_full_tape
+V5 = v5_pack.viewer_payload()
+FULL = build_full_tape.viewer_payload(rth_raw=D)
 
 HTML = r"""<meta charset="utf-8">
 <title>Tape Reader</title>
@@ -334,6 +341,7 @@ td b{color:var(--ink);font-weight:500}
     <button class="btn" id="brth" title="On: a loaded bar file is converted to New York time (when its timestamps carry a UTC offset, as databento exports do) and cut to the 09:30-15:59 day session, exactly as the shipped NQ tape was built. Off: every hour in the file is kept and a session is a calendar day of the converted clock. Applies to the next file you load.">RTH</button>
     <label class="btn" for="ftrades">Trades</label><input type="file" id="ftrades" accept=".csv,.json,.txt" hidden>
     <button class="btn" id="demo">Demo</button>
+    <button class="btn" id="bfull" title="The built-in full-session NQ tape: every minute from 18:00 to 16:59 New York, one day per CME trading day (a Sunday 18:00 bar belongs to Monday), 2023 to 13 March 2026. Demo goes back to the 09:30-15:59 tape.">Full session</button>
     <span class="lbl">Go</span>
     <button class="btn" id="dbtn">&#128197; <span id="dbtnlbl">&mdash;</span></button>
     <button class="btn" id="tprev" title="Previous trade">&#9664;</button>
@@ -412,6 +420,8 @@ const LH5 = __LH5__;
 const RF2 = __RF2__;
 const BO = __BO__;
 const NEWSCAL = __NEWSCAL__;
+const V5 = __V5__;
+const FULL = __FULL__;
 
 function bytes(b64){
   const s = atob(b64), u = new Uint8Array(s.length);
@@ -470,13 +480,27 @@ function buildBars(raw){
   /* every bar sits at its session's opening minute plus its offset -- verified
      across all 315,900 bars with zero exceptions, so the array is not shipped */
   let mins;
-  if (v2){
+  if (v2 && raw.bars.m){
+    /* the full-session tape has overnight minutes with no trade in them, so its
+       minutes ship as a channel of steps (1 = the next minute) instead of being
+       implied by the session's opening minute. Evening bars of a CME day sit at
+       minute - 1440 (18:00 is -360), so the minutes still rise through a day. */
+    const M = chan(raw.bars.m), mD = M[0], mI = M[1], mV = M[2], mN = mI.length;
+    mins = new Int16Array(n);
+    let pm = 0;
+    raw.sessions.forEach(sn => {
+      for (let i = sn.a; i <= sn.b; i++){
+        const d = (pm < mN && mI[pm] === i) ? mV[pm++] : mD[i];
+        mins[i] = i === sn.a ? sn.m0 : mins[i - 1] + d;
+      }
+    });
+  } else if (v2){
     mins = new Int16Array(n);
     raw.sessions.forEach(sn => {
       for (let i = sn.a; i <= sn.b; i++) mins[i] = sn.m0 + (i - sn.a);
     });
   } else mins = unpack(raw.mins);
-  return {n, o, h, l, c, v, mins, sessions: raw.sessions};
+  return {n, o, h, l, c, v, mins, sessions: raw.sessions, cmeDay: !!raw.cmeDay};
 }
 
 /* Trades ship columnar: one array per field rather than 4,670 objects, which
@@ -546,8 +570,13 @@ const pace = (evals, sessions) => {
 const esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;')
                           .replace(/>/g, '&gt;').split('"').join('&quot;')
                           .split("'").join('&#39;');
-const hhmm = m => String(m / 60 | 0).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
-const TFS = [['1m',1],['2m',2],['5m',5],['15m',15],['30m',30],['1H',60],['D',390]];
+/* evening bars of a CME-day tape are stored at minute - 1440; the clock wraps */
+const hhmm = m => { m = ((m % 1440) + 1440) % 1440;
+                    return String(m / 60 | 0).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'); };
+/* D is one candle per session: 1440 is longer than any session, and aggregate()
+   stops each candle at its session's last bar (390 bars on the RTH tape, the
+   same candle as before; 18:00-16:59 on the full-session one) */
+const TFS = [['1m',1],['2m',2],['5m',5],['15m',15],['30m',30],['1H',60],['D',1440]];
 const CTS = [['Candle','candle'],['Hollow','hollow'],['Bar','bar'],['Line','line'],['Area','area'],['HA','ha']];
 /* ---------------------------------------------------------------
    INDICATOR REGISTRY
@@ -677,6 +706,7 @@ function mergeState(dst, src){
   return dst;
 }
 try { mergeState(S, JSON.parse(localStorage.getItem('tape.v3') || '{}')); } catch(e){}
+if (S.tf === 390) S.tf = 1440;   /* a save from when D was a fixed 390 bars */
 S.view = {a: 0, b: 390}; S.replay = false; S.playing = false; S.rBase = 0;   /* never restore transient state */
 function save(){
   try { localStorage.setItem('tape.v3', JSON.stringify({
@@ -714,6 +744,14 @@ let LOADED_SYM = 'NQ';
    typed arrays exist. Hold the decoded originals for the Demo button and let
    the strings go, rather than keeping both alive for the life of the page. */
 const BASE0 = BASE, TRADES0 = TRADES;
+/* The built-in full-session tape (build_full_tape.py), decoded the first time
+   it is asked for: it is the larger of the two and most visits never open it.
+   Its base64 is released once decoded, like RAW's. */
+let BASEFULL = null;
+function fullTape(){
+  if (!BASEFULL && FULL){ BASEFULL = buildBars(FULL); FULL.bars = null; }
+  return BASEFULL;
+}
 RAW.bars = null; RAW.trades = null; RAW.mins = null;
 let BUCKETS = null;
 const PR_CACHE = {sig: null, val: null};
@@ -1001,7 +1039,8 @@ function render(){
 
   const a = Math.max(0, Math.floor(S.view.a)), b = Math.min(lastBar(), Math.ceil(S.view.b));
   const intraday = V.sessions.length > 1 || !V.sessions[0] || !V.sessions[0].spanning;
-  const barsPerDay = intraday ? 390 / S.tf : 1;
+  /* bars in a day on this tape: 390 for 09:30-15:59, 1380 for the CME day */
+  const barsPerDay = !intraday || S.tf >= 390 ? 1 : (BASE.cmeDay ? 1380 : 390) / S.tf;
   const perDay = sc.span / barsPerDay;
   ctx.textAlign = 'center';
   if (perDay >= 10){
@@ -1817,6 +1856,7 @@ function paintReadout(vis){
       (f.stage ? stageTag(f) + (f.acct ? ' account #' + f.acct : '') +
         (f.before !== undefined ? ' \u00b7 from ' + money(f.before) : '') + '<br>' : '') +
       (t.day || '') + '<br>' +
+      (v5InfoText(t) ? '<span style="color:var(--ink-dim)">' + v5InfoText(t) + '</span><br>' : '') +
       'in&nbsp; ' + hhmm(BASE.mins[t.entry_bar]) + ' @ ' + t.entry.toFixed(2) + '<br>' +
       'stop ' + t.stop_px.toFixed(2) + ' &nbsp; tgt ' + t.tgt_px.toFixed(2) + '<br>' +
       'out ' + hhmm(BASE.mins[t.exit_bar]) + ' @ ' + t.exit.toFixed(2) +
@@ -2016,7 +2056,8 @@ function paintPanels(vis){
                    (t.reason || 'skipped') + '</span>'
                  : bindName(t);
     const f = tradeFacts(i);
-    return '<tr class="' + (i === S.sel ? 'on' : '') + '" data-i="' + i + '"><td>' + (i + 1) +
+    return '<tr class="' + (i === S.sel ? 'on' : '') + '" data-i="' + i + '"' +
+      (v5InfoText(t) ? ' title="' + v5InfoText(t) + '"' : '') + '><td>' + (i + 1) +
       '</td><td style="white-space:nowrap">' + (f.acct ? '#' + f.acct + ' ' : '') + stageTag(f) +
       (f.acct || f.stage ? '' : '\u2014') +
       '</td><td>' + (t.day || '') + '</td><td>' + hhmm(BASE.mins[t.entry_bar]) + '</td><td>' +
@@ -3459,6 +3500,111 @@ const STRATS = {
                  'unless set). Works on any market; the news calendar is USD-only, so a news ' +
                  'filter on a non-USD tape will simply never fire.'}
 };
+/* ---------------- the V5 frozen models ----------------
+   Four rules from the V5 study (R: XGBoost / ranger on NQ and ES, a model per
+   year fitted only on the years before it). R saved each rule's trades -- the
+   minute and the side -- and v5_pack.py checked them against V5's own per-year
+   results before packing them. The page replays that list through the stored-
+   table seam the Breakout replays use; the model never runs here. Stop, target,
+   size, costs, the firm's rules and its flat-by are the panel's, as for any
+   entry rule. A rule whose list has not been exported yet is shown but cannot
+   be picked, with the reason under the row. */
+const pct1 = x => (100 * x).toFixed(1) + '%';
+function v5Note(r){
+  if (!r.available) return '<b>Not available in this build:</b> ' + r.reason + '.';
+  const yrs = r.folds.map(f => f.name.replace('_YTD', ' to 13 Mar') + ' ' + f.n + ' trades' +
+    (f.n ? ', ' + pct1(f.wins / f.n) + ' right' : '')).join('; ');
+  return '<b>Entry:</b> the frozen V5 ' + r.model + ' (' + r.inputs + ') scores NQ every 15 ' +
+    'minutes for the next ' + r.hold + ' minute' + (r.hold > 1 ? 's' : '') + '; this rule trades ' +
+    'only its most confident ' + r.coverage + ': long at a score of ' + r.frozen.buy.toFixed(4) +
+    ' or more, short at ' + r.frozen.sell.toFixed(4) + ' or less (the frozen thresholds; each ' +
+    'year of the history used its own, set on the year before). In at the open of that minute, ' +
+    'out at the close ' + r.hold + ' minute' + (r.hold > 1 ? 's' : '') + ' later unless the stop, ' +
+    'the target, the firm\u2019s flat-by or the account ends it first. <b>The model does not run ' +
+    'here:</b> the page replays the trades it took in R, 2023-01-03 to 2026-03-13, each year\u2019s ' +
+    'from a model fitted only on the years before (' + r.source + '). V5 recorded: ' + yrs +
+    ' (right = the price ' + r.hold + ' minute' + (r.hold > 1 ? 's' : '') + ' later moved its way). ' +
+    'The model picks the minute and the side; stop, target, size, costs and the firm\u2019s rules ' +
+    'are yours and were not part of its test. Many of its trades fall outside 09:30\u201316:00: ' +
+    'they are only on the Full session tape, which picking this rule switches to.';
+}
+V5.rules.forEach(r => {
+  STRATS['v5_' + r.key] = {label: r.label, mode: 'reentry', direction: 'table',
+    sides: 'v5:' + r.key, slotsFromTable: true, holdMin: r.hold, markets: ['NQ'],
+    v5: r.key, tape: 'full', disabled: r.available ? '' : r.reason, note: v5Note(r)};
+});
+const V5_KEYS = V5.rules.map(r => 'v5_' + r.key);
+function v5Rule(key){ return V5.rules.filter(r => r.key === key)[0]; }
+/* one rule's trade table for the loaded tape, cached per tape kind: the same
+   minutes, but a CME-day tape files an evening trade on the next day */
+const V5_CACHE = {};
+function v5Table(key){
+  const cme = !!(BASE && BASE.cmeDay), ck = key + (cme ? ':cme' : ':cal');
+  if (V5_CACHE[ck]) return V5_CACHE[ck];
+  const r = v5Rule(key), t = new Array(r.dt.length);
+  let acc = r.t0;
+  for (let i = 0; i < t.length; i++){ acc += r.dt[i]; t[i] = acc; }
+  const res = Core.tableFromTrades(t, r.s, cme);
+  res.t = t;
+  if (res.dup) showError('V5', new Error(r.label + ': ' + res.dup + ' trades share a minute'));
+  return (V5_CACHE[ck] = res);
+}
+/* what a V5 trade was in R, for the chart tooltip and the ledger row: the UTC
+   minute of the model's decision (the one in the file), its score, its year */
+function v5Info(t){
+  /* only the trades of the run on the chart: Demo's or a loaded file's trades
+     can share a day and minute with a V5 trade and are not one */
+  if (!STLOADED || TRADES !== STLOADED.trades || !STLOADED.v5keys) return null;
+  if (!t || t.entry_bar === undefined) return null;
+  const k = STLOADED.v5keys[t.stage === 'funded' ? 'funded' : 'eval'];
+  if (!k) return null;
+  const tb = v5Table(k), i = tb.at[t.day + ' ' + BASE.mins[t.entry_bar]];
+  if (i === undefined) return null;
+  const r = v5Rule(k);
+  return {label: r.label, utc: new Date(tb.t[i] * 60000).toISOString().slice(0, 16).replace('T', ' '),
+          score: r.q[i] / 1e6, fold: V5.folds[r.f[i]].replace('_YTD', ''), right: !!r.w[i], row: i + 2};
+}
+function v5InfoText(t){
+  const x = v5Info(t);
+  return !x ? '' : 'V5 ' + x.label + ': model time ' + x.utc + ' UTC, score ' + x.score.toFixed(4) +
+    ', ' + x.fold + ' model, V5 recorded it ' + (x.right ? 'right' : 'wrong') + ' (file row ' + x.row + ')';
+}
+/* where every trade in the list went on this run: on the tape or not, taken,
+   stood aside (with the engine's reason), or never reached (after the flat-by,
+   or after the day ended at the cap / pass / payout line) */
+function v5CountHTML(key, r, stage){
+  const tb = v5Table(key), byDay = {};
+  BASE.sessions.forEach(S => { byDay[S.day] = S; });
+  let onTape = 0;
+  for (const dk in tb.sides){
+    if ((ST.from && dk < ST.from) || (ST.to && dk > ST.to)) continue;
+    const S = byDay[dk];
+    if (!S) continue;
+    for (const mk in tb.sides[dk]){
+      const m = +mk;
+      let lo = S.a, hi = S.b;
+      while (lo < hi){ const mid = (lo + hi) >> 1; if (BASE.mins[mid] < m) lo = mid + 1; else hi = mid; }
+      if (BASE.mins[lo] === m) onTape++;
+    }
+  }
+  /* when the two stages trade different rules, each counts its own stage's rows;
+     the list is then split between them, so "not reached" is not shown */
+  const rows = r ? r.trades.filter(t => !stage || t.stage === stage) : [];
+  const taken = rows.filter(t => !t.skipped).length;
+  const why = {};
+  rows.filter(t => t.skipped).forEach(t => { why[t.reason] = (why[t.reason] || 0) + 1; });
+  const aside = Object.keys(why).reduce((a, k) => a + why[k], 0);
+  const notReached = stage ? 0 : onTape - taken - aside;
+  return '<p class="v5count" style="color:var(--ink-faint);font-size:11px">' +
+    '<b>Trades' + (stage ? ' (' + (stage === 'eval' ? 'evaluation' : 'funded') + ' stage)' : '') +
+    ':</b> ' + tb.n + ' in the list \u00b7 ' + onTape + ' on this tape' +
+    (ST.from || ST.to ? ' and span' : '') +
+    (onTape < tb.n && !BASE.cmeDay ? ' (the rest are outside its hours or dates \u2014 the Full session ' +
+      'tape has them)' : '') + ' \u00b7 ' + taken + ' taken \u00b7 ' + aside + ' stood aside' +
+    (aside ? ' (' + Object.keys(why).map(k => why[k] + ' ' + k).join(', ') + ')' : '') +
+    (notReached > 0 ? ' \u00b7 ' + notReached + ' not reached (after the flat-by, or after the day ' +
+      'ended at the cap, pass or payout line)' : '') + '.</p>';
+}
 /* The list mixes five different kinds of thing: a coin flip with no signal
    at all (the control every other row is measured against), a rule computed
    live from whatever bars are loaded, a family of stored, offline-fitted
@@ -3472,6 +3618,7 @@ const STRAT_GROUPS = [
   {label: 'Forest replay \u2014 fitted on NQ only', keys: ['lh5rf', 'lh5rfdir', 'rf2']},
   {label: 'Breakout replay \u2014 fitted on NQ/ES/YM only', keys: ['bo_ti4', 'bo_hit41', 'bo_hit34']},
   {label: 'Breakout, live \u2014 tunable, any market', keys: ['bo_live_hit', 'bo_live_ti']},
+  {label: 'V5 frozen models \u2014 NQ (trades from R)', keys: V5_KEYS},
   {label: 'Build your own \u2014 day, time, news (any market)', keys: ['custom']}
 ];
 /* What one point of each contract is worth, its tick, Lucid Trading's
@@ -3520,33 +3667,45 @@ const CONTRACTS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 const LUCID_PRESETS = {
   '25k':  {label: 'LucidFlex 25k',  balance: 25000,  target: 1250, dailyCap: 625,
            trailDD: 1000, freezeOffset: 100, payoutAt: 2100, payoutDraw: 1000,
-           payoutSplit: 0.9, ticket: 65,     pointValue: 20, commission: 1.5, slippage: 0.25},
+           payoutSplit: 0.9, ticket: 65,     pointValue: 20, commission: 1.5, slippage: 0.25,
+           flatBy: 1005},
   '50k':  {label: 'LucidFlex 50k',  balance: 50000,  target: 3000, dailyCap: 1500,
            trailDD: 2000, freezeOffset: 100, payoutAt: 4100, payoutDraw: 2000,
-           payoutSplit: 0.9, ticket: 105.2,  pointValue: 20, commission: 1.5, slippage: 0.25},
+           payoutSplit: 0.9, ticket: 105.2,  pointValue: 20, commission: 1.5, slippage: 0.25,
+           flatBy: 1005},
   '100k': {label: 'LucidFlex 100k', balance: 100000, target: 6000, dailyCap: 3000,
            trailDD: 3000, freezeOffset: 100, payoutAt: 5600, payoutDraw: 2500,
-           payoutSplit: 0.9, ticket: 215.6,  pointValue: 20, commission: 1.5, slippage: 0.25},
+           payoutSplit: 0.9, ticket: 215.6,  pointValue: 20, commission: 1.5, slippage: 0.25,
+           flatBy: 1005},
   '150k': {label: 'LucidFlex 150k', balance: 150000, target: 9000, dailyCap: 4500,
            trailDD: 4500, freezeOffset: 100, payoutAt: 7600, payoutDraw: 3000,
-           payoutSplit: 0.9, ticket: 295.4,  pointValue: 20, commission: 1.5, slippage: 0.25}
+           payoutSplit: 0.9, ticket: 295.4,  pointValue: 20, commission: 1.5, slippage: 0.25,
+           flatBy: 1005}
 };
+/* flatBy is the FIRM's end of day: every position closed, no new entry, at this
+   New York minute (Lucid: 16:45). It belongs to the account, not to any entry
+   rule; a rule's own earlier exit (the last-hour rules' 15:49) still applies.
+   Another firm is another entry above with its own figures. */
 /* true only when every field the preset sets still matches; a hand edit to any
    one of them (including on the funded stage, since presets set both) drops it */
-function lucidPresetOn(key){
+function lucidPresetOn(key){ return lucidPresetMatch(key, false); }
+/* ignoreFlat: every figure but the flat-by (for reading an older save) */
+function lucidPresetMatch(key, ignoreFlat){
   const p = LUCID_PRESETS[key];
   return ST.balance === p.balance && ST.target === p.target && ST.dailyCap === p.dailyCap &&
     ST.trailDD === p.trailDD && ST.freezeOffset === p.freezeOffset &&
     ST.payoutAt === p.payoutAt && ST.payoutDraw === p.payoutDraw &&
     ST.payoutSplit === p.payoutSplit && ST.ticket === p.ticket &&
-    ST.pointValue === p.pointValue && ST.commission === p.commission;
+    ST.pointValue === p.pointValue && ST.commission === p.commission &&
+    (ignoreFlat || ST.exitMin === p.flatBy);
 }
 function applyLucidPreset(key){
   const p = LUCID_PRESETS[key];
   Object.assign(ST, {balance: p.balance, target: p.target, dailyCap: p.dailyCap,
     trailDD: p.trailDD, freezeOffset: p.freezeOffset, payoutAt: p.payoutAt,
     payoutDraw: p.payoutDraw, payoutSplit: p.payoutSplit, ticket: p.ticket,
-    pointValue: p.pointValue, commission: p.commission, slippage: p.slippage});
+    pointValue: p.pointValue, commission: p.commission, slippage: p.slippage,
+    exitMin: p.flatBy});
 }
 const ST = {
   key: 'reentry', seed: 23,
@@ -3559,7 +3718,8 @@ const ST = {
   trailDD: 1000, freezeOffset: 100, dailyCap: 625, dailyLoss: 0, target: 1250,
   payoutAt: 2100, payoutDraw: 1000, payoutSplit: 0.9, ticket: 65, fundedCap: null,
   from: '', to: '',                /* ISO days; '' = the end of the tape */
-  exitMin: 960,                    /* "Flat by": minute of day; 960 (16:00) = the strategy's own exit or the close */
+  exitMin: 1440,                   /* "Flat by", the firm's end of day: minute of day; 1440 = none (the session end) */
+  flatClock: true,                 /* exitMin is a clock time to be flat BY (marks saves from after that change) */
   ensN: 25,                        /* seeds the Ensemble block runs at once */
   /* the two live Breakout entries: every input Core.liveBreakoutSides takes,
      defaulted to the settings the offline study published (the Hitter is
@@ -3596,6 +3756,22 @@ const STAGE_KEYS = ['key', 'contracts', 'pointValue', 'commission', 'riskMode',
                     'cuDow', 'cuEntryMin', 'cuDir', 'cuNews', 'cuNewsMode',
                     'cuNewsOffset', 'cuNewsOffsetCustom'];
 try { mergeState(ST, JSON.parse(localStorage.getItem('tape.strat') || '{}')); } catch(e){}
+/* A save from before Flat by became the firm's clock time (it has no flatClock):
+   there, 960 (16:00) meant "the strategy's own exit or the close" -- "none" now,
+   1440 -- and any earlier minute X meant out at the close of X, which is flat by
+   X + 1 now; so the same save runs the same trades. A save that was the Lucid
+   preset in every other figure takes Lucid's 16:45, the rule the preset now
+   carries. */
+(() => {
+  let sv = null;
+  try { sv = JSON.parse(localStorage.getItem('tape.strat') || 'null'); } catch(e){}
+  if (sv && sv.exitMin !== undefined && !sv.flatClock){
+    ST.exitMin = ST.exitMin >= 960 ? 1440 : ST.exitMin + 1;
+    const k = Object.keys(LUCID_PRESETS).filter(key => lucidPresetMatch(key, true))[0];
+    if (k && ST.exitMin === 1440) ST.exitMin = LUCID_PRESETS[k].flatBy;
+  }
+  ST.flatClock = true;
+})();
 /* If the stage is priced for a market the entry rule was never fitted on,
    snap it onto the first market that rule does cover, so a stored, offline
    decision (a fill level, a long/short call) is never read against a $/pt
@@ -3660,6 +3836,7 @@ function sidesOf(d, C){
   if (d.live) return Core.liveBreakoutSides(BASE, liveBoParams(d.live, C));
   if (!d.sides) return undefined;
   if (d.sides === 'rf2') return RF2.sides;
+  if (d.v5) return v5Table(d.v5).sides;
   if (d.sides.slice(0, 3) === 'bo:') return BO.sides[d.sides.slice(3)][boRoot(C)];
   return LH5.rf.sides[d.sides];
 }
@@ -3749,7 +3926,8 @@ function buildNewsDays(C){
 function customStageOpts(C){
   const dow = C.cuDow || {};
   const daysOfWeek = [0, 1, 2, 3, 4, 5, 6].filter(n => dow[DOW_NAMES[n]]);
-  const exitMin = ST.exitMin < 960 ? ST.exitMin : null;
+  /* flat BY the firm's time: out at the close of the bar before it */
+  const exitMin = ST.exitMin < 1440 ? ST.exitMin - 1 : null;
   const entry = C.cuNewsOffset === null
     ? {mode: 'reentry', startMin: C.cuEntryMin, endMin: C.cuEntryMin, slotMin: 30,
        direction: C.cuDir, exitMin: exitMin, daysOfWeek: daysOfWeek,
@@ -3775,9 +3953,14 @@ function customStageOpts(C){
 function stageOpts(C){
   if (C.key === 'custom') return customStageOpts(C);
   const d = STRATS[C.key];
-  /* "Flat by" set in the panel overrides the strategy's own exit minute; 16:00
-     (null) is the session close, which every earlier strategy had */
-  const exitMin = ST.exitMin < 960 ? ST.exitMin : (d.exitMin === undefined ? null : d.exitMin);
+  /* the firm's "Flat by" and the strategy's own exit minute: the EARLIER wins,
+     so a 16:45 firm cut-off never moves the last-hour rules' 15:49 exit later.
+     The firm's time is a clock time to be flat BY: 16:45 means out at the close
+     of the 16:44 bar (16:45:00), where an exit minute is the close of that bar.
+     null on both = the session end */
+  const firmFlat = ST.exitMin < 1440 ? ST.exitMin - 1 : null;
+  const ownExit = d.exitMin === undefined ? null : d.exitMin;
+  const exitMin = firmFlat === null ? ownExit : (ownExit === null ? firmFlat : Math.min(firmFlat, ownExit));
   return {
     entry: {mode: d.mode, startMin: d.startMin || 600, endMin: d.endMin,
             slotMin: d.slotMin || 30, orbBars: 26,
@@ -3829,6 +4012,9 @@ function runStrat(){
      matches verbatim. */
   const _opts = stratOpts();
   r.newsSides = (_opts.entry && _opts.entry.slotsFromTable) ? _opts.entry.sides : null;
+  /* the V5 rules this run replayed, so a trade can say which row of R's file it is */
+  const v5of = k => STRATS[k] && STRATS[k].v5 ? STRATS[k].v5 : null;
+  r.v5keys = {eval: v5of(ST.key), funded: v5of(ST.funded.same ? ST.key : ST.funded.key)};
   TRADES = r.trades;
   reindex(); reindexSessions(); lastSig = '';
   document.getElementById('sub').textContent =
@@ -3902,7 +4088,12 @@ function resultHTML(){
      several times), so it must not be read as a probability. */
   const paid = r.accounts.filter(a => a.draws > 0).length;
   const pc = (n, d) => d ? (100 * n / d).toFixed(1) + '%' : '\u2014';
-  return '<h3>Result</h3>' +
+  /* a V5 rule says where every trade of its list went */
+  const split = !ST.funded.same && ST.funded.key !== ST.key;
+  const v5c = (split ? [[ST.key, 'eval'], [ST.funded.key, 'funded']] : [[ST.key, null]])
+    .filter(x => STRATS[x[0]] && STRATS[x[0]].v5)
+    .map(x => v5CountHTML(STRATS[x[0]].v5, r, x[1])).join('');
+  return '<h3>Result</h3>' + v5c +
     '<div class="verdict ' + (net >= 0 ? 'pass' : 'fail') + '">' +
     'NET ' + money(net) +
     '  \u00b7  ' + q.payouts + ' payout' + (q.payouts === 1 ? '' : 's') +
@@ -4410,10 +4601,12 @@ function strategyHTML(){
       : '<div class="szbar" style="margin:0 0 6px"><span style="color:var(--ink-faint);font-size:9.5px">' +
         'pick an instrument below to see its three slippage defaults</span></div>') +
     row('Cost of one evaluation', num('stTick', ST.ticket, 5), 'the ticket, paid once per account bought') +
-    row('Flat by', '<input type="time" id="stFlat" value="' + hhmm(ST.exitMin) +
-        '" step="60" style="width:92px">',
-        'every trade is closed at this minute; 16:00 is the session close. The last-hour ' +
-        'strategies set 15:49 themselves; this box overrides it') +
+    row('Flat by (the firm\u2019s end of day)', '<input type="time" id="stFlat" value="' +
+        (ST.exitMin < 1440 ? hhmm(ST.exitMin) : '') + '" step="60" style="width:92px">',
+        'flat BY this New York time: a position still open is closed at the close of the minute ' +
+        'before (16:45 = out at 16:45:00) and no trade opens in that last minute or after; set by ' +
+        'the firm preset (Lucid 16:45), empty = none, the day\u2019s last bar. A strategy\u2019s own ' +
+        'earlier exit still applies (the last-hour rules close at 15:49)') +
     row('Trailing drawdown', num('stDD', ST.trailDD, 50),
         'both stages: trails the best END-OF-DAY balance; intraday profit does not move it') +
     row('Freeze the floor this far above the start', num('stFrz', ST.freezeOffset, 25),
@@ -4458,15 +4651,23 @@ function strategyHTML(){
             'account passes or is lost.')) + '</p>' +
     '<h3>Entry</h3>' +
     STRAT_GROUPS.map(g => '<div class="szbar"><span class="lbl">' + g.label + '</span>' +
-      g.keys.map(k => '<button class="btn' + (C.key === k ? ' on' : '') +
-        '" data-st="' + k + '">' + STRATS[k].label + '</button>').join('') + '</div>').join('') +
+      g.keys.filter(k => !STRATS[k].disabled).map(k => '<button class="btn' +
+        (C.key === k ? ' on' : '') + '" data-st="' + k + '">' + STRATS[k].label + '</button>').join('') +
+      /* a rule that cannot be run yet is named, with the reason, instead of
+         being a button that does nothing */
+      (g.keys.some(k => STRATS[k].disabled)
+        ? '<span style="color:var(--ink-faint);font-size:9.5px">not yet: ' + g.keys.filter(k =>
+            STRATS[k].disabled).map(k => STRATS[k].label).join(', ') + ' \u2014 ' +
+            STRATS[g.keys.filter(k => STRATS[k].disabled)[0]].disabled + '</span>' : '') +
+      '</div>').join('') +
     '<p style="color:var(--ink-dim);font-size:11.5px">' + d.note + '</p>' +
     '<p style="color:var(--ink-faint);font-size:11px"><b>Exits, the same for every entry rule:</b> a ' +
     'trade is filled at the open of its minute plus your slippage (' + ST.slippage + ' pt) against ' +
     'you, and closes at whichever comes first \u2014 the stop (the points set below, or nearer ' +
     'if the account cannot afford them: then the drawdown floor closes it), the target (the ' +
-    'points set below, or nearer if it would carry the day past the daily cap), or the Flat by ' +
-    'minute (16:00 unless set, 15:49 for the last-hour strategies). After each trade: a day that ' +
+    'points set below, or nearer if it would carry the day past the daily cap), the strategy\u2019s ' +
+    'own exit (15:49 for the last-hour rules, the hold for the timed ones), or the firm\u2019s Flat by ' +
+    'minute, whichever comes first; nothing is ever held into the next day. After each trade: a day that ' +
     'has booked the cap is over; a day that has lost the ' +
     'loss limit is over; a balance that touches the floor is a lost account, and a new ' +
     'evaluation is bought that carries on from the next slot. Reaching the profit target ' +
@@ -4562,6 +4763,8 @@ function strategyHTML(){
     '<button class="btn" id="stClose">Close</button></div>';
 }
 function openStrategy(){
+  /* a V5 rule left selected from an earlier visit opens on its own tape too */
+  if (STRATS[ST.key] && STRATS[ST.key].tape === 'full' && FULL && !BASE.cmeDay) showFullTape(true);
   const sh = document.getElementById('sheet');
   sh.classList.remove('sz');
   sh.innerHTML = strategyHTML();
@@ -4596,6 +4799,12 @@ function bindStrategy(){
   };
   sh.querySelectorAll('button[data-st]').forEach(b => b.onclick = () => {
     C.key = b.dataset.st;
+    /* a rule that trades overnight moves the chart to the full-session tape;
+       the instrument priced (NQ or MNQ) is left as it is */
+    if (STRATS[C.key].tape === 'full'){ if (FULL && !BASE.cmeDay) showFullTape(true); }
+    /* every other rule was built on the 09:30-15:59 tape (the ORB counts its
+       26 bars from the session's first, which is 18:00 on the full one) */
+    else if (BASE === BASEFULL) showRthTape();
     snapMarket(C, STRATS[C.key], true);
     STRES = null; redraw();
   });
@@ -4694,12 +4903,14 @@ function bindStrategy(){
   };
   const flat = $('stFlat');
   if (flat) flat.onchange = () => {
+    if (!flat.value){ ST.exitMin = 1440; stLive(); return; }   /* empty: none */
     const m = flat.value.match(/^(\d{1,2}):(\d{2})$/);
     if (!m) return;
     const v = +m[1] * 60 + +m[2];
-    /* 16:00 or later is the close; before 09:31 makes no sense and is ignored */
-    if (v < 571) { flat.value = hhmm(ST.exitMin); return; }
-    ST.exitMin = v >= 960 ? 960 : v;
+    /* before 09:31 makes no sense as an end of day and is ignored; after 16:59
+       every tape's day has already ended, which is the same as none */
+    if (v < 571) { flat.value = ST.exitMin < 1440 ? hhmm(ST.exitMin) : ''; return; }
+    ST.exitMin = v > 1019 ? 1440 : v;
     stLive();
   };
   const fc = $('stFC');
@@ -5844,6 +6055,40 @@ document.getElementById('demo').onclick = () => {
   document.getElementById('sub').textContent = RAW.subtitle;
   gotoTrade(0);
 };
+/* the built-in full-session tape. keepPricing: switched to from the Strategy
+   panel, where the instrument (NQ or MNQ) the user priced stays as it is */
+function showFullTape(keepPricing){
+  const b = fullTape();
+  if (!b) return false;
+  BASE = b; TRADES = []; DATA_GEN++;   /* every cached view is now stale */
+  dropTapeResults();
+  LOADED_SYM = 'NQ';
+  if (!keepPricing){
+    const nq = INSTRUMENTS.filter(z => z.key === 'NQ')[0];
+    [ST, ST.funded].forEach(C => { C.pointValue = nq.pv; C.commission = nq.comm; });
+    ST.slippage = nq.slip[1];
+  }
+  rebuild(); NAVPTS = null; reindexSessions(); lastSig = '';
+  document.getElementById('sub').textContent = FULL.subtitle;
+  setView(0, Math.min(V.n - 1, 1380));
+  return true;
+}
+/* back to the built-in RTH tape from the Strategy panel: Demo, pricing kept */
+function showRthTape(){
+  BASE = BASE0; TRADES = TRADES0; DATA_GEN++;
+  dropTapeResults();
+  LOADED_SYM = 'NQ';
+  rebuild(); NAVPTS = null; reindexSessions(); lastSig = '';
+  document.getElementById('sub').textContent = RAW.subtitle;
+  setView(0, Math.min(V.n - 1, 390));
+}
+const bfull = document.getElementById('bfull');
+if (!FULL){
+  bfull.disabled = true;
+  bfull.title = 'Not in this build: put NQ_1min_2010-06-07_to_2026-03-13_databento.csv ' +
+    'next to build_viewer3.py and rebuild.';
+}
+bfull.onclick = () => showFullTape(false);
 const dropEl = document.getElementById('drop');
 let dragDepth = 0;
 window.addEventListener('dragenter', e => { e.preventDefault(); dragDepth++; dropEl.classList.add('on'); });
@@ -5888,7 +6133,9 @@ out = (HTML.replace('__CORE__', CORE)
            .replace('__LH5__', json.dumps(LH5, separators=(',', ':')))
            .replace('__RF2__', json.dumps(RF2, separators=(',', ':')))
            .replace('__BO__', json.dumps(BO, separators=(',', ':')))
-           .replace('__NEWSCAL__', json.dumps(NEWSCAL, separators=(',', ':'))))
+           .replace('__NEWSCAL__', json.dumps(NEWSCAL, separators=(',', ':')))
+           .replace('__V5__', json.dumps(V5, separators=(',', ':')))
+           .replace('__FULL__', json.dumps(FULL, separators=(',', ':'))))
 p = r'C:\Users\ruben\nq-backtest\tape_reader.html'
 io.open(p, 'w', encoding='utf-8').write(out)
 print(f'{p}  {len(out)/1e6:.2f} MB')
